@@ -29,4 +29,8 @@ urlpatterns = [
     path('accept_staff/<int:id>',views.accept_staff,name='accept_staff'),  
     path('reject_staff/<int:id>',views.reject_staff,name='reject_staff'),  
 
+
+    path('firstdebitnote',views.firstdebitnote,name='firstdebitnote'),  
+    path('createdebitnote',views.createdebitnote,name='createdebitnote'),  
+
 ]

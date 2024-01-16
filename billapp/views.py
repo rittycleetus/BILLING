@@ -327,3 +327,18 @@ def reject_staff(request,id):
   emp.delete()
   messages.info(request,'Employee Deleted !!')
   return redirect('load_staff_request')
+
+def firstdebitnote(request):
+    # You may need to fetch data or perform any logic related to the first debit note here
+    # For example, check if there are existing debit notes
+    debit_notes_exist = True  # Replace this with your actual logic
+
+    context = {
+        'usr': request.user,
+        'debit_notes_exist': debit_notes_exist,
+    }
+
+    return render(request, 'firstdebitnote.html', context)
+
+def createdebitnote(request):
+  return render(request,'createdebitnote.html')
