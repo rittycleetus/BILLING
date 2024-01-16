@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+
+<body style="background-color: rgba(176, 199, 205, 0.4);">
+    <div class="body-wrapper">
+        <div class="container-fluid">
+            <div class="container p-5" >
+                <div class="row"  >
+                    <div class="col-md-1"></div>
+                    <div class="col-md-10" style="word-wrap: break-word;">
+                        <div class="row" style="background-color: #68020F; box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);">
+                            <h1 class="h1 text-center pt-3 pb-2" style="text-transform:uppercase; font-family: 'Times New Roman', Times, serif;padding-left: 5px;  color: white;">
+                                <b>{{emp.company.company_name}}</b>
+                            </h1>
+                        </div>
+                        
+                        <div class="row mt-2 pt-4 pb-4"  style="background-color: white;box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);">
+                            {% if emp.profile_pic %}
+                            <img src="{{ emp.profile_pic.url }}" alt="" style="width: 50%; margin-left: 27.5%;">
+                            {% else %}
+                            <img src="{% static 'img/profile-pic.png' %}" alt="" style="width: 50%; margin-left: 27.5%;">
+                            {% endif %}
+                            <br><br>
+                        </div>
+                        <div class="row"  style="background-color: white;box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);">
+                            <div class="col pt-3" id="label"> &nbsp;&nbsp; Employee Name</div>
+                            <div class="col pt-3"><h5 class="h5"> <b class="text-capitalize" >: {{emp.user.first_name}} {{emp.user.last_name}}</b></h5></div>   
+                        </div>
+                        <div class="row" style="background-color: white;box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);">
+                            <div class="col pt-3" id="label"> &nbsp;&nbsp; Company Code</div>
+                            <div class="col pt-3"><h5 class="h5"><b>: {{emp.company.company_code}}</b></h5></div>
+                        </div>
+                        <div class="row" style="background-color: white;box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);">
+                            <div class="col pt-3" id="label"> &nbsp;&nbsp; Employee Email</div>
+                            <div class="col pt-3"><h5 class="h5"><b>: {{emp.user.email}}</b></h5></div>
+                        </div>
+                        <div class="row" style="background-color: white;box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);">
+                            <div class="col pt-3 pb-3" id="label"> &nbsp;&nbsp; Employee Contact</div>
+                            <div class="col pt-3"><h5 class="h5"><b>: {{emp.contact}}</b></h5></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-4"></div>
+                    <div class="col-md-4"><a href="{% url 'load_edit_emp_profile' %}" class="btn m-3" style="width: 100%;font-weight: bold; background-color: #68020F; color:white;">Edit Profile</a></div>
+                </div>
+            </div>
+        </div>
+    </div>        
+</body>
+
+{% endblock content %}

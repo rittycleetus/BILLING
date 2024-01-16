@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {% load static %}
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.js"></script>
+  <title>Multiuser Billing Software Vat</title>
+</head>
+
+<style>
+    #welcome{
+        padding-top: 10%;
+        padding-bottom: 12%;
+        background: linear-gradient(to right, #68020F, #F21137);
+    }
+
+    .navbar{
+        background: linear-gradient(to right, #68020F, #F21137);
+    }
+
+    .logo-text {
+      font-family: Arial, sans-serif;
+      font-weight: bold;
+      color: black; 
+    }
+
+    .nav-link{
+        font-size: larger;
+    }
+
+    .navbar-nav .nav-item.active a{
+        background-color: #FFADB0;
+        padding-left: 3vh;
+        padding-right: 3vh;
+    }
+
+    .navbar-nav .nav-item a{
+        padding: 2vh;
+        margin-right: 7vh;
+        border-radius: 1vh;
+    }
+
+    body::-webkit-scrollbar { 
+        display: none;  /* Safari and Chrome */
+    }
+
+    @media screen and (min-width: 1000px) and (max-width: 1200px) {
+        #welcome{
+            padding-top: 19.5%;
+        }
+    }
+
+    @media screen and (min-width: 550px) and (max-width: 775px) {
+        #welcome{
+            padding-top: 15%;
+        }
+    }
+
+    @media screen and (min-width: 390px) and (max-width: 549px) {
+        #welcome{
+            padding-top: 25%;
+        }
+    }
+
+    @media screen and (min-width: 301px) and (max-width: 390px) {
+        #welcome{
+            padding-top:55%;
+        }
+    }
+
+    @media screen and (min-width: 260px) and (max-width: 300px) {
+        #welcome{
+            padding-top:75%;
+        }
+    }
+
+    @media screen and (min-width: 100px) and (max-width: 260px) {
+        #welcome{
+            padding-top: 75%;
+        }
+    }
+
+</style>
+
+<body>
+
+    <nav class="navbar navbar-expand-lg navbar-light fixed-top fixed-top" style="border-radius: 1px solid black;" >
+    <a class="navbar-brand" href="#">
+        <span class="logo-text text-light">
+            Multiuser Billing <br> Software VAT
+        </span>
+    </a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav mr-auto">
+        <li class="nav-item active">
+            <a class="nav-link" href="{% url 'home' %}" style="color: black; margin-left: 5vh;">Home </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link text-white" href="#">About</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link text-white" href="#">Services</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link text-white" href="#">Contact</a>
+        </li>
+        </ul>
+        <a class="btn my-2 my-sm-0" href="{% url 'login' %}" type="button" 
+        style="border: 2px solid #FFADB0; border-radius: 1vh; background-color: #FFADB0; color: black; width: 7%;">Login</a>
+    </div>
+    </nav>
+
+    <section id="welcome">
+        <div class="container">
+            <div class="row d-flex align-items-center">
+            <div class=" col-lg-6 py-5 py-lg-0 order-2 order-lg-1 text-light" data-aos="fade-right" data-aos="fade-left" data-aos-delay="500" data-aos-duration="1000">
+              <h1>Welcome To</h1>
+              <h2>Multiuser Billing Software VAT </h2>
+            </div>
+            <div class="col-lg-6 order-1 order-lg-2 hero-img" data-aos="fade-left" data-aos-delay="500" data-aos-duration="1000">
+              <img src="{% static 'img/multi_usr.png' %}" class="img-fluid" alt="" id="main-img" draggable="false">
+            </div>
+          </div>
+        </div>
+    </section>
+
+
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+
+    <script>
+        AOS.init({
+            once: true,
+        });
+    </script>
+
+</body>
+</html>

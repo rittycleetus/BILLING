@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {% load static %}
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.js"></script>
+  <title>Multiuser Billing Software Vat</title>
+</head>
+
+<style>
+    #welcome{
+        padding-top: 10%;
+        padding-bottom: 12%;
+        background: linear-gradient(to right, #68020F, #F21137);
+    }
+
+    .navbar{
+        background: linear-gradient(to right, #68020F, #F21137);
+    }
+
+
+    .logo-text {
+      font-family: Arial, sans-serif;
+      font-weight: bold;
+      color: black; 
+    }
+
+    .nav-link{
+        font-size: larger;
+    }
+
+    .navbar-nav .nav-item.active a{
+        background-color: #FFADB0;
+        padding-left: 3vh;
+        padding-right: 3vh;
+    }
+
+    .navbar-nav .nav-item a{
+        padding: 2vh;
+        margin-right: 7vh;
+        border-radius: 1vh;
+    }
+
+    body::-webkit-scrollbar { 
+        display: none;  /* Safari and Chrome */
+    }
+
+    form {
+        width: 100%;
+        position: relative;
+        z-index: 9;
+        padding: 77px 61px 66px;
+        background: #fff;
+ }
+
+        .form-holder {
+  position: relative;
+  margin-bottom: 21px; }
+
+
+
+
+.form-control {
+  border: none;
+  border-bottom: 1px solid #e6e6e6;
+  display: block;
+  width: 100%;
+  height: 38px;
+  background: none;
+  padding: 3px 42px 0px;
+  color: #666;
+  font-size: 16px; }
+
+
+    #register {
+  border: none;
+  width: 100%;
+  height: 49px;
+  margin-top: 50px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  background: #F21137;
+  color: #fff;
+  text-transform: uppercase;
+  font-family: "Muli-SemiBold";
+  font-size: 15px;
+  letter-spacing: 2px;
+  transition: all 0.5s;
+  position: relative;
+  overflow: hidden; 
+}
+
+
+@media screen and (min-width: 250px) and (max-width: 400px) {
+
+#welcome{
+    padding-top: 40%;
+    padding-left: 5%;
+    padding-right: 5%;
+}
+}
+
+@media screen and (min-width: 400px) and (max-width: 600px) {
+
+#welcome{
+    padding-top: 30%;
+    padding-left: 5%;
+    padding-right: 5%;
+}
+}
+
+@media screen and (min-width: 600px) and (max-width: 750px) {
+
+#welcome{
+    padding-top: 20%;
+    padding-left: 5%;
+    padding-right: 5%;
+}
+}
+
+@media screen and (min-width: 750px) and (max-width: 1000px) {
+#welcome{
+    padding-top: 20%;
+    padding-left: 20%;
+    padding-right: 20%;
+}
+}
+
+
+</style>
+
+<body>
+
+    <nav class="navbar navbar-expand-lg navbar-light fixed-top fixed-top" style="border-radius: 1px solid black;">
+    <a class="navbar-brand" href="#">
+        <span class="logo-text text-light">
+            Multiuser Billing <br> Software VAT
+        </span>
+    </a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav mr-auto">
+        <li class="nav-item active">
+            <a class="nav-link" href="{% url 'home' %}" style="color: black; margin-left: 5vh;">Home </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="#" style="color: white;">About</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="#" style="color: white;">Services</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="#" style="color: white;">Contact</a>
+        </li>
+        </ul>
+    </div>
+    </nav>
+
+    <section id="welcome">
+        <div class="container">
+            <div class="row d-flex align-items-center">
+            <div class=" col-lg-3 py-5 py-lg-0 order-2 order-lg-1 text-light" data-aos="fade-right">
+            </div>
+
+            <div class="col-lg-6 order-1 order-lg-2 hero-img" data-aos="fade-left" data-aos-delay="500" data-aos-duration="1000">
+                <div class="row">
+                    <form action="{% url 'register_employee' %}" method="post" enctype="multipart/form-data" onsubmit="return validate()" style="border-radius: 3vh;">
+                        {% csrf_token %}
+                        <h3 class="text-center" style="color: rgb(255, 255, 255);text-shadow: 2px 2px 4px #000000;font-weight: bold;">Employee Register</h3>
+                        {% for message in messages %}
+                        <h5>
+                            <div class="alert alert-danger mt-5 message text-center" style="color: black;">
+                                {{ message }}
+                                <a type="button" class="close" data-dismiss="alert" aria-label="Close" style="float: right;">
+                                    <span aria-hidden="true" style="font-size: large; color: #68020F;">&times;</span>
+                                </a>
+                            </div>
+                        </h5>
+                        {% endfor %}
+                        <br>
+                        <div class="form-holder">
+                            <span class="lnr lnr-user"></span>
+                            <input type="text" class="form-control" name="fname" placeholder="First Name" required>
+                        </div>
+                        <div class="form-holder">
+                            <span class="lnr lnr-user"></span>
+                            <input type="text" class="form-control" name="lname" placeholder="Last Name" required>
+                        </div>
+                        <div class="form-holder">
+                            <span class="lnr lnr-envelope"></span>
+                            <input type="email" class="form-control" name="email" placeholder="Mail" required>
+                        </div>
+                        <div class="form-holder">
+                            <span class="lnr lnr-user"></span>
+                            <input type="text" class="form-control" name="uname" placeholder="Username" required>
+                        </div>
+                        <div class="form-holder">
+                            <span class="lnr lnr-phone-handset"></span>
+                            <input type="text" class="form-control" name="phno" placeholder="Phone Number"  
+                            pattern="^\d{10}$" title="Phone Number need to be 10 Digits" required>
+                        </div>
+
+                        <div class="form-holder">
+                            <span class="lnr lnr-lock"></span>
+                            <input type="password" class="form-control" name="pass" id="pass" placeholder="Password" required>
+                        </div>
+                        <div class="form-holder">
+                            <span class="lnr lnr-lock"></span>
+                            <input type="password" class="form-control" name="cpass" id="cpass" placeholder="Confirm Password" required>
+                        </div>
+                        <div class="form-holder">
+                            <span class="lnr lnr-lock"></span>
+                            <input type="file" class="form-control" name="rfile" placeholder="Enter Required Files" >
+                        </div>
+                        <div class="form-holder">
+                            <span class="lnr lnr-lock"></span>
+                            <input type="text" class="form-control" name="ccode" placeholder="Enter Company Code" required>
+                        </div>
+                        <button id="register">
+                            <span>Submit</span>
+                        </button>
+                    </form>
+                </div>
+                <br>
+                <div class="row">
+                    <div class="col-md-3"></div>
+                    <div class="col-md-6 text-center">
+                        <b class="text-white">Already have an Account ?</b>
+                    </div>
+                </div>
+                <br>
+                <div class="row">
+                    <div class="col-md-3"></div>
+                    <div class="col-md-6">
+                        <a href="{% url 'login' %}" class="btn btn-success" style="width:35vh">Login</a>
+                    </div>
+                </div>
+            </div>
+          </div>
+        </div>
+    </section>
+
+    <script>
+        function validate() {
+            var pass = document.getElementById("pass").value;
+            var regex = /^(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+])[A-Za-z\d!@#$%^&*()_+]{8,}$/;
+
+            if (!regex.test(pass)) {
+                alert("Password must be at least 8 characters long and include at least one uppercase letter, one digit, and one special character.");
+                return false;
+            }
+
+            return true;
+        }
+    </script>
+
+
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+</body>
+
+    
+<script>
+    AOS.init({
+        once: true,
+    });
+</script>
+</html>

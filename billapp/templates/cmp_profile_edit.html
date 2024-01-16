@@ -1,0 +1,274 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+
+<style>
+
+   @media (max-width:768px) {
+        .h1{
+            font-size: 15px;
+            
+            
+        }
+        .img-thumbnail{
+            width: 100% !important;
+        }
+        .h5{
+            font-size: 10px ;
+        }
+        #label{
+            font-size: 12px;
+        }
+        #acol{
+            
+            margin-left: 3px !important;
+            margin-bottom: 0px !important;
+            padding-bottom:0px !important ;
+            width: 100% !important;
+            margin-top: 350px !important;
+        }
+        .form-control{
+            width: 100% !important;
+        }
+        #pcol{
+            margin-left: 3px !important;
+            margin-top: 30px !important;
+            padding-top: 0px !important;
+            width: 100% !important;
+            margin-right: 3px !important;
+        }
+        #scond_main_row{
+           height: 500px;
+        }
+        #btn{
+            margin-top: 900px !important;
+            width: 50% !important;
+        }
+        #cname{
+            margin-top: 30px ;
+        }
+        #panno{
+            margin-bottom: 20px;
+        }
+        /* .container{
+            padding: 10px !important;
+        } */
+       
+    }
+
+    .row_style{
+        background-color: #FFD6D7;
+        box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+    }
+
+    .input_style{
+        border:1px solid #062925; 
+        color:black;
+    }
+
+    #non_def_image{
+        width: 50%; 
+        margin-left: 27.5%;  
+        cursor: pointer; 
+        border:1px solid #062925;
+    }
+
+    #def_image{
+        width: 50%; 
+        margin-left: 27.5%; 
+        object-fit: cover; 
+        cursor: pointer; 
+        border:1px solid #062925;
+    }
+</style> 
+<body style="background-color: rgba(176, 199, 205, 0.4);">
+    <div class="body-wrapper">
+        <div class="container-fluid">
+
+            <div class="container p-5" >
+                <form action="{% url 'edit_cmp_profile' %}" method="post" enctype="multipart/form-data" onsubmit="return validate()">
+                {% csrf_token %}
+                    <div class="row mb-5" >
+                        <div class="col-md-1"></div>
+                        <div class="col-md-10" style="color: black;">
+                            {% for message in messages %}
+                            <h5>
+                                <div class="alert alert-danger mt-5 message text-center" style="color: black;">
+                                    {{ message }}
+                                    <a type="button" class="close" data-dismiss="alert" aria-label="Close" style="float: right;">
+                                        <span aria-hidden="true" style="font-size: large; color: #68020F;">&times;</span>
+                                    </a>
+                                </div>
+                            </h5>
+                            {% endfor %}
+                            <div class="row mt-2 pt-4 p-3 row_style">
+                                <div class="col-md-5 mt-5" id="label">
+                                    <br><br><br>
+                                    Profile Picture
+                                </div>
+                                <div class="col" id="imageContainer" >
+                                    {% if cmp.profile_pic %}
+                                    <img src="{{ cmp.profile_pic.url }}" alt="" id="non_def_image" onchange="updateImage(event)">
+                                    {% else %}
+                                    <img src="{% static 'img/profile-pic.png' %}" alt="" id="def_image" onchange="updateImage(event)">
+                                    {% endif %}
+                                    <input type="file" id="fileInput" name="image" accept="image/*" class="form-control" style="opacity: 0;">
+                                    <br>
+                                </div>   
+                            </div>
+                            <div class="row p-3 row_style" id="cname">
+                                <div class="col-md-5 mt-2" id="label">Company Name</div>
+                                <div class="col">
+                                    <input type="text" class="form-control input_style" name="cname"  value="{{cmp.company_name}}" required>
+                                </div>   
+                            </div>
+
+                            <div class="row p-3 row_style" >
+                                <div class="col-md-5 mt-2" id="label">Owner First Name</div>
+                                <div class="col">
+                                    <input type="text" class="form-control input_style" name="fname" id="fname" value="{{cmp.user.first_name}}" required>
+                                </div>   
+                            </div>
+
+                            <div class="row p-3 row_style" >
+                                <div class="col-md-5 mt-2" id="label">Owner Last Name</div>
+                                <div class="col">
+                                    <input type="text" class="form-control input_style" name="lname" id="lname" value="{{cmp.user.last_name}}" required>
+                                </div>   
+                            </div>
+                            
+                            <div class="row p-3 row_style">
+                                <div class="col-md-5 pt-2" id="label">Email</div>
+                                <div class="col pt-2">
+                                    <input type="email" class="form-control input_style" name="email" id="email" value="{{cmp.user.email}}" required>
+                                </div>
+                            </div>
+                            <div class="row p-3 row_style">
+                                <div class="col-md-5 pt-4  pb-3 p-3" id="label">Contact</div>
+                                <div class="col pt-3 pb-3">
+                                    <input type="text" class="form-control input_style" name="phno" id="phno" value="{{cmp.contact}}" 
+                                    pattern="^\d{10}$" title="Phone Number need to be 10 Digits" required>
+                                </div>
+                            </div>
+                            <div class="row p-3 row_style">
+                                <div class="col-md-5 pt-4  pb-3 p-3" id="label">Address</div>
+                                <div class="col pt-3 pb-3">
+                                    <input type="text" class="form-control input_style" name="address" id="address" value="{{cmp.address}}" required>
+                                </div>
+                            </div>
+                            <div class="row p-3 row_style">
+                                <div class="col-md-5 pt-4  pb-3 p-3" id="label">City</div>
+                                <div class="col pt-3 pb-3">
+                                    <input type="text" class="form-control input_style" name="city" id="city" value="{{cmp.city}}" required>
+                                </div>
+                            </div>
+                            <div class="row p-3 row_style">
+                                <div class="col-md-5 pt-4  pb-3 p-3" id="label">State</div>
+                                <div class="col pt-3 pb-3">
+                                    <input type="text" class="form-control input_style" name="state" id="state" value="{{cmp.state}}" required>
+                                </div>
+                            </div>
+                            <div class="row p-3 row_style">
+                                <div class="col-md-5 pt-4  pb-3 p-3" id="label">Country</div>
+                                <div class="col pt-3 pb-3">
+                                    <input type="text" class="form-control input_style" name="country" id="country" value="{{cmp.country}}" required>
+                                </div>
+                            </div>
+                            <div class="row p-3 row_style">
+                                <div class="col-md-5 pt-4  pb-3 p-3" id="label">Pincode</div>
+                                <div class="col pt-3 pb-3">
+                                    <input type="text" class="form-control input_style" name="pincode" id="pincode" value="{{cmp.pincode}}" required>
+                                </div>
+                            </div>
+                            <div class="row p-3 row_style">
+                                <div class="col-md-5 pt-4  pb-3 p-3" id="label">Pan Number</div>
+                                <div class="col pt-3 pb-3">
+                                    <input type="text" class="form-control input_style" name="pan" id="pan" value="{{cmp.pan_number}}" pattern="[A-Z]{5}[0-9]{4}[A-Z]{1}" required>
+                                </div>
+                            </div>
+                            <div class="row p-3 row_style">
+                                <div class="col-md-5 pt-4  pb-3 p-3" id="label">GST Type</div>
+                                <div class="col pt-3 pb-3">
+                                    <select class="form-control input_style" name="gsttype" id="gsttype" onchange="hidinput()">
+                                        <option value="{{cmp.gst_type}}" selected hidden>{{cmp.gst_type}}</option>
+                                        <option value="Registered Business - Regular">Registered Business - Regular</option>
+                                        <option value="Registered Business - Composition">Registered Business - Composition</option>
+                                        <option value="Unregistered Business">Unregistered Business</option>
+                                        <option value="Overseas">Overseas</option>
+                                        <option value="Consumer">Consumer</option>
+                                    </select>
+                                </div>
+                            </div>
+                            {% if cmp.gst_no %}
+                            <div id="gstno">
+                                <div class="row p-3 row_style">
+                                    <div class="col-md-5 pt-4  pb-3 p-3" id="label">GST Number</div>
+                                    <div class="col pt-3 pb-3">
+                                        <input type="text" class="form-control input_style" name="gstnoval" id="gstnoval" value="{{cmp.gst_no}}" pattern="^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$">
+                                    </div>
+                                </div>
+                            </div>
+                            {% else %}
+                            <div id="gstno" style="display: none;">
+                                <div class="row p-3 row_style" id="gstno">
+                                    <div class="col-md-5 pt-4  pb-3 p-3" id="label">GST Number</div>
+                                    <div class="col pt-3 pb-3">
+                                        <input type="text" class="form-control input_style" name="gstnoval" id="gstnoval"  pattern="^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$">
+                                    </div>
+                                </div>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <center>
+                        <input type="submit" class="btn mt-1" id="btn" style="width: 30%; background-color: #68020F; color:white;" value="SUBMIT">
+                    </center>
+                </form>
+            </div>
+        </div>
+    </div> 
+    <script>
+        function validate(){
+            type = document.getElementById("gsttype").value;
+            if (type == "Registered Business - Regular" || type == 'Registered Business - Composition') {
+                if (document.getElementById('gstnoval').value == ''){
+                    alert('Please Provide GST Number')
+                    return false
+                }
+            }
+        }
+
+        function hidinput(){
+            type = document.getElementById("gsttype").value;
+            if (type == "Registered Business - Regular" || type == 'Registered Business - Composition') {
+                document.getElementById('gstno').style.display = 'block'
+            }else{
+                document.getElementById('gstno').style.display = 'none'
+                document.getElementById('gstnoval').value = ''
+            }
+        }
+
+        function updateImage(event) {
+            const fileInput = event.target;
+            const displayImage = document.getElementById('displayImage');
+            const file = fileInput.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    displayImage.src = e.target.result;
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        document.getElementById('fileInput').addEventListener('click', function (event) {
+            event.stopPropagation();
+        });
+
+        document.getElementById('imageContainer').addEventListener('click', function () {
+            document.getElementById('fileInput').click();
+        });
+     </script>       
+</body>
+
+{% endblock %}
