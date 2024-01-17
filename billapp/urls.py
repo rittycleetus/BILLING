@@ -31,6 +31,7 @@ urlpatterns = [
 
 
     path('firstdebitnote',views.firstdebitnote,name='firstdebitnote'),  
-    path('createdebitnote',views.createdebitnote,name='createdebitnote'),  
+    path('createdebitnote',views.createdebitnote,name='createdebitnote'),
+    path('create_party',views.create_party,name='create_party'),  
 
 ]

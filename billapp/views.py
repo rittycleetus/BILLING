@@ -8,6 +8,7 @@ from django.conf import settings
 from django.core.mail import send_mail
 from django.utils import timezone
 from django.http.response import JsonResponse
+from billapp.models import Company,Employee,Party,Item,Unit,ItemTransactions,ItemTransactionsHistory
 
 def home(request):
   return render(request, 'home.html')
@@ -192,6 +193,41 @@ def user_login(request):
         messages.info(request,'Employee do not exist !!')
         return redirect('login')
     
+# def user_login(request):
+#     if request.method == 'POST':
+#         email = request.POST['email']
+#         password = request.POST['pass']
+
+#         try:
+#             user = CustomUser.objects.get(email=email)
+#             log_user = auth.authenticate(request, username=user.username, password=password)
+
+#             if log_user is not None:
+#                 # Assuming you have 'company_id' and 'user_id' fields in your CustomUser model
+#                 request.session['company_id'] = user.company_id
+#                 request.session['user_id'] = user.id
+
+#                 auth.login(request, log_user)
+
+#                 if user.is_company == 1:
+#                     return redirect('dashboard')
+#                 else:
+#                     emp = Employee.objects.get(user=user)
+#                     if emp.is_approved == 0:
+#                         messages.info(request, 'Employee is not Approved !!')
+#                         return redirect('login')
+#                     else:
+#                         return redirect('dashboard')
+
+#             messages.info(request, 'Invalid Login Details !!')
+#             return redirect('login')
+
+#         except CustomUser.DoesNotExist:
+#             messages.info(request, 'User does not exist !!')
+#             return redirect('login')
+
+#     # Render your login template
+#     return render(request, 'login.html')
 
 def dashboard(request):
   context = {'usr':request.user}
@@ -341,4 +377,88 @@ def firstdebitnote(request):
     return render(request, 'firstdebitnote.html', context)
 
 def createdebitnote(request):
-  return render(request,'createdebitnote.html')
+    parties = Party.objects.all()  # Fetch all parties from the database
+    bill=PurchaseBill.objects.all()
+    context = {'usr': request.user, 'parties': parties,'bill':bill}
+    
+    if request.method == 'POST':
+        # Assuming company_id and user_id are available in the session
+        company_id = request.session.get('company_id')
+        user_id = request.session.get('user_id')
+    
+        if company_id is None or user_id is None:
+            # Handle the case where company_id or user_id is not available
+            return JsonResponse({'status': 'error', 'message': 'Company ID or User ID not available'})
+        
+        party_id = request.POST.get('party')
+        selected_party = Party.objects.get(id=party_id)
+        
+        # Process the form data for creating a debit note
+        # Modify the following lines based on your debit note form data and model
+        # debit_note_number = request.POST.get('debit_note_number')
+        # amount = request.POST.get('amount')
+        # # ... other debit note fields ...
+
+        # Optionally, return the selected party data along with the success status
+        return render(request, 'createdebitnote.html', {'usr': request.user, 'parties': parties, 'selected_party': selected_party})
+    
+    else:
+        return render(request, 'createdebitnote.html', context)
+    
+def create_party(request):
+    if request.method == 'POST':
+      
+        company_id = request.session.get('company')
+
+        user_id = request.session.get('user')
+        
+
+      
+
+        
+        party_name = request.POST.get('partyname')
+        trn_no = request.POST.get('trn_no')
+        contact = request.POST.get('contact')
+        trn_type = request.POST.get('trn_type')
+        state = request.POST.get('state')
+        address = request.POST.get('address')
+        email = request.POST.get('email')
+        openingbalance = request.POST.get('balance')
+        payment = request.POST.get('paymentType')
+        current_date = request.POST.get('currentdate')
+        
+       
+        
+        additionalfield1 = request.POST.get('additionalfield1')
+        additionalfield2 = request.POST.get('additionalfield2')
+        additionalfield3 = request.POST.get('additionalfield3')
+
+      
+        new_party = Party(
+            company_id=company_id,
+            user_id=user_id,
+            party_name=party_name,
+            trn_no=trn_no,
+            contact=contact,
+            trn_type=trn_type,
+            state=state,
+            address=address,
+            email=email,
+            openingbalance=openingbalance,
+            payment=payment,
+           
+            current_date=current_date,
+            
+            additionalfield1=additionalfield1,
+            additionalfield2=additionalfield2,
+            additionalfield3=additionalfield3,
+        )
+        new_party.save()
+
+       
+        parties = Party.objects.filter(company_id=company_id, user_id=user_id)
+
+        return render(request, 'createdebitnote.html', {'status': 'success', 'message': 'Party created successfully', 'parties': parties})
+    else:
+      
+        return JsonResponse({'status': 'error'})

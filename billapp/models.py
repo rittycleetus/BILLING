@@ -4,6 +4,7 @@ from django.contrib.auth.models import AbstractUser
 
 class CustomUser(AbstractUser):
     is_company = models.BooleanField(default=0)
+    
 
 class Company(models.Model):
     user = models.OneToOneField(CustomUser, on_delete=models.CASCADE, null=True,blank=True)
@@ -27,24 +28,7 @@ class Employee(models.Model):
     is_approved = models.BooleanField(default=0)
     profile_pic = models.ImageField(null=True,blank = True,upload_to = 'image/employee')
 
-class Party(models.Model):
-    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE,null=True,blank=True)
-    company = models.ForeignKey(Company, on_delete=models.CASCADE,null=True,blank=True)
-    party_name = models.CharField(max_length=100)
-    trn_no = models.CharField(max_length=100,null=True,blank=True)
-    contact = models.CharField(max_length=255,null=True,blank=True)
-    trn_type = models.CharField(max_length=255,null=True,blank=True)
-    state = models.CharField(max_length=100,null=True,blank=True)
-    address = models.CharField(max_length=100,null=True,blank=True)
-    email = models.EmailField(max_length=100,null=True,blank=True)
-    openingbalance = models.CharField(max_length=100,default='0',null=True,blank=True)
-    payment = models.CharField(max_length=100,null=True,blank=True)
-    creditlimit = models.CharField(max_length=100,default='0',null=True,blank=True)
-    current_date = models.DateField(max_length=255,null=True,blank=True)
-    End_date = models.CharField(max_length=255,null=True,blank=True)
-    additionalfield1 = models.CharField(max_length=100,null=True,blank=True)
-    additionalfield2 = models.CharField(max_length=100,null=True,blank=True)
-    additionalfield3 = models.CharField(max_length=100,null=True,blank=True)
+
 
 class Item(models.Model):
     user =    models.ForeignKey(CustomUser,on_delete=models.CASCADE,null=True,blank=True)
@@ -64,6 +48,33 @@ class Item(models.Model):
     itm_stock_in_hand = models.IntegerField(default=0)
     itm_at_price = models.IntegerField(default=0)
     itm_date = models.DateField()
+    
+class Party(models.Model):
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE,null=True,blank=True)
+    company = models.ForeignKey(Company, on_delete=models.CASCADE,null=True,blank=True)
+    
+    party_name = models.CharField(max_length=100)
+    trn_no = models.CharField(max_length=100,null=True,blank=True)
+    contact = models.CharField(max_length=255,null=True,blank=True)
+    trn_type = models.CharField(max_length=255,null=True,blank=True)
+    state = models.CharField(max_length=100,null=True,blank=True)
+    address = models.CharField(max_length=100,null=True,blank=True)
+    email = models.EmailField(max_length=100,null=True,blank=True)
+    openingbalance = models.CharField(max_length=100,default='0',null=True,blank=True)
+    
+    creditlimit = models.CharField(max_length=100,default='0',null=True,blank=True)
+    current_date = models.DateField(max_length=255,null=True,blank=True)
+    End_date = models.DateField(max_length=255,null=True,blank=True)
+    additionalfield1 = models.CharField(max_length=100,null=True,blank=True)
+    additionalfield2 = models.CharField(max_length=100,null=True,blank=True)
+    additionalfield3 = models.CharField(max_length=100,null=True,blank=True)
+    PAYMENT_CHOICES = [
+        ('To Pay', 'To Pay'),
+        ('To Receive', 'To Receive'),
+    ]
+
+    payment = models.CharField(max_length=100, choices=PAYMENT_CHOICES, null=True, blank=True)
+
 
 class Unit(models.Model):
     company =    models.ForeignKey(Company,on_delete=models.CASCADE,null=True,blank=True)
@@ -96,6 +107,30 @@ class ItemTransactionsHistory(models.Model):
     hist_trans_current_qty = models.IntegerField(default=0)
     hist_trans_adjusted_qty = models.IntegerField(default=0)
 
+class PurchaseBill(models.Model):
+    billno = models.IntegerField(default=0,null=True,blank=True)
+    staff = models.ForeignKey(CustomUser,on_delete=models.CASCADE,null=True,blank=True)
+    company = models.ForeignKey(Company,on_delete= models.CASCADE,null=True,blank=True)
+    party = models.ForeignKey(Party, on_delete=models.CASCADE)
+    billdate = models.DateField()
+    subtotal = models.IntegerField(default=0, null=True)
+    VAT = models.CharField(max_length=100,default=0, null=True)
+    taxamount = models.CharField(max_length=100,default=0, null=True)
+    adjust = models.CharField(max_length=100,default=0, null=True)
+    grandtotal = models.FloatField(default=0, null=True)
+    advance=models.CharField(null=True,blank=True,max_length=255)
+    balance=models.CharField(null=True,blank=True,max_length=255)
+    bill_no = models.IntegerField(default=0, null=True)
+    
+
+class PurchaseBillItem(models.Model):
+    purchasebill = models.ForeignKey(PurchaseBill,on_delete=models.CASCADE)
+    company = models.ForeignKey(Company,on_delete=models.CASCADE)
+    product = models.ForeignKey(Item,on_delete=models.CASCADE)
+    qty = models.IntegerField(default=0, null=True)
+    total = models.IntegerField(default=0, null=True)
+    VAT = models.CharField(max_length=100)
+    discount = models.CharField(max_length=100,default=0, null=True)
 # class DebitNote(models.Model):
 #     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, null=True, blank=True)
 #     company = models.ForeignKey(Company, on_delete=models.CASCADE,null=True,blank=True)
