@@ -1,4 +1,4 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import get_object_or_404, render, redirect
 from .models import *
 from django.contrib import messages
 from django.contrib.auth.models import auth
@@ -8,7 +8,7 @@ from django.conf import settings
 from django.core.mail import send_mail
 from django.utils import timezone
 from django.http.response import JsonResponse
-from billapp.models import Company,Employee,Party,Item,Unit,ItemTransactions,ItemTransactionsHistory
+from billapp.models import Company,Employee,Party,Item,Unit,ItemTransactions,ItemTransactionsHistory,DebitNote
 
 def home(request):
   return render(request, 'home.html')
@@ -166,32 +166,85 @@ def change_password(request):
       messages.info(request,'Password reset mail sent !!')
       return redirect('forgot_password')
 
-def user_login(request):
-  if request.method == 'POST':
-    email = request.POST['email']
-    cpass = request.POST['pass']
 
-    try:
-      usr = CustomUser.objects.get(email=email)
-      log_user = auth.authenticate(username = usr.username, password = cpass)
-      if log_user is not None:
-        if usr.is_company == 1:
-          auth.login(request, log_user)
-          return redirect('dashboard')
-        else:
-          emp = Employee.objects.get(user=usr)
-          if emp.is_approved == 0:
-            messages.info(request,'Employee is not Approved !!')
+def user_login(request):
+    if request.method == 'POST':
+        email = request.POST['email']
+        cpass = request.POST['pass']
+
+        try:
+            usr = CustomUser.objects.get(email=email)
+            log_user = auth.authenticate(username=usr.username, password=cpass)
+
+            if log_user is not None:
+                if usr.is_company == 1:
+                    # For company user, set company_id in the session
+                    request.session['company'] = usr.id
+                else:
+                    try:
+                        emp = Employee.objects.get(user=usr)
+                        if emp.is_approved == 0:
+                            messages.info(request, 'Employee is not Approved !!')
+                            return redirect('login')
+                        else:
+                            # For employee user, set company_id in the session
+                            request.session['company'] = emp.company.id if emp.company else None
+                    except Employee.DoesNotExist:
+                        # Handle the case where the user is not an employee
+                        request.session['company'] = None
+
+                # Set user_id in the session
+                request.session['user'] = usr.id
+
+                auth.login(request, log_user)
+                return redirect('dashboard')
+
+            messages.info(request, 'Invalid Login Details !!')
             return redirect('login')
-          else:
-            auth.login(request, log_user)
-            return redirect('dashboard')
-      messages.info(request,'Invalid Login Details !!')
-      return redirect('login')
+
+        except CustomUser.DoesNotExist:
+            messages.info(request, 'User does not exist !!')
+            return redirect('login')
+
+    return render(request, 'login.html')
+
+
+
+
+
+
+
+
+
+
+
+#####SECOND ONE CHANGED ON 18/01/2024#####
+# def user_login(request):
+#   if request.method == 'POST':
+#     email = request.POST['email']
+#     cpass = request.POST['pass']
+
+#     try:
+#       usr = CustomUser.objects.get(email=email)
+#       log_user = auth.authenticate(username = usr.username, password = cpass)
+#       if log_user is not None:
+#         if usr.is_company == 1:
+#           auth.login(request, log_user)
+#           return redirect('dashboard')
+#         else:
+#           emp = Employee.objects.get(user=usr)
+#           if emp.is_approved == 0:
+#             messages.info(request,'Employee is not Approved !!')
+#             return redirect('login')
+#           else:
+#             auth.login(request, log_user)
+#             return redirect('dashboard')
+#       messages.info(request,'Invalid Login Details !!')
+#       return redirect('login')
     
-    except:
-        messages.info(request,'Employee do not exist !!')
-        return redirect('login')
+#     except:
+#         messages.info(request,'Employee do not exist !!')
+#         return redirect('login')
     
 # def user_login(request):
 #     if request.method == 'POST':
@@ -377,34 +430,44 @@ def firstdebitnote(request):
     return render(request, 'firstdebitnote.html', context)
 
 def createdebitnote(request):
-    parties = Party.objects.all()  # Fetch all parties from the database
-    bill=PurchaseBill.objects.all()
-    context = {'usr': request.user, 'parties': parties,'bill':bill}
-    
-    if request.method == 'POST':
-        # Assuming company_id and user_id are available in the session
-        company_id = request.session.get('company_id')
-        user_id = request.session.get('user_id')
-    
-        if company_id is None or user_id is None:
-            # Handle the case where company_id or user_id is not available
-            return JsonResponse({'status': 'error', 'message': 'Company ID or User ID not available'})
-        
-        party_id = request.POST.get('party')
-        selected_party = Party.objects.get(id=party_id)
-        
-        # Process the form data for creating a debit note
-        # Modify the following lines based on your debit note form data and model
-        # debit_note_number = request.POST.get('debit_note_number')
-        # amount = request.POST.get('amount')
-        # # ... other debit note fields ...
+    parties = Party.objects.all()
+    bills = PurchaseBill.objects.all()
 
-        # Optionally, return the selected party data along with the success status
-        return render(request, 'createdebitnote.html', {'usr': request.user, 'parties': parties, 'selected_party': selected_party})
-    
+    # Fetch the company based on user's role
+    if request.user.is_company:
+        cmp = request.user.company
     else:
-        return render(request, 'createdebitnote.html', context)
-    
+        cmp = request.user.employee.company
+
+   
+    items = Item.objects.filter(company=cmp)
+
+    context = {
+        'usr': request.user,
+        'parties': parties,
+        'bills': bills,
+        'items': items,
+        'company_id': cmp.id,  # Pass company_id to the template
+    }
+
+    if request.method == 'POST':
+        user_id = request.session.get('user')
+
+        if user_id is None:
+            return JsonResponse({'status': 'error', 'message': 'User ID not available'})
+
+        party_id = request.POST.get('party')
+        bill_id = request.POST.get('bill')
+        selected_party = get_object_or_404(Party, id=party_id)
+        selected_bill = get_object_or_404(PurchaseBill, id=bill_id)
+
+        debit_note = DebitNote.objects.create(party=selected_party, bill=selected_bill, user=request.user, company=cmp)
+
+        return render(request, 'createdebitnote.html', {'usr': request.user, 'parties': parties, 'bills': bills, 'selected_party': selected_party, 'selected_bill': selected_bill, 'items': items, 'company_id': cmp.id})
+
+    return render(request, 'createdebitnote.html', context)
+
+
 def create_party(request):
     if request.method == 'POST':
       
@@ -457,8 +520,78 @@ def create_party(request):
 
        
         parties = Party.objects.filter(company_id=company_id, user_id=user_id)
-
+        messages.success(request, 'Party created successfully')
         return render(request, 'createdebitnote.html', {'status': 'success', 'message': 'Party created successfully', 'parties': parties})
     else:
       
         return JsonResponse({'status': 'error'})
+
+def item_create1(request):
+   context = {
+        'usr': request.user}
+   return render(request,'item_create.html',context)
+
+def item_create(request):
+    if request.method == 'POST':
+        # Extract data from the POST request
+        itm_type = request.POST.get('itm_type')
+        itm_name = request.POST.get('name')
+        itm_hsn = request.POST.get('hsn')
+        itm_unit = request.POST.get('unit')
+        itm_taxable = request.POST.get('taxable_result')
+        itm_vat = request.POST.get('vat')
+        itm_sale_price = request.POST.get('sale_price')
+        itm_purchase_price = request.POST.get('purchase_price')
+        itm_stock_in_hand = request.POST.get('stock_in_hand')
+        itm_at_price = request.POST.get('at_price')
+        itm_date = request.POST.get('itm_date')
+
+        # Create and save the Item instance
+        item = Item(
+            user=request.user,  # Assuming you have user information in your request
+            company=request.user.company,  # Assuming you have company information related to the user
+            itm_type=itm_type,
+            itm_name=itm_name,
+            itm_hsn=itm_hsn,
+            itm_unit=itm_unit,
+            itm_taxable=itm_taxable,
+            itm_vat=itm_vat,
+            itm_sale_price=itm_sale_price,
+            itm_purchase_price=itm_purchase_price,
+            itm_stock_in_hand=itm_stock_in_hand,
+            itm_at_price=itm_at_price,
+            itm_date=itm_date
+        )
+        item.save()
+
+        # You can also handle the creation of the Unit instance here if needed
+        # For example, if you have a separate model for Unit and want to associate it with the Item.
+
+        # Notify the user with a success message using JavaScript alert
+        return render(request, 'item_create.html', {'success_message': 'Item created successfully!'})
+
+    # If the request is not POST, render the form page
+    return render(request, 'item_create.html')
+
+
+def create_unit(request):
+    if request.method == 'POST':
+        unit_name = request.POST.get('unit_name', '')
+        company_id = request.user.company.id
+        print(f"Company ID: {company_id}")
+
+        # Assuming you have a Company instance associated with the request
+        # You may need to adjust this based on how you associate the unit with the company
+        company = Company.objects.get(id=request.user.company.id)
+
+        # Create a new Unit instance
+        unit = Unit.objects.create(
+            company=company,
+            unit_name=unit_name
+        )
+
+    
+        return render(request, 'item_create.html', {'success_message': 'Unit created successfully!','unit_name': unit.unit_name,})
+
+    # Handle other HTTP methods if needed
+    return JsonResponse({'success': False, 'message': 'Invalid request method'})

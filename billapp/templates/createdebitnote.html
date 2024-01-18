@@ -2,6 +2,15 @@
 {% load static %}
 {% block content %}
 <head>
+ <!-- Include Select2 CSS -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" integrity="sha384-GLhlTQ8iM4jQqR8r+cktRTt8Zp1eklHfEAg/8mtP1wwj1z9EGg6S5q6Z1PI5piJ6" crossorigin="anonymous">
+
+<!-- Include jQuery (Select2 requires it) -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha384-/KJ5oZqUeaOr5b+6S6Zkzep5l+M5R2T/W8C86gN7rqlTzq/WW6C+0cu1hKj2ktWZ" crossorigin="anonymous"></script>
+
+<!-- Include Select2 JS -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js" integrity="sha384-GLhlTQ8iM4jQqR8r+cktRTt8Zp1eklHfEAg/8mtP1wwj1z9EGg6S5q6Z1PI5piJ6" crossorigin="anonymous"></script>
+
 <style>
     .form-control {
         border: 2px solid #FFD6D7;
@@ -73,7 +82,10 @@
         transform: translateX(18px);
     }
 
-
+    .custom-width {
+    width: 300px !important;
+    /* Add other styles as needed */
+  }
     .slider.round {
         border-radius: 34px;
     }
@@ -89,11 +101,79 @@
         margin-right: 1rem;
     }
 
-   
+    td{
+    border-right: 1px solid rgb(12, 12, 12);
+  }
+  th{
+    width: 300px;
+  }
+
+  tbody:hover td:not(:last-child){
+    border-right: 1px solid #68020F;
+  }
     .save-button:hover {
         background-color: #fff;
         color: #007bff;
     }
+    input{
+    background-color: black;
+    color: white;
+  }
+
+  .bs {
+    box-shadow: 2px 2px 10px 3px rgba(0, 0, 0, 0.397);
+  }
+
+  .bs_sm {
+    box-shadow: inset 2px 2px 5px 3px rgba(0, 0, 0, 0.199);
+  }
+
+  .tb {
+    color: black;
+  }
+
+  .tg {
+    color: rgb(0, 140, 7);
+  }
+
+  .tr {
+    color: rgb(218, 0, 0);
+  }
+
+  .btn_add {
+    background-color: orange;
+    color: black;
+  }
+
+  .btn_add:hover {
+    background-color: rgb(234, 152, 0);
+    color: black;
+  }
+
+  ::-webkit-scrollbar {
+    display: none
+  }
+  select option:hover{
+    background-color: black;
+  }
+
+  input[type="radio"]:checked{
+    accent-color: #68020F;
+  }
+
+  .input_border{
+    border: 1px solid #68020F;
+  }
+
+  .button_border{
+    border: 1px solid #68020F;
+    color: #68020F;
+  }
+
+  .button_border:hover{
+    background-color:#68020F;
+    color: white;
+  }
 </style>
 <!-- jQuery -->
 <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
@@ -110,18 +190,21 @@
             {% csrf_token %}
             <h1 class="mb-4">DEBIT NOTE</h1>
      
-
+            {% if messages %}
+            <div class="messages">
+                {% for message in messages %}
+                    <div style="border: 1px solid #000; padding: 10px; margin: 10px 0; background-color: #f8f9fa; color: #000; {% if message.tags == 'success' %}background-color: #d4edda; border-color: #c3e6cb; color: #155724;{% endif %}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
             <div class="row">
+
                 <div class="col-md-6">
                     <!-- Left side of the form -->
 
-
-
-
-
-
-
-                    
+                  
                     <div class="form-group">
                         <label for="party">Party</label>
                         <div class="input-group">
@@ -132,8 +215,8 @@
                                         data-contact="{{ party.contact }}" 
                                         data-address="{{ party.address }}" 
                                         data-openingbalance="{{ party.openingbalance }}"
-                                        data-billno="{{ party.billno }}"
-                                        data-billdate="{{ party.billdate }}">
+                                        data-billno="{{ party.bill.billno }}"
+                                        data-billdate="{{ party.bill.billdate }}">
                                         {{ party.party_name }}
                                     </option>
                                 {% endfor %}
@@ -175,34 +258,91 @@
                         <input type="date" class="form-control" id="current-date" value="">
                     </div>
                     <br>
-                    <div class="form-group">
-                        <label for="bill_no">Bill No</label>
-                        <select class="form-control" id="bill_no" name="bill_no">
-                            <option value="">-- Select Bill No --</option>
-                            <!-- Loop through the associated bills of the selected party and populate options -->
-                            {% for bill in selected_party.bills.all %}
-                                <option value="{{ bill.bill_no }}">{{ bill.bill_no }}</option>
+                    <!-- <div class="form-group">
+                        <label for="bill">Select Bill:</label>
+                        <select id="bill" name="bill">
+                            {% for bill in bills %}
+                                <option value="{{ bill.id }}">{{ bill.bill_no }} - {{ bill.billdate }}</option>
                             {% endfor %}
                         </select>
-                    </div>
-                    <br>
+                    </div> -->
                     <div class="form-group">
-                        <label for="bill_date">Bill Date</label>
-                      
-                            <input type="text" class="form-control" id="bill_date" name="bill_date" value="{{ selected_party.bills.first.bill_date }}" readonly>
-                     
+                        <label for="bill">Select Bill</label>
+                        {% if selected_party.bills.exists %}
+                            <select id="bill" name="bill">
+                                {% for bill in selected_party.bills.all %}
+                                    <option value="{{ bill.id }}">{{ bill.bill_no }}</option>
+                                {% endfor %}
+                            </select>
+                        {% else %}
+                            <input type="text" class="form-control" value="No bills available for the selected party.">
+                        {% endif %}
                     </div>
-       
+                 <br>
+                 <div class="form-group">
+                    <label for="billdate">Bill Date</label>
+                    <input type="text" class="form-control" value="{{ selected_party.bills.first.billdate }}">
+                </div>
+                </div>
+                <br><br><br>
+                <div style="overflow-x:auto;">  
+                    <table class="table table-hover  mt-5 " style="background-color: white;box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);">
+                        <thead style="background: #68020F;">
+                          <tr class="text-center text-light">
+                            <th scope="col"class="custom-width" style="border-right: 1px solid;"><b>#</b></th>
+                            <th scope="col" style="border-right: 1px solid;"><b>PRODUCT</b></th>
+                            <th scope="col" style="border-right: 1px solid;"><b>HSN</b></th>
+                            <th scope="col" style="border-right: 1px solid;"><b>QTY</b></th>
+                            <th scope="col" style="border-right: 1px solid;"><b>PRICE</b></th>
+                            <th scope="col" style="border-right: 1px solid;"><b>TAX(%)</b></th>
+                            <th scope="col" style="border-right: 1px solid;"><b>DISCOUNT</b></th>
+                            <th scope="col" style="border-right: 1px solid;"><b>TOTAL</b></th>
+                            <th scope="col" ><b>ACTION</th>
+                            </tr>
+                        </thead>
+                     
+                   
+                        <tr style="background-color: #FFADB0;">
+                            <td style="color: black;">{{ forloop.counter0|add:1 }}</td>
+                            <td style="width: 140px;">
+                                <select name="selected_item[]" onchange="fillItemDetails(this)" style="width: 120px;">
+                                    <option value="">Select Product</option>
+                                    {% for item in items %}
+                                    
+                                        <option value="{{ item.id }}" data-hsn="{{ item.itm_hsn }}" data-price="{{ item.itm_purchase_price }}" data-tax="{{ item.itm_taxable }}">{{ item.itm_name }}</option>
+                                    {% endfor %}
+                                </select>
+                                &nbsp;&nbsp;&nbsp;
+                                <a href="{% url 'item_create1' %}" class="btn btn-outline-secondary" style="background-color: maroon; height: 22px; float: right; width: 27px; text-align: center; padding: 1px; position: absolute;"><b>+</b></a>
+                            </td>
+                            <td><span id="hsn"></span></td>
+                            <td><input type="number" name="item_quantity[]" class="form-control" value="" oninput="updateTotalAmount(this)"></td>
+                            <td><span id="purchasePrice"></span></td>
+                            <td><span id="taxable"></span></td>
+                            <td><input type="number" name="item_discount[]" class="form-control"></td>
+                            <td><input type="number" name="item_total_amount[]" readonly class="form-control"></td>
+                            <td><button type="button" onclick="removeRow(this)">Remove</button></td>
+                        </tr>
+                        
+                     
+                     
+                    </tbody>
+                    </table>
+                    <!-- + button to add a new row -->
+                    <button type="button" onclick="addRow()">+</button>
+                </div>
+            </div>
+                  
             <button type="submit" class="btn btn-primary">Submit</button>
         </form>
     </div>
 </div>
 
 <div class="modal" id="createPartyModal" tabindex="-1" role="dialog">
-    <div class="modal-dialog modal-lg" role="document" style="max-width: 1200px;">
+    <div class="modal-dialog modal-lg" role="document" style="max-width: 1200px;height: 300px;">
         <div class="modal-content" style="background-color: #FFD6D7;">
             <div class="modal-header">
-                <h3 class="modal-title"></h3>
+                <h2 class="modal-title" style="font-size: 2.5rem;"><b>Create New Party</b></h2>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
@@ -216,7 +356,7 @@
                 <div class="body-wrapper">
                     <div class="container-fluid">
                         <div class="col-md-3">
-                            <a class="text-dark" style="font-size: 1.5rem;"><b>Create New Party</b></a>
+                            <a class="text-dark" style="font-size: 1.5rem;">Add New Party</a>
                         </div>
                         <div class="col-md-9 row" style="margin-top: 3vw;">
                             <div class="col-md-4">
@@ -240,7 +380,7 @@
                                 <a href="javascript:void(0);" onclick="toggleSection('Credit')"
                                     style="color: black; margin-left: 3vw;"><b>Credit & Balances<b></a>
                                 <a href="javascript:void(0);" onclick="toggleSection('additionalfield')"
-                                    style="color: black; margin-left: 3vw;">Aditional Field</a>
+                                    style="color: black; margin-left: 3vw;">Additional Fields</a>
                             </div>
                         </div>
                         <fieldset id="GST" class="GST">
@@ -279,30 +419,10 @@
                             <input type="radio" class="radio-input" id="toReceiveRadio" name="paymentType" value="To Receive" style="margin-right: 2vw; margin-left: 5px;">
                         </div>
                     
-                        <!-- <label class="switchbox mt-4" style="margin-right: 1vw;">Credit Limit</label>
-                        <label class="switch">
-                            <input type="checkbox" id="toggle">
-                            <span class="slider round"></span>
-                        </label>
-                        <div class="col-md-5 mt-4" id="text-box" style="display: none;">
-                            <input style="background-color: white;" type="number" class="form-control" name="creditlimit" placeholder="Credit Limit">
-                        </div>
-                    
-                        <script>
-                            const toggleButton = document.getElementById("toggle");
-                            const textBox = document.getElementById("text-box");
-                    
-                            toggleButton.addEventListener("change", function () {
-                                if (toggleButton.checked) {
-                                    textBox.style.display = "block";
-                                } else {
-                                    textBox.style.display = "none";
-                                }
-                            });
-                        </script> -->
+                       
                     
                         <div class="col-md-5 mt-4">
-                            <input type="date" class="form-control" id="current-date" name="currentdate" placeholder="Current Date" style="background-color: white;">
+                            <input type="date" class="form-control" id="current-date1" name="currentdate" placeholder="Current Date" style="background-color: white;">
                         </div>
                     
             
@@ -332,6 +452,21 @@
                 </form>
                 </div>
                 
+
+
+          
+
+
+
+
+
+
+
+
+
+
+
+
                 <script>
                     function toggleSection(sectionId) {
                         // Get all the fieldsets
@@ -360,14 +495,16 @@
                     return `${year}-${month}-${day}`;
                 }
             
-                // Get the current date
-                const currentDateInput = document.getElementById("current-date");
-                const currentDate = new Date();
-            
-                // Format the date as "YYYY-MM-DD" and set it in the input field
-                currentDateInput.value = formatDate(currentDate);
-            
-            
+             
+    // Get the current date
+    let currentDate = new Date();
+
+    // Format the date to 'YYYY-MM-DD'
+    let formattedDate = currentDate.toISOString().split('T')[0];
+
+    // Set the formatted date as the default value for the input field
+    document.getElementById('current-date1').value = formattedDate;
+  
             function validatePhoneNumber(inputElement) {
                 const phoneNumber = inputElement.value;
                 const validationSpan = document.getElementById("contact-validation");
@@ -521,18 +658,83 @@
             var selectedOption = $(this).find(':selected');
 
             // Check if the selected party has an associated bill
-            if (selectedOption.data('billno') !== undefined && selectedOption.data('billdate') !== undefined) {
-                // Autofill the bill number and bill date fields
-                $('#bill_no').val(selectedOption.data('billno'));
-                $('#bill_date').val(selectedOption.data('billdate'));
+            if (selectedOption.val() !== '' && selectedOption.text() !== 'No bills available for the selected party.') {
+                // Get the bill number from the selected option's value
+                var billNumber = selectedOption.val();
+
+                // Autofill the bill number field
+                $('#bill').val(billNumber);
+
+                // Assuming you want to get the bill date from another source
+                var billDate = getBillDateForBillNumber(billNumber);
+
+                // Autofill the bill date field
+                $('#bill_date').val(billDate);
             } else {
                 // Clear the fields if no associated bill
-                $('#bill_no').val('');
+                $('#bill').val('');
                 $('#bill_date').val('');
             }
         });
     });
+
+    // Function to get the bill date based on the bill number (you need to implement this)
+    function getBillDateForBillNumber(billNumber) {
+        // Implement logic to get the bill date based on the bill number
+        // For now, let's assume it returns the bill date
+        return "2024-01-17";
+    }
 </script>
+<script>
+    $(document).ready(function() {
+        $('#party').select2({
+            width: '450px',
+            placeholder: '-- Select/Search Party --',
+            allowClear: true // Adds a clear button to the dropdown
+        });
+    });
+</script>
+<script>
+    function fillItemDetails(dropdown) {
+        var selectedOption = dropdown.options[dropdown.selectedIndex];
+        document.getElementById("hsn").innerHTML = selectedOption.getAttribute("data-hsn");
+        document.getElementById("purchasePrice").innerHTML = selectedOption.getAttribute("data-price");
+        document.getElementById("taxable").innerHTML = selectedOption.getAttribute("data-tax");
+    }
+
+
+  function updateTotalAmount(inputElement) {
+    // Get the parent row
+    var row = inputElement.closest('tr');
+
+    // Get the quantity, price, and discount values
+    var quantity = parseFloat(row.querySelector('[name="item_quantity[]"]').value) || 0;
+    var price = parseFloat(row.querySelector('[name="item_price[]"]').value) || 0;
+    var discount = parseFloat(row.querySelector('[name="item_discount[]"]').value) || 0;
+
+    // Calculate the total amount
+    var totalAmount = (quantity * price) - discount;
+
+    // Update the total amount input field
+    row.querySelector('[name="item_total_amount[]"]').value = totalAmount.toFixed(2);
+  }
+</script>
+<script>
+$(document).ready(function () {
+    $('#item_tax_1').on('click', function () {
+      $('#vatdiv').attr('hidden', false);
+      $('#vat').val('VAT 5%');
+      $('#taxable_result').val('Taxable');
+    });
+  
+    $('#item_tax_2').on('click', function () {
+      $('#vatdiv').attr('hidden', false);
+      $('#vat').val('VAT 0%');
+      $('#taxable_result').val('Non Taxable');
+    });
+  });
+</script>
+
             </body>
             
 {% endblock %}

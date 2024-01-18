@@ -32,6 +32,10 @@ urlpatterns = [
 
     path('firstdebitnote',views.firstdebitnote,name='firstdebitnote'),  
     path('createdebitnote',views.createdebitnote,name='createdebitnote'),
-    path('create_party',views.create_party,name='create_party'),  
+    path('create_party',views.create_party,name='create_party'), 
+    path('item_create1',views.item_create1,name='item_create1'),
+    path('item_create',views.item_create,name='item_create'),
+    path('create_unit', views.create_unit, name='create_unit'),
+    
 
 ]
