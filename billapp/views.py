@@ -9,6 +9,7 @@ from django.core.mail import send_mail
 from django.utils import timezone
 from django.http.response import JsonResponse
 from billapp.models import Company,Employee,Party,Item,Unit,ItemTransactions,ItemTransactionsHistory,DebitNote
+import logging
 
 def home(request):
   return render(request, 'home.html')
@@ -429,17 +430,19 @@ def firstdebitnote(request):
 
     return render(request, 'firstdebitnote.html', context)
 
+
+logger = logging.getLogger(__name__)
+
 def createdebitnote(request):
     parties = Party.objects.all()
     bills = PurchaseBill.objects.all()
 
-    # Fetch the company based on user's role
+    # Fetch the company based on the user's role
     if request.user.is_company:
         cmp = request.user.company
     else:
         cmp = request.user.employee.company
 
-   
     items = Item.objects.filter(company=cmp)
 
     context = {
@@ -456,17 +459,27 @@ def createdebitnote(request):
         if user_id is None:
             return JsonResponse({'status': 'error', 'message': 'User ID not available'})
 
-        party_id = request.POST.get('party')
-        bill_id = request.POST.get('bill')
-        selected_party = get_object_or_404(Party, id=party_id)
-        selected_bill = get_object_or_404(PurchaseBill, id=bill_id)
+        try:
+            party_id = request.POST.get('party')
+            bill_id = request.POST.get('bill')
+            selected_party = get_object_or_404(Party, id=party_id)
+            selected_bill = get_object_or_404(PurchaseBill, id=bill_id)
 
-        debit_note = DebitNote.objects.create(party=selected_party, bill=selected_bill, user=request.user, company=cmp)
+            # Print values for debugging
+            print(f'company_id: {cmp.id}, party_id: {party_id}, bill_id: {bill_id}')
 
-        return render(request, 'createdebitnote.html', {'usr': request.user, 'parties': parties, 'bills': bills, 'selected_party': selected_party, 'selected_bill': selected_bill, 'items': items, 'company_id': cmp.id})
+            debit_note = DebitNote.objects.create(party=selected_party, bill=selected_bill, user=request.user, company=cmp)
+
+            return render(request, 'createdebitnote.html', {'usr': request.user, 'parties': parties, 'bills': bills, 'selected_party': selected_party, 'selected_bill': selected_bill, 'items': items, 'company_id': cmp.id})
+
+        except Exception as e:
+            # Log the exception
+            logger.error(f"Error in createdebitnote view: {str(e)}")
+
+            # Return an error response
+            return JsonResponse({'status': 'error', 'message': 'An error occurred while processing the request'})
 
     return render(request, 'createdebitnote.html', context)
-
 
 def create_party(request):
     if request.method == 'POST':
@@ -527,8 +540,9 @@ def create_party(request):
         return JsonResponse({'status': 'error'})
 
 def item_create1(request):
+   unit=Unit.objects.all()
    context = {
-        'usr': request.user}
+        'usr': request.user,'units': unit}
    return render(request,'item_create.html',context)
 
 def item_create(request):
@@ -589,9 +603,11 @@ def create_unit(request):
             company=company,
             unit_name=unit_name
         )
+        messages.success(request, 'Unit created successfully')
+        context = {'success': True,'message': 'Unit created successfully!', 'unit_name': unit.unit_name}
+        print("Context:", context)
 
-    
-        return render(request, 'item_create.html', {'success_message': 'Unit created successfully!','unit_name': unit.unit_name,})
+        return render(request, 'item_create.html', context)
 
     # Handle other HTTP methods if needed
     return JsonResponse({'success': False, 'message': 'Invalid request method'})
