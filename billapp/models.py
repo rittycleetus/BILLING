@@ -48,6 +48,7 @@ class Item(models.Model):
     itm_stock_in_hand = models.IntegerField(default=0)
     itm_at_price = models.IntegerField(default=0)
     itm_date = models.DateField()
+   
     
 class Party(models.Model):
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE,null=True,blank=True)

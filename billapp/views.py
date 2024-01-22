@@ -465,12 +465,16 @@ def createdebitnote(request):
             selected_party = get_object_or_404(Party, id=party_id)
             selected_bill = get_object_or_404(PurchaseBill, id=bill_id)
 
-            # Print values for debugging
-            print(f'company_id: {cmp.id}, party_id: {party_id}, bill_id: {bill_id}')
-
+            # Create a DebitNote instance
             debit_note = DebitNote.objects.create(party=selected_party, bill=selected_bill, user=request.user, company=cmp)
 
-            return render(request, 'createdebitnote.html', {'usr': request.user, 'parties': parties, 'bills': bills, 'selected_party': selected_party, 'selected_bill': selected_bill, 'items': items, 'company_id': cmp.id})
+            # Retrieve the created DebitNote instance based on its ID
+            debit_note_instance = get_object_or_404(DebitNote, id=debit_note.id)
+
+            # Now you can get the tax rate from the Item instance using the get_vat_integer method
+            taxRate = selected_bill.item.get_vat_integer()
+
+            return render(request, 'createdebitnote.html', {'usr': request.user, 'parties': parties, 'bills': bills, 'selected_party': selected_party, 'selected_bill': selected_bill, 'items': items, 'company_id': cmp.id, 'debit_note_instance': debit_note_instance, 'taxRate': taxRate})
 
         except Exception as e:
             # Log the exception
@@ -545,6 +549,29 @@ def item_create1(request):
         'usr': request.user,'units': unit}
    return render(request,'item_create.html',context)
 
+def extract_percentage(vat_string):
+    # Split the string by space
+    parts = vat_string.split()
+
+    # Check if there are at least two parts (e.g., "VAT 5%")
+    if len(parts) >= 2:
+        # Get the second part and remove the percentage sign
+        percentage = parts[1].replace('%', '')
+
+        # Return the numeric value
+        return int(percentage)
+
+    # Return None if the string doesn't match the expected format
+    return None
+
+# Test the function
+vat_value = extract_percentage("VAT 5%")
+print(vat_value)  # Output: 5.0
+
+vat_value_gst = extract_percentage("GST 10%")
+print(vat_value_gst)  # Output: 10.0
+
+
 def item_create(request):
     if request.method == 'POST':
         # Extract data from the POST request
@@ -553,7 +580,10 @@ def item_create(request):
         itm_hsn = request.POST.get('hsn')
         itm_unit = request.POST.get('unit')
         itm_taxable = request.POST.get('taxable_result')
-        itm_vat = request.POST.get('vat')
+        
+        # Use the extract_percentage function for itm_vat
+        itm_vat = extract_percentage(request.POST.get('vat'))
+        
         itm_sale_price = request.POST.get('sale_price')
         itm_purchase_price = request.POST.get('purchase_price')
         itm_stock_in_hand = request.POST.get('stock_in_hand')
@@ -562,8 +592,8 @@ def item_create(request):
 
         # Create and save the Item instance
         item = Item(
-            user=request.user,  # Assuming you have user information in your request
-            company=request.user.company,  # Assuming you have company information related to the user
+            user=request.user,
+            company=request.user.company,
             itm_type=itm_type,
             itm_name=itm_name,
             itm_hsn=itm_hsn,
@@ -578,10 +608,6 @@ def item_create(request):
         )
         item.save()
 
-        # You can also handle the creation of the Unit instance here if needed
-        # For example, if you have a separate model for Unit and want to associate it with the Item.
-
-        # Notify the user with a success message using JavaScript alert
         return render(request, 'item_create.html', {'success_message': 'Item created successfully!'})
 
     # If the request is not POST, render the form page

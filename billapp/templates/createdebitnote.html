@@ -330,7 +330,7 @@
                                     <select name="selected_item[]" onchange="fillItemDetails1(this)" style="width: 130px;" class="form-control select2" id="select1">
                                         <option value="">-Select-</option>
                                         {% for item in items %}
-                                            <option value="{{ item.id }}" data-hsn="{{ item.itm_hsn }}" data-price="{{ item.itm_purchase_price }}" data-tax="{{ item.itm_vat }}">{{ item.itm_name }}</option>
+                                            <option value="{{ item.id }}" data-hsn="{{ item.itm_hsn }}" data-price="{{ item.itm_purchase_price }}"  data-tax="VAT {{ item.itm_vat|floatformat:0 }}%" data-tax-rate="{{ item.get_vat_integer }}">{{ item.itm_name }}</option>
                                         {% endfor %}
                                     </select>
                             
@@ -404,6 +404,10 @@
                         </div>
                     </div>
                     </div>
+                    <p>Item VAT: {{ item.itm_vat }}</p>
+
+<!-- Display the extracted tax rate -->
+<p>Extracted Tax Rate: {{ taxRate }}</p>
             <button type="submit" class="btn btn-primary">Submit</button>
         </form>
     </div>
@@ -811,34 +815,47 @@
     row.querySelector('[name="item_total_amount[]"]').value = totalAmount.toFixed(2);
 
     updateSubtotal(); // Call the function to update Subtotal
+
 }
 
 // Add event listener to Adjustment input for dynamic updating
 document.getElementById('adjustment').addEventListener('input', function () {
     updateTotals(); // Call the function to update Grand Total and Tax Amount
     updateSubtotal(); // Call the function to update Subtotal
+    
 });
 
     // Function to set default values when the page loads
     window.onload = function () {
-        // Get all quantity, discount, and total amount input fields
-        var quantityFields = document.querySelectorAll('[name="item_quantity[]"]');
-        var discountFields = document.querySelectorAll('[name="item_discount[]"]');
-        var totalAmountFields = document.querySelectorAll('[name="item_total_amount[]"]');
+    // Get all quantity, discount, and total amount input fields
+    var quantityFields = document.querySelectorAll('[name="item_quantity[]"]');
+    var discountFields = document.querySelectorAll('[name="item_discount[]"]');
+    var totalAmountFields = document.querySelectorAll('[name="item_total_amount[]"]');
 
-        // Set default values to 0
-        quantityFields.forEach(function (element) {
-            element.value = 0;
-        });
+    // Set default values to 0
+    quantityFields.forEach(function (element) {
+        element.value = 0;
+    });
 
-        discountFields.forEach(function (element) {
-            element.value = 0;
-        });
+    discountFields.forEach(function (element) {
+        element.value = 0;
+    });
 
-        totalAmountFields.forEach(function (element) {
-            element.value = 0;
-        });
-    };
+    totalAmountFields.forEach(function (element) {
+        element.value = 0;
+    });
+
+    // Set other default values or call additional initialization functions if needed
+    document.getElementById('grandTotal').value = '0.00';
+    document.getElementById('taxAmount').value = 0.00;
+    document.getElementById('adjustment').value = '0.00';
+    // Call the function to calculate tax amount and update other fields
+    
+    updateSubtotal();
+    updateTotals();
+
+    console.log("Page Loaded");
+}
 </script>
 <script>
     // Initialize select2 after the page loads
@@ -861,6 +878,8 @@ document.getElementById('adjustment').addEventListener('input', function () {
         // Create a new row
         var newRow = tableBody.insertRow();
         newRow.classList.add('new-row')
+
+        
         // Cell 1: Counter
         var cell1 = newRow.insertCell(0);
         cell1.innerHTML = tableBody.rows.length; // Set the row number
@@ -871,7 +890,7 @@ document.getElementById('adjustment').addEventListener('input', function () {
             '<select name="selected_item[]" onchange="fillItemDetails(this, this.parentNode.parentNode)" style="width: 120px;" class="form-control select2" id="select1">' +
             '<option value="">-Select-</option>' +
             '{% for item in items %}' +
-            '<option value="{{ item.id }}" data-hsn="{{ item.itm_hsn }}" data-price="{{ item.itm_purchase_price }}" data-tax="{{ item.itm_vat }}">{{ item.itm_name }}</option>' +
+            '<option value="{{ item.id }}" data-hsn="{{ item.itm_hsn }}" data-price="{{ item.itm_purchase_price }}" data-tax="VAT {{ item.itm_vat|floatformat:0 }}%">{{ item.itm_name }}</option>' +
             '{% endfor %}' +
             '</select>' +
             '<a href="{% url 'item_create1' %}" class="btn btn-outline-secondary" style="background-color: maroon; height: 40px; width: 30px; text-align: center; padding: 2px; position: absolute; right: 0; font-size: 20px; margin-left: 280px;"><b>+</b></a>' +
@@ -911,8 +930,9 @@ document.getElementById('adjustment').addEventListener('input', function () {
         });
                 // Add an event listener to the new discount input for dynamic updating
         var newDiscountInput = cell7.querySelector('[name="item_discount[]"]');
-    newDiscountInput.addEventListener('input', function () {
+        newDiscountInput.addEventListener('input', function () {
         updateTotalAmount1(newDiscountInput);
+        updateSubtotal();
     });
 
 
@@ -932,14 +952,17 @@ document.getElementById('adjustment').addEventListener('input', function () {
 
     // Function to increment IDs and update the new row
     
-        function updateRowIds(row) {
-            var rowCount = document.querySelectorAll('.table tbody tr').length;
+    function updateRowIds(row) {
+        var rowCount = document.querySelectorAll('.table tbody tr').length;
 
-            // Update IDs for the new row
-            row.querySelector('span[id^="hsn"]').id = 'hsn' + rowCount;
-            row.querySelector('span[id^="purchasePrice"]').id = 'purchasePrice' + rowCount;
-            row.querySelector('span[id^="vat"]').id = 'vat' + rowCount;
-            row.classList.add('new-row');
+        // Update IDs for the new row
+        row.querySelector('span[id^="hsn"]').id = 'hsn' + rowCount;
+        row.querySelector('span[id^="purchasePrice"]').id = 'purchasePrice' + rowCount;
+        row.querySelector('span[id^="vat"]').id = 'vat' + rowCount;
+        row.classList.add('new-row');
+
+        // Call the function to update Subtotal
+        updateSubtotal();
 
     }
 
@@ -956,68 +979,28 @@ document.getElementById('adjustment').addEventListener('input', function () {
         row.querySelector('span[id^="hsn"]').textContent = hsn;
         row.querySelector('span[id^="purchasePrice"]').textContent = purchasePrice;
         row.querySelector('span[id^="vat"]').textContent = vat;
+        updateSubtotal();
 
         // ... (any additional updates you need)
     }
 
     function updateTotalAmount(inputElement) {
-        // Get the parent row
-        var row = inputElement.closest('tr');
+    // Get the parent row
+    var row = inputElement.closest('tr');
 
-        // Get the quantity, price, and discount values
-        var quantity = parseFloat(row.querySelector('[name="item_quantity[]"]').value) || 0;
-        var price = parseFloat(row.querySelector('#purchasePrice' + row.rowIndex).innerText) || 0;
-        var discount = parseFloat(row.querySelector('[name="item_discount[]"]').value) || 0;
+    // Get the quantity, price, and discount values
+    var quantity = parseFloat(row.querySelector('[name="item_quantity[]"]').value) || 0;
+    var price = parseFloat(row.querySelector('#purchasePrice' + row.rowIndex).innerText) || 0;
+    var discount = parseFloat(row.querySelector('[name="item_discount[]"]').value) || 0;
 
-        // Calculate the total amount
-        var totalAmount = (quantity * price) - discount;
+    // Calculate the total amount
+    var totalAmount = (quantity * price) - discount;
 
-        // Update the total amount input field
-        row.querySelector('[name="item_total_amount[]"]').value = totalAmount.toFixed(2);
-    }
+    // Update the total amount input field
+    row.querySelector('[name="item_total_amount[]"]').value = totalAmount.toFixed(2);
 
-    // Function to set default values when the page loads
-    window.onload = function () {
-        // Get all quantity, discount, and total amount input fields
-        var quantityFields = document.querySelectorAll('[name="item_quantity[]"]');
-        var discountFields = document.querySelectorAll('[name="item_discount[]"]');
-        var totalAmountFields = document.querySelectorAll('[name="item_total_amount[]"]');
-
-        // Set default values to 0
-        quantityFields.forEach(function (element) {
-            element.value = 0;
-        });
-
-        discountFields.forEach(function (element) {
-            element.value = 0;
-        });
-
-        totalAmountFields.forEach(function (element) {
-            element.value = 0;
-        });
-    };
-</script>
-<script>
-    $(document).ready(function () {
-        // Delete row when delete icon is clicked
-        $(document).on('click', '.delete-row', function () {
-            // Find the closest 'tr' (table row) and remove it
-            $(this).closest('tr').remove();
-        });
-    });
-</script>
-<script>
-function updateSubtotal() {
-    var totalElements = document.querySelectorAll('[name="item_total_amount[]"]');
-    var subtotal = 0;
-
-    // Iterate through each row and add up the total amounts
-    totalElements.forEach(function (element) {
-        subtotal += parseFloat(element.value) || 0;
-    });
-
-    document.getElementById('subtotal').value = subtotal.toFixed(2);
-    updateTotals(); // Call the function to update Grand Total and Tax Amount
+    // Call the updateSubtotal function after updating total amounts
+    updateSubtotal();
 }
 
 // Function to set default values when the page loads
@@ -1039,8 +1022,147 @@ window.onload = function () {
     totalAmountFields.forEach(function (element) {
         element.value = 0;
     });
+};
+</script>
+<script>
+    $(document).ready(function () {
+        // Delete row when delete icon is clicked
+        $(document).on('click', '.delete-row', function () {
+            // Find the closest 'tr' (table row) and remove it
+            $(this).closest('tr').remove();
+        });
+    });
+</script>
+<script>
+function updateSubtotal() {
+    var totalElements = document.querySelectorAll('[name="item_total_amount[]"]');
+    var subtotal = 0;
+    
 
-    updateSubtotal(); // Call the function to set subtotal to 0 when the page reloads
+    // Iterate through each row and add up the total amounts
+    totalElements.forEach(function (element) {
+        subtotal += parseFloat(element.value) || 0;
+    });
+
+    document.getElementById('subtotal').value = subtotal.toFixed(2);
+    updateTotals(); 
+    
+    updateGrandTotal();
+    calculateTaxAmount();
+
+}
+
+
+window.onload = function () {
+    // Get all quantity, discount, and total amount input fields
+    var quantityFields = document.querySelectorAll('[name="item_quantity[]"]');
+    var discountFields = document.querySelectorAll('[name="item_discount[]"]');
+    var totalAmountFields = document.querySelectorAll('[name="item_total_amount[]"]');
+   
+
+    // Set default values to 0
+    quantityFields.forEach(function (element) {
+        element.value = 0;
+    });
+
+    discountFields.forEach(function (element) {
+        element.value = 0;
+    });
+
+    totalAmountFields.forEach(function (element) {
+        element.value = 0;
+    });
+
+ 
+    // Initialize Grand Total and Tax Amount to 0
+    document.getElementById('grandTotal').value = '0.00';
+    document.getElementById('taxAmount').value = 0;
+    document.getElementById('adjustment').value = '0.00';
+
+    // Calculate Subtotal and update totals
+    
+    updateSubtotal();
+    updateTotals();
+    calculateTaxAmount
+};
+</script>
+<script>
+    function calculateTaxAmount() {
+    var taxElements = document.querySelectorAll('[name="item_vat[]"]');
+    var taxAmount = 0;
+
+    taxElements.forEach(function (element) {
+        var row = element.closest('tr');
+        var quantity = parseFloat(row.querySelector('[name="item_quantity[]"]').value) || 0;
+        var price = parseFloat(row.querySelector('#purchasePrice').innerText) || 0;
+        var discount = parseFloat(row.querySelector('[name="item_discount[]"]').value) || 0;
+        var taxRateData = element.getAttribute("data-tax-rate");
+        
+        // Extract numeric tax rate from data attribute
+        var taxRate = parseFloat(taxRateData.split(' ')[1].replace('%', '')) || 0;
+
+        // Calculate tax for the row
+        var taxForRow = (quantity * price - discount) * (taxRate / 100);
+        taxAmount += taxForRow;
+    });
+
+    // Display tax amount in console
+    console.log('Total Tax Amount:', taxAmount);
+
+    // Update tax amount in the corresponding input field
+    document.getElementById('taxAmount').value = taxAmount.toFixed(2);
+
+    // Trigger other calculations if needed (e.g., updateGrandTotal())
+    updateGrandTotal();
+}
+</script>
+<script>
+
+function updateGrandTotal() {
+    var subtotal = parseFloat(document.getElementById('subtotal').value) || 0;
+    var taxAmount = parseFloat(document.getElementById('taxAmount').value) || 0;
+    var adjustment = parseFloat(document.getElementById('adjustment').value) || 0;
+   
+
+    // Calculate the Grand Total
+    
+    var grandTotal = subtotal + taxAmount + adjustment;
+
+    // Update the Grand Total input field
+    document.getElementById('grandTotal').value = grandTotal.toFixed(2);
+    console.log("Grand Total:", grandTotal);
+}
+
+// Initialize values when the page loads
+window.onload = function () {
+    // Get all quantity, discount, and total amount input fields
+    var quantityFields = document.querySelectorAll('[name="item_quantity[]"]');
+    var discountFields = document.querySelectorAll('[name="item_discount[]"]');
+    var totalAmountFields = document.querySelectorAll('[name="item_total_amount[]"]');
+
+    // Set default values to 0
+    quantityFields.forEach(function (element) {
+        element.value = 0;
+    });
+
+    discountFields.forEach(function (element) {
+        element.value = 0;
+    });
+
+    totalAmountFields.forEach(function (element) {
+        element.value = 0;
+    });
+
+    // Set other default values or call additional initialization functions if needed
+    document.getElementById('grandTotal').value = '0.00';
+    document.getElementById('taxAmount').value = 0.00;
+    document.getElementById('adjustment').value = '0.00';
+    // Call the function to calculate tax amount and update other fields
+   
+    updateSubtotal();
+    updateTotals();
+
+    console.log("Page Loaded");
 };
 </script>
    </body>
