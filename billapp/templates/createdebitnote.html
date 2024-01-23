@@ -327,7 +327,7 @@
                             <td style="color: black;">1</td>
                             <td style="width: 990px;">
                                 <div style="display: flex; position: relative;">
-                                    <select name="selected_item[]" onchange="fillItemDetails1(this)" style="width: 130px;" class="form-control select2" id="select1">
+                                    <select name="selected_item[]" onchange="fillAndCalculate(this)" style="width: 130px;" class="form-control select2" id="select1">
                                         <option value="">-Select-</option>
                                         {% for item in items %}
                                             <option value="{{ item.id }}" data-hsn="{{ item.itm_hsn }}" data-price="{{ item.itm_purchase_price }}"  data-tax="VAT {{ item.itm_vat|floatformat:0 }}%" data-tax-rate="{{ item.get_vat_integer }}">{{ item.itm_name }}</option>
@@ -336,7 +336,321 @@
                             
                         &nbsp;&nbsp; &nbsp;&nbsp;                        &nbsp;&nbsp; &nbsp;&nbsp;
                                     <!-- "+" button -->
-                                    <a href="{% url 'item_create1' %}" class="btn btn-outline-secondary" style="background-color: maroon; height: 40px; width: 30px; text-align: center; padding: 2px; position: absolute; right: 0;font-size: 20px;margin-left: 280px;"><b>+</b></a>
+                                 <a href="#" class="btn btn-outline-secondary" style="background-color: maroon; height: 40px; width: 30px; text-align: center; padding: 2px; position: absolute; right: 0; font-size: 20px; margin-left: 280px;" data-bs-toggle="modal" data-bs-target="#itemCreateModal"><b>+</b></a>
+
+
+
+
+
+
+
+
+
+
+
+ <!-- Modal -->
+ <div class="modal fade" id="itemCreateModal" tabindex="-1" aria-labelledby="ItemCreateModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h1 class="modal-title fs-5" id="itemCreateModalLabel" style="color: #68020F; font-weight: 900;">CREATE ITEM</h1>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <!-- Your form goes here -->
+          {% if success_message %}
+          <script>
+            alert("{{ success_message }}");
+          </script>
+          {% endif %}
+
+          {% if messages %}
+          <div class="messages">
+            {% for message in messages %}
+            <div style="border: 1px solid #000; padding: 10px; margin: 10px 0; background-color: #f8f9fa; color: #000; {% if message.tags == 'success' %}background-color: #d4edda; border-color: #c3e6cb; color: #155724;{% endif %}">
+              {{ message }}
+            </div>
+            {% endfor %}
+          </div>
+          {% endif %}
+
+          <form action="{% url 'item_create' %}" method="post" enctype="multipart/form-data" onsubmit="return validate()">
+            {% csrf_token %}
+            <div class="bs p-4 rounded mb-5">
+              <br>
+              <div class="row">
+                <div class="col-sm-12 col-md-1"></div>
+                <div class="col-sm-12 col-md-10 pb-4 ">
+                  <div class=" pb-0 mb-0 p-2" style="height:100%;width:100%">
+                    <br><br>
+  
+              
+                      
+                            <center>
+                              <h3><strong class="fw-bolder " style="color: #68020F;">ITEM DETAILS</strong></h3>
+                            </center>
+                            <div class="p-3" style="border: 2px solid #68020F; border-radius: 2.5vh; background-color: #FFD6D7;">
+                              <div class="d-flex">
+                                <div class="pt-5 w-50">
+                                  <input type="text" name="itm_type" id="itm_type" hidden>
+                                  <label style="user-select: none;" class="fs-4 tb" for="goods">Goods</label>
+                                  <input id="goods" class="me-3 " type="radio" name="item_ty" required>
+                                  <label style="user-select: none;" class="fs-4 tb" for="service">Services</label>
+                                  <input id="service" type="radio" name="item_ty" required>
+                                </div>
+                                <div class="mb-3 w-50 mt-3">
+                                  <label class="fw-bold tb fs-3" for="">NAME</label><br>
+                                  <input style="color: black;" class="form-control mt-2 input_border text-black" type="text" placeholder="Enter Item Name" autocomplete="off" name="name" >
+                                </div>
+                              </div>
+  
+                              <div class="d-flex mt-2">
+                                <div class=" me-3 w-50">
+                                  <label class="fw-bold tb fs-3 " for="">HSN </label><br>
+                                  <input style="color: black;" class="form-control mt-2 input_border text-black" type="number" placeholder="Enter HSN value" name="hsn">
+                                </div>
+                                <br>
+                                <div class="mb-3 w-50">
+                                  <label class="fw-bold tb fs-3" for="units">UNIT</label><br>
+                                  <div class="d-flex">
+                                    <select style="color: black;" class="form-control me-3 mt-2 input_border text-black" id="unit" name="unit" >
+                                        <option value="" hidden>Select an option</option>
+                                        <option value="Numbers">Numbers</option>
+                                        <option value="Packages">Packages</option>
+                                        <option value="Box">Box</option>
+                                        {% for i in units %}
+                                        <option value="{{ i.unit_name }}">{{ i.unit_name }}</option>
+                                        {% endfor %}
+                                      </select>
+                                    <button type="button" class="btn mt-2 button_border" data-toggle="modal" data-target="#unitmodal" data-whatever="@mdo">
+                                        <span class="fa fa-plus" ></span>
+                                      </button>
+                                    </div>
+                                    <div class="modal fade" id="unitmodal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                                      <div class="modal-dialog">
+                                        <div class="modal-content">
+                                          <div class="modal-header">
+                                            <h1 class="modal-title fs-5" id="exampleModalLabel" style="color: #68020F; font-weight: 900;">ADD UNIT</h1>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                          </div>
+                                          <div class="modal-body mb-1 pb-1">
+                                            <form class="mb-0" id="unitmodal">
+                                              <div class="mb-3">
+                                                <label for="unit_name" class="col-form-label">UNIT</label>
+                                                <input type="text" class="form-control _border" id="unit_name" placeholder="Enter Unit" style="border: 2px solid #68020F;" name='unit_name'>
+                                              </div>
+                                              <div class="m-0 text-center">
+                                                <label for="message-text" class="col-form-label  text-danger fw-lighter">Example : PCS/BOX/LITER</label>
+                                              </div>
+                                            </form>
+                                          </div>
+                                          <div class="modal-footer d-flex justify-content-center mt-1">
+                                            <button type="button" class="btn ps-5 pe-5 button_border" data-dismiss="modal">Close</button>
+                                            <button type="button" class="btn ps-5 pe-5 button_border" id="unitmodalsubmit">ADD</button>
+                                          </div>
+                                        </div>
+                                      </div>
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                            <br>
+                          </div>
+                        </div>
+  
+                        <div class="row">
+                          <div  class="col-sm-12 col-md-1"></div>
+                          <div class="col-sm-12 col-md-5 pb-4">
+                            <div class="me-3 text-center">
+                              <h3><strong class="fw-bolder" style="color: #68020F;">PRICING</strong></h3>
+                            </div>
+                            <div class="p-3" style="border: 2px solid #68020F; border-radius: 2.5vh; background-color: #FFD6D7;">
+                              <div class="pt-5 mb-4" >
+                                <input type="text" name="taxable_result" id="taxable_result" hidden>
+                                <label style="user-select: none;" class="fs-4 tb" for="item_tax_1">Tax</label> &nbsp;
+                                <input id="item_tax_1" class="me-3" type="radio" name="item_tax_result" required>
+                                <label style="user-select: none;" class="fs-4 tb" for="item_tax_2">Tax Excempted</label>&nbsp;
+                                <input id="item_tax_2" type="radio" name="item_tax_result" required>
+                              </div>
+  
+                              <div id="vatdiv" class="mb-2 pt-3" hidden>
+                                <label class="fw-bold tb fs-3" for="">VAT</label><br>
+                                <input type="text" class="form-control mt-1 input_border text-black" name="vat" id='vat'>
+                              </div>
+  
+                              <div class="mb-4 pt-3">
+                                <label class="tb fw-bold" for="pur_price">SALES PRICE</label><br>
+                                <input id="sal_price" class="form-control fw-normal fs-3 mt-1 input_border text-black" type="number" placeholder="Enter Sales Price" name="sale_price" required>
+                              </div>
+  
+                              <div class="mb-4">
+                                <label class="tb fw-bold" for="">PURCHASE PRICE</label><br>
+                                <input id="pur_price" class="form-control fw-normal fs-3 mt-1 input_border text-black" type="number" placeholder="Enter Purchase Price" name="purchase_price" required>
+                              </div>
+                            </div>
+                          </div>
+                          <div class="col-sm-12 col-md-5 pb-4">
+                            <div class="me-3 text-center">
+                              <h3><strong class="fw-bolder" style="color: #68020F;">STOCKS</strong></h3>
+                            </div>
+                            <div class="p-3" style="border: 2px solid #68020F; border-radius: 2.5vh; background-color: #FFD6D7;">
+                              <div class="mb-4 pt-4">
+                                <label class="tb fw-bold" for="opn_stock_">STOCK IN HAND</label><br>
+                                <input id="opn_stock_" class="form-control fw-normal fs-3 mt-1 input_border text-black" type="number" placeholder="Enter Opening Stock" name="stock_in_hand" required>
+                              </div>
+                              <div class="mb-4">
+                                <label class="tb fw-bold" for="at_price">AT PRICE</label><br>
+                                <input id="at_price" class="form-control fw-normal fs-3 mt-1 input_border text-black" type="number" placeholder="Enter Price" name="at_price" required>
+                              </div>
+                              <div class="mb-4">
+                                <label class="tb fw-bold" for="date_">DATE</label><br>
+                                <input id="date" class="form-control fw-normal fs-3 mt-1 input_border text-black" type="date" value="{{ tod }}" name="itm_date">
+                              </div>
+                            </div>
+                          </div>
+                          <div  class="col-sm-12 col-md-1"></div>
+                          <div class="text-start" style="margin-left: 9%;">
+                            <button class="btn me-3 button_border" type="submit" value="save_and_next" name="save_and_next">Save & Next</submit>
+                            <button class="btn me-3 button_border" type="submit" value="save" name="save">Save</button>
+                          </div>
+                        </div>
+                      </div>
+                  </form>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+  
+                <script>
+                  $(document).ready(function(){
+                    $('#item_tax_1').on('click',function(){
+                        $('#vatdiv').attr('hidden',false)
+                        $('#vat').val('VAT 5%')
+                    })
+                  })
+                  $(document).ready(function(){
+                    $('#item_tax_2').on('click',function(){
+                        $('#vatdiv').attr('hidden',false)
+                        $('#vat').val('VAT 0%')
+                    })
+                  })
+  
+                  $(document).ready(function(){
+                    $('#item_tax_1').on('click',function(){
+                      $('#taxable_result').val('Taxable')
+                    })
+                  })
+                  $(document).ready(function(){
+                    $('#item_tax_2').on('click',function(){
+                      $('#taxable_result').val('Non Taxable')
+                    })
+                  })
+  
+                  $(document).ready(function(){
+                    $('#goods').on('click',function(){
+                      $('#itm_type').val('Goods')
+                    })
+                  })
+  
+                  $(document).ready(function(){
+                    $('#service').on('click',function(){
+                      $('#itm_type').val('Service')
+                    })
+                  })
+  
+                  $("#unitmodalsubmit").click(function () {
+    $.ajax({
+        type: "POST",
+        url: "{% url 'create_unit' %}",
+        data: {
+            unit_name: document.getElementById('unit_name').value
+        },
+        beforeSend: function (xhr, settings) {
+            xhr.setRequestHeader("X-CSRFToken", "{{ csrf_token }}");
+        },
+        success: function (response) {
+            $("#unitmodal").hide();
+            $(".modal-backdrop").remove();
+            document.getElementById('unit_name').value = '';
+
+            // Update the dropdown list with the new unit and existing options
+            var dropdown = $('#unit');
+            dropdown.empty();  // Clear existing options
+
+            // Append the "Select an option" option
+            dropdown.append('<option value="" hidden>Select an option</option>');
+
+            // Append the newly added unit from the response
+            dropdown.append(`<option value='${response.unit_name}'>${response.unit_name}</option>`);
+
+            // Show success message
+            console.log("Unit added successfully!");
+            alert("Unit added successfully!");
+        },
+        error: function (xhr, textStatus, errorThrown) {
+            console.error("Error adding unit:", errorThrown);
+        }
+    });
+});
+              </script>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+
+
+
+              
+                
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+              
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                                 </div>
                             </td>
                             <td><span id="hsn" class="form-control" style="height: 40px; width: 90px;"></span></td>
@@ -354,6 +668,14 @@
                     <button type="button" onclick="addRow()" class="btn btn-outline-secondary" style="background-color: maroon; height: 40px; width: 45px; text-align: center; padding: 2px;font-size: 20px;"><b>+</b></button>
                 </div>
             </div>
+
+
+
+
+
+
+
+
             <div class="container-fluid">
                 <div class="row">
                     <!-- Left side for Payment Type -->
@@ -385,15 +707,15 @@
                                 <div class="col-sm-8">
                                     <input type="text" id="taxAmount" name="taxAmount" class="form-control" readonly>
                                 </div>
-                            </div>
+                            </div> 
                     
                             <div class="form-group row">
                                 <label for="adjustment" class="col-sm-4 col-form-label">Adjustment</label>
                                 <div class="col-sm-8">
                                     <input type="text" id="adjustment" name="adjustment" class="form-control" value="0.00">
                                 </div>
-                            </div>
-                    
+                            </div> 
+                     
                             <!-- Grand Total Input -->
                             <div class="form-group row">
                                 <label for="grandTotal" class="col-sm-4 col-form-label">Grand Total</label>
@@ -404,14 +726,14 @@
                         </div>
                     </div>
                     </div>
-                    <p>Item VAT: {{ item.itm_vat }}</p>
-
-<!-- Display the extracted tax rate -->
-<p>Extracted Tax Rate: {{ taxRate }}</p>
+ 
             <button type="submit" class="btn btn-primary">Submit</button>
         </form>
     </div>
 </div>
+
+
+
 
 
 
@@ -531,17 +853,21 @@
                 
 
 
-          
 
 
-
-
-
-
-
-
-
-
+                <script>
+                    function closeAndOpenUnitModal() {
+                        // Close the first modal
+                        $('#itemCreateModal').modal('hide');
+                
+                        // Wait for the first modal to close before opening the second modal
+                        $('#itemCreateModal').on('hidden.bs.modal', function () {
+                            // Open the second modal
+                            $('#unitmodal').modal('show');
+                        });
+                    }
+                </script>
+         
 
 
                 <script>
@@ -668,6 +994,7 @@
             
        </div>
    </div>
+
 
 <script>
     $(document).ready(function () {
@@ -815,13 +1142,14 @@
     row.querySelector('[name="item_total_amount[]"]').value = totalAmount.toFixed(2);
 
     updateSubtotal(); // Call the function to update Subtotal
-
+   
 }
 
 // Add event listener to Adjustment input for dynamic updating
 document.getElementById('adjustment').addEventListener('input', function () {
     updateTotals(); // Call the function to update Grand Total and Tax Amount
     updateSubtotal(); // Call the function to update Subtotal
+    updateGrandTotal();
     
 });
 
@@ -847,15 +1175,16 @@ document.getElementById('adjustment').addEventListener('input', function () {
 
     // Set other default values or call additional initialization functions if needed
     document.getElementById('grandTotal').value = '0.00';
-    document.getElementById('taxAmount').value = 0.00;
+    document.getElementById('taxAmount').value = '0.00';
     document.getElementById('adjustment').value = '0.00';
-    // Call the function to calculate tax amount and update other fields
-    
+   
     updateSubtotal();
     updateTotals();
+   
 
     console.log("Page Loaded");
-}
+};
+
 </script>
 <script>
     // Initialize select2 after the page loads
@@ -893,7 +1222,7 @@ document.getElementById('adjustment').addEventListener('input', function () {
             '<option value="{{ item.id }}" data-hsn="{{ item.itm_hsn }}" data-price="{{ item.itm_purchase_price }}" data-tax="VAT {{ item.itm_vat|floatformat:0 }}%">{{ item.itm_name }}</option>' +
             '{% endfor %}' +
             '</select>' +
-            '<a href="{% url 'item_create1' %}" class="btn btn-outline-secondary" style="background-color: maroon; height: 40px; width: 30px; text-align: center; padding: 2px; position: absolute; right: 0; font-size: 20px; margin-left: 280px;"><b>+</b></a>' +
+            '<a href="#" class="btn btn-outline-secondary" style="background-color: maroon; height: 40px; width: 30px; text-align: center; padding: 2px; position: absolute; right: 0; font-size: 20px; margin-left: 280px;" data-bs-toggle="modal" data-bs-target="#itemCreateModal"><b>+</b></a>'+
             '</div>';
 
         // Cell 3: HSN
@@ -933,6 +1262,7 @@ document.getElementById('adjustment').addEventListener('input', function () {
         newDiscountInput.addEventListener('input', function () {
         updateTotalAmount1(newDiscountInput);
         updateSubtotal();
+      
     });
 
 
@@ -940,14 +1270,15 @@ document.getElementById('adjustment').addEventListener('input', function () {
         document.getElementById('adjustment').addEventListener('input', function () {
          updateTotals(); // Call the function to update Grand Total and Tax Amount
          updateSubtotal(); // Call the function to update Subtotal
-
+         updateGrandTotal();
 
         });
 
         // Increment IDs and update the new row
         updateRowIds(newRow);
-        updateTotalAmount1(document.getElementById('adjustment'));
+        // updateTotalAmount1(document.getElementById('adjustment'));
         updateSubtotal();
+    
     }
 
     // Function to increment IDs and update the new row
@@ -963,6 +1294,7 @@ document.getElementById('adjustment').addEventListener('input', function () {
 
         // Call the function to update Subtotal
         updateSubtotal();
+   
 
     }
 
@@ -980,6 +1312,7 @@ document.getElementById('adjustment').addEventListener('input', function () {
         row.querySelector('span[id^="purchasePrice"]').textContent = purchasePrice;
         row.querySelector('span[id^="vat"]').textContent = vat;
         updateSubtotal();
+    
 
         // ... (any additional updates you need)
     }
@@ -1001,28 +1334,9 @@ document.getElementById('adjustment').addEventListener('input', function () {
 
     // Call the updateSubtotal function after updating total amounts
     updateSubtotal();
-}
+    }
 
-// Function to set default values when the page loads
-window.onload = function () {
-    // Get all quantity, discount, and total amount input fields
-    var quantityFields = document.querySelectorAll('[name="item_quantity[]"]');
-    var discountFields = document.querySelectorAll('[name="item_discount[]"]');
-    var totalAmountFields = document.querySelectorAll('[name="item_total_amount[]"]');
 
-    // Set default values to 0
-    quantityFields.forEach(function (element) {
-        element.value = 0;
-    });
-
-    discountFields.forEach(function (element) {
-        element.value = 0;
-    });
-
-    totalAmountFields.forEach(function (element) {
-        element.value = 0;
-    });
-};
 </script>
 <script>
     $(document).ready(function () {
@@ -1037,134 +1351,105 @@ window.onload = function () {
 function updateSubtotal() {
     var totalElements = document.querySelectorAll('[name="item_total_amount[]"]');
     var subtotal = 0;
-    
 
-    // Iterate through each row and add up the total amounts
     totalElements.forEach(function (element) {
         subtotal += parseFloat(element.value) || 0;
     });
 
     document.getElementById('subtotal').value = subtotal.toFixed(2);
-    updateTotals(); 
-    
-    updateGrandTotal();
     calculateTaxAmount();
-
+    calculateGrandTotal();
 }
 
+function fillAndCalculate(selectElement) {
+    // Call the fillItemDetails1 function
+    fillItemDetails1(selectElement);
 
-window.onload = function () {
-    // Get all quantity, discount, and total amount input fields
-    var quantityFields = document.querySelectorAll('[name="item_quantity[]"]');
-    var discountFields = document.querySelectorAll('[name="item_discount[]"]');
-    var totalAmountFields = document.querySelectorAll('[name="item_total_amount[]"]');
-   
+    // Call the calculateTaxAmount function
+    calculateTaxAmount();
+}
 
-    // Set default values to 0
-    quantityFields.forEach(function (element) {
-        element.value = 0;
-    });
+function calculateTaxAmount() {
+    var selectedItem = document.getElementById('select1');
+    var selectedOption = selectedItem.options[selectedItem.selectedIndex];
+    var taxRate = parseFloat(selectedOption.getAttribute('data-tax-rate')) || 0;
+    var purchasePrice = parseFloat(selectedOption.getAttribute('data-price')) || 0;
+    var taxAmount = (purchasePrice * taxRate) / 100;
 
-    discountFields.forEach(function (element) {
-        element.value = 0;
-    });
-
-    totalAmountFields.forEach(function (element) {
-        element.value = 0;
-    });
-
- 
-    // Initialize Grand Total and Tax Amount to 0
-    document.getElementById('grandTotal').value = '0.00';
-    document.getElementById('taxAmount').value = 0;
-    document.getElementById('adjustment').value = '0.00';
-
-    // Calculate Subtotal and update totals
-    
-    updateSubtotal();
-    updateTotals();
-    calculateTaxAmount
-};
-</script>
-<script>
-    function calculateTaxAmount() {
-    var taxElements = document.querySelectorAll('[name="item_vat[]"]');
-    var taxAmount = 0;
-
-    taxElements.forEach(function (element) {
-        var row = element.closest('tr');
-        var quantity = parseFloat(row.querySelector('[name="item_quantity[]"]').value) || 0;
-        var price = parseFloat(row.querySelector('#purchasePrice').innerText) || 0;
-        var discount = parseFloat(row.querySelector('[name="item_discount[]"]').value) || 0;
-        var taxRateData = element.getAttribute("data-tax-rate");
-        
-        // Extract numeric tax rate from data attribute
-        var taxRate = parseFloat(taxRateData.split(' ')[1].replace('%', '')) || 0;
-
-        // Calculate tax for the row
-        var taxForRow = (quantity * price - discount) * (taxRate / 100);
-        taxAmount += taxForRow;
-    });
-
-    // Display tax amount in console
-    console.log('Total Tax Amount:', taxAmount);
-
-    // Update tax amount in the corresponding input field
     document.getElementById('taxAmount').value = taxAmount.toFixed(2);
-
-    // Trigger other calculations if needed (e.g., updateGrandTotal())
-    updateGrandTotal();
+    updateTotals(); // You can call this function if needed
+    calculateGrandTotal();
 }
-</script>
-<script>
 
-function updateGrandTotal() {
+function calculateGrandTotal() {
     var subtotal = parseFloat(document.getElementById('subtotal').value) || 0;
     var taxAmount = parseFloat(document.getElementById('taxAmount').value) || 0;
     var adjustment = parseFloat(document.getElementById('adjustment').value) || 0;
-   
 
-    // Calculate the Grand Total
-    
     var grandTotal = subtotal + taxAmount + adjustment;
 
-    // Update the Grand Total input field
     document.getElementById('grandTotal').value = grandTotal.toFixed(2);
     console.log("Grand Total:", grandTotal);
 }
 
-// Initialize values when the page loads
-window.onload = function () {
-    // Get all quantity, discount, and total amount input fields
-    var quantityFields = document.querySelectorAll('[name="item_quantity[]"]');
-    var discountFields = document.querySelectorAll('[name="item_discount[]"]');
-    var totalAmountFields = document.querySelectorAll('[name="item_total_amount[]"]');
-
-    // Set default values to 0
-    quantityFields.forEach(function (element) {
-        element.value = 0;
+$(document).ready(function(){
+    $('#items-table-body').on('keyup change', function () {
+        calc();
     });
 
-    discountFields.forEach(function (element) {
-        element.value = 0;
+    $('#tax').on('keyup change', function () {
+        calc_total();
     });
+});
 
-    totalAmountFields.forEach(function (element) {
-        element.value = 0;
+function calc() {
+    $('#tab_logic tbody tr').each(function () {
+        var html = $(this).html();
+        if (html != '') {
+            var qty = $(this).find('.qty').val();
+            var price = $(this).find('.price').val();
+            var dis = $(this).find('.disc').val();
+            var tax = $(this).find('.seltax').val();
+
+            $(this).find('.total').val((parseFloat(qty) * parseFloat(price)) - parseFloat(dis));
+            $(this).find('.taxamount').val(((qty * price) - dis) * (tax / 100));
+
+            calc_total();
+        }
     });
+}
 
-    // Set other default values or call additional initialization functions if needed
-    document.getElementById('grandTotal').value = '0.00';
-    document.getElementById('taxAmount').value = 0.00;
-    document.getElementById('adjustment').value = '0.00';
-    // Call the function to calculate tax amount and update other fields
-   
-    updateSubtotal();
-    updateTotals();
+function calc_total() {
+    total = 0;
+    $('.total').each(function () {
+        total += parseFloat($(this).val());
+    });
+    taxamount = 0;
+    $('.taxamount').each(function () {
+        taxamount += parseFloat($(this).val());
+    });
+    $('#sub_total').val(total.toFixed(2));
+    $('#tax_amount').val(taxamount.toFixed(2));
+    adj_val = parseFloat($('#adj').val())
+    gtot = taxamount + total + adj_val;
+    $('#grandtotal').val(gtot.toFixed(2));
+    $('#baldue').val(gtot.toFixed(2));
+    adv_val = parseFloat($('#advance').val())
+    adv_val = gtot - adv_val
+    $('#balance').val(adv_val.toFixed(2));
+}
 
-    console.log("Page Loaded");
-};
+$(document).on("change", "#adj", function(){
+    var subtot = $('#sub_total').val();
+    var tax = $('#tax_amount').val();
+    var adj = $("#adj").val();
+    var adv = $("#advance").val();
+    $('#grandtotal').val((parseFloat(subtot) + parseFloat(tax) + parseFloat(adj)).toFixed(2));
+    $('#balance').val((parseFloat(subtot) + parseFloat(tax) + parseFloat(adj) - parseFloat(adv)).toFixed(2));
+});
 </script>
+
+
    </body>
             
 {% endblock %}

@@ -436,6 +436,7 @@ logger = logging.getLogger(__name__)
 def createdebitnote(request):
     parties = Party.objects.all()
     bills = PurchaseBill.objects.all()
+    unit=Unit.objects.all()
 
     # Fetch the company based on the user's role
     if request.user.is_company:
@@ -450,6 +451,7 @@ def createdebitnote(request):
         'parties': parties,
         'bills': bills,
         'items': items,
+        'units': unit,
         'company_id': cmp.id,  # Pass company_id to the template
     }
 
@@ -464,6 +466,8 @@ def createdebitnote(request):
             bill_id = request.POST.get('bill')
             selected_party = get_object_or_404(Party, id=party_id)
             selected_bill = get_object_or_404(PurchaseBill, id=bill_id)
+            selected_item = selected_bill.item
+
 
             # Create a DebitNote instance
             debit_note = DebitNote.objects.create(party=selected_party, bill=selected_bill, user=request.user, company=cmp)
@@ -473,8 +477,20 @@ def createdebitnote(request):
 
             # Now you can get the tax rate from the Item instance using the get_vat_integer method
             taxRate = selected_bill.item.get_vat_integer()
+            
 
-            return render(request, 'createdebitnote.html', {'usr': request.user, 'parties': parties, 'bills': bills, 'selected_party': selected_party, 'selected_bill': selected_bill, 'items': items, 'company_id': cmp.id, 'debit_note_instance': debit_note_instance, 'taxRate': taxRate})
+            return render(request, 'createdebitnote.html', {
+        'usr': request.user,
+        'parties': parties,
+        'bills': bills,
+        'selected_party': selected_party,
+        'selected_bill': selected_bill,
+        'selected_item': selected_item,  # Pass the selected Item instance
+        'items': items,
+        'company_id': cmp.id,
+        'debit_note_instance': debit_note_instance,
+        'taxRate': taxRate,
+            })
 
         except Exception as e:
             # Log the exception
@@ -486,6 +502,7 @@ def createdebitnote(request):
     return render(request, 'createdebitnote.html', context)
 
 def create_party(request):
+    
     if request.method == 'POST':
       
         company_id = request.session.get('company')
@@ -543,11 +560,6 @@ def create_party(request):
       
         return JsonResponse({'status': 'error'})
 
-def item_create1(request):
-   unit=Unit.objects.all()
-   context = {
-        'usr': request.user,'units': unit}
-   return render(request,'item_create.html',context)
 
 def extract_percentage(vat_string):
     # Split the string by space
@@ -564,33 +576,22 @@ def extract_percentage(vat_string):
     # Return None if the string doesn't match the expected format
     return None
 
-# Test the function
-vat_value = extract_percentage("VAT 5%")
-print(vat_value)  # Output: 5.0
-
-vat_value_gst = extract_percentage("GST 10%")
-print(vat_value_gst)  # Output: 10.0
 
 
 def item_create(request):
     if request.method == 'POST':
-        # Extract data from the POST request
         itm_type = request.POST.get('itm_type')
         itm_name = request.POST.get('name')
         itm_hsn = request.POST.get('hsn')
         itm_unit = request.POST.get('unit')
         itm_taxable = request.POST.get('taxable_result')
-        
-        # Use the extract_percentage function for itm_vat
-        itm_vat = extract_percentage(request.POST.get('vat'))
-        
+        itm_vat = request.POST.get('vat')
         itm_sale_price = request.POST.get('sale_price')
         itm_purchase_price = request.POST.get('purchase_price')
         itm_stock_in_hand = request.POST.get('stock_in_hand')
         itm_at_price = request.POST.get('at_price')
         itm_date = request.POST.get('itm_date')
 
-        # Create and save the Item instance
         item = Item(
             user=request.user,
             company=request.user.company,
@@ -608,10 +609,15 @@ def item_create(request):
         )
         item.save()
 
-        return render(request, 'item_create.html', {'success_message': 'Item created successfully!'})
+        # You can customize the success message based on your needs
+        success_message = 'Item created successfully!'
+        if request.is_ajax():
+            return JsonResponse({'success_message': success_message})
+        else:
+            return render(request, 'createdebitnote.html', {'success_message': success_message})
 
-    # If the request is not POST, render the form page
-    return render(request, 'item_create.html')
+    # If the request is not POST, redirect or render the form page
+    return redirect('createdebitnote')
 
 
 def create_unit(request):
@@ -620,8 +626,7 @@ def create_unit(request):
         company_id = request.user.company.id
         print(f"Company ID: {company_id}")
 
-        # Assuming you have a Company instance associated with the request
-        # You may need to adjust this based on how you associate the unit with the company
+        
         company = Company.objects.get(id=request.user.company.id)
 
         # Create a new Unit instance
@@ -633,7 +638,7 @@ def create_unit(request):
         context = {'success': True,'message': 'Unit created successfully!', 'unit_name': unit.unit_name}
         print("Context:", context)
 
-        return render(request, 'item_create.html', context)
+        return render(request, 'createdebitnote.html', context)
 
     # Handle other HTTP methods if needed
     return JsonResponse({'success': False, 'message': 'Invalid request method'})
