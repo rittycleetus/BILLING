@@ -580,12 +580,16 @@ def extract_percentage(vat_string):
 
 def item_create(request):
     if request.method == 'POST':
+        
         itm_type = request.POST.get('itm_type')
         itm_name = request.POST.get('name')
         itm_hsn = request.POST.get('hsn')
         itm_unit = request.POST.get('unit')
         itm_taxable = request.POST.get('taxable_result')
-        itm_vat = request.POST.get('vat')
+        
+        
+        itm_vat = extract_percentage(request.POST.get('vat'))
+        
         itm_sale_price = request.POST.get('sale_price')
         itm_purchase_price = request.POST.get('purchase_price')
         itm_stock_in_hand = request.POST.get('stock_in_hand')
@@ -608,17 +612,11 @@ def item_create(request):
             itm_date=itm_date
         )
         item.save()
+        response_data = {'success': True, 'message': 'Item created successfully!'}
+        return render(request, 'createdebitnote.html',response_data)
 
-        # You can customize the success message based on your needs
-        success_message = 'Item created successfully!'
-        if request.is_ajax():
-            return JsonResponse({'success_message': success_message})
-        else:
-            return render(request, 'createdebitnote.html', {'success_message': success_message})
 
-    # If the request is not POST, redirect or render the form page
-    return redirect('createdebitnote')
-
+    return render(request, 'createdebitnote.html')
 
 def create_unit(request):
     if request.method == 'POST':
