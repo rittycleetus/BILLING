@@ -1,0 +1,141 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+       td{
+    border-right: 1px solid rgb(12, 12, 12);
+  }
+  th{
+    width: 300px;
+  }
+
+  tbody:hover td:not(:last-child){
+    border-right: 1px solid #68020F;
+  }
+  @media print {
+            body {
+                font-size: 12pt;
+                color: black;
+            }
+
+            /* Additional print-specific styles */
+            .print-header {
+                font-size: 16pt;
+                font-weight: bold;
+                text-align: center;
+                margin-bottom: 20px;
+            }
+
+            .party-name {
+                font-size: 14pt;
+                font-weight: bold;
+                margin-bottom: 10px;
+            }
+
+            .item-details {
+                margin-bottom: 20px;
+            }
+
+            /* Hide non-print elements */
+            .no-print {
+                display: none;
+            }
+        }
+    </style>
+
+        </head>
+<div class="body-wrapper">
+
+    <div class="container" style="border: 1px solid #ccc; border-radius: 8px; padding: 20px; margin-top: 10px; position: relative;">
+        <form style="border: 1px solid #ccc; border-radius: 8px;">
+
+
+            <div class="dateclass" style="display: flex; justify-content: space-between; align-items: center; width: 800px; margin-top: 70px;">
+                <div>
+                    <label for="fromDate" style="margin-right: 10px;">From Date</label>
+                    <input type="date" id="fromDate" name="fromDate" style="width: 380px; padding: 5px; border-radius: 4px;">
+                </div>
+            
+                <div>
+                    <label for="toDate" style="margin-left: 10px;">To Date</label>
+                    <input type="date" id="toDate" name="toDate" style="width: 380px; padding: 5px; border-radius: 4px;">
+                </div>
+            </div>
+     
+    <div style="display: flex;  justify-content: flex-end;">
+        <a href="#" class="btn-icon"><i class="fas fa-file-excel" style="color: green; font-size: 24px; width: 50px;"></i><br>Excel</a>
+        <a href="#" class="btn-icon" onclick="printPage()"><i class="fas fa-print" style="color: red; font-size: 24px; width: 50px;"></i><br>Print</a>
+        <a href="#" class="btn-icon"><i class="fas fa-share" style="color: darkblue; font-size: 24px; width: 50px;"></i><br>Share</a>
+    </div>
+
+    
+     
+    </div>
+<div class="container" style="border: 1px solid #ccc; border-radius: 8px; padding: 20px; margin-top: 20px;">
+
+    <h2>Debit Note</h2>
+    
+    <!-- Search Column -->
+    <div class="search-column" style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px;">
+        <div style="display: flex; align-items: center;">
+       
+            <input type="text" id="search" name="search" placeholder="Search" style="margin-right: 10px;">
+          
+        </div>
+        <a href="{% url 'createdebitnote' %}" class="btn btn-primary" style="background-color: maroon;"><b>+</b> Add Debit Note</a>
+    </div>
+    <div style="overflow-x:auto;">  
+        <table class="table table-hover  mt-5 " style="background-color: white;box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);">
+            <thead style="background: #68020F;">
+              <tr class=" text-start text-light" style="font-size: 12px;">
+                <th scope="col"class="custom-width" style="border-right: 1px solid;">#</th>
+                <th scope="col"  style="border-right: 1px solid;">Date&nbsp;&nbsp;        <i class="fas fa-filter fa-xs"></i></th>
+                <th scope="col"  style="border-right: 1px solid;width: 500px;">Ref.No&nbsp;&nbsp;<i class="fas fa-filter fa-xs"></i></th>
+                <th scope="col" style="border-right: 1px solid;width: 1500px;">Party Name&nbsp;&nbsp;<i class="fas fa-filter fa-xs"></i></th>
+                <th scope="col" style="border-right: 1px solid;width: 1500px;">Category Name&nbsp;&nbsp;<i class="fas fa-filter fa-xs"></i></th>
+                <th scope="col"  style="border-right: 1px solid;">Type&nbsp;&nbsp;<i class="fas fa-filter fa-xs"></i></th>
+                <th scope="col"style="border-right: 1px solid;">Total&nbsp;&nbsp;<i class="fas fa-filter fa-xs"></i></th>
+                <th scope="col"  style="width: 1500px; border-right: 1px solid;">Received/Paid&nbsp;&nbsp;<i class="fas fa-filter fa-xs"></i></th>
+                <th scope="col"  style="border-right: 1px solid;width: 350px;">Balance&nbsp;&nbsp;<i class="fas fa-filter fa-xs"></i></th>
+                <th scope="col"  style="border-right: 1px solid;width: 350px;">Action&nbsp;&nbsp;<i class="fas fa-filter fa-xs"></i></th>
+                <th scope="col" class="custom-width" style="border-right: 1px solid;">By&nbsp;&nbsp;<i class="fas fa-filter fa-xs"></i></th>
+                </tr>
+            </thead>
+         
+       
+            <tr style="background-color: #FFADB0;">
+                <td style="color: black;">1</td>
+                <td style="width: 990px;">
+                    </td>
+                    <td></td>
+                    <td></td>
+                    <td></td>   
+                    <td></td>  
+                     <td></td> 
+                       <td></td> 
+                         <td></td> 
+                           <td></td> 
+                           
+                    <td></td>
+                    </tr>
+        </table>
+    <!-- Table -->
+   
+</div>
+</div>
+
+<!-- Additional HTML content -->
+
+<script>
+    function printPage() {
+        window.print();
+    }
+</script>
+
+</div>
+{% endblock %}

@@ -640,3 +640,10 @@ def create_unit(request):
 
     # Handle other HTTP methods if needed
     return JsonResponse({'success': False, 'message': 'Invalid request method'})
+
+
+def debitnote2(request):
+    company_id = request.session.get('company')
+    user_id = request.session.get('user')
+
+    return render(request, 'debitnote2.html', {'company_id': company_id, 'user_id': user_id})
