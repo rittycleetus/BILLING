@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
 
 <style>
        td{
@@ -45,7 +46,35 @@
             .no-print {
                 display: none;
             }
+
         }
+       
+    /* Style for the popup */
+    .popup {
+      display: none;
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      padding: 20px;
+      background-color: #fff;
+      border: 1px solid #ccc;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+      z-index: 1000;
+    }
+
+    /* Style for the overlay */
+    .overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 999;
+    }
+
     </style>
 
         </head>
@@ -68,9 +97,23 @@
             </div>
      
     <div style="display: flex;  justify-content: flex-end;">
-        <a href="#" class="btn-icon"><i class="fas fa-file-excel" style="color: green; font-size: 24px; width: 50px;"></i><br>Excel</a>
+        <a href="#" class="btn-icon" onclick="downloadExcel()"><i class="fas fa-file-excel" style="color: green; font-size: 24px; width: 50px;"></i><br>Excel</a>
         <a href="#" class="btn-icon" onclick="printPage()"><i class="fas fa-print" style="color: red; font-size: 24px; width: 50px;"></i><br>Print</a>
-        <a href="#" class="btn-icon"><i class="fas fa-share" style="color: darkblue; font-size: 24px; width: 50px;"></i><br>Share</a>
+        <a href="#" class="btn-icon" id="shareButton"><i class="fas fa-share" style="color: darkblue; font-size: 24px; width: 50px;"></i><br>Share</a>
+     <!-- Popup content -->
+  <div class="popup" id="sharePopup">
+    <p>Choose a platform to share:</p>
+    <button onclick="shareWithGmail()">
+        <i class="fas fa-envelope"></i>
+        Gmail
+      </button>
+      <button onclick="shareWithWhatsApp()"><i class="fab fa-whatsapp"></i>WhatsApp</button>
+      <button onclick="closePopup()"><i class="fas fa-times"></i> </button>
+  </div>
+
+  <!-- Overlay to cover the background when the popup is open -->
+  <div class="overlay" id="overlay"></div>
+
     </div>
 
     
@@ -133,9 +176,122 @@
 
 <script>
     function printPage() {
-        window.print();
+        // Open a new window for printing
+        var printWindow = window.open('', '_blank');
+
+        // Content to be printed
+        var content = `
+            <h1>Company Details</h1>
+            <!-- Include the relevant details here -->
+
+            <h1>Party Details</h1>
+            <!-- Include the relevant details here -->
+
+            <h1>Item Details</h1>
+            <!-- Include the relevant details here -->
+
+            <h1>Debit Note Number</h1>
+            <!-- Include the relevant details here -->
+
+            <h1>Debit Note Date</h1>
+            <!-- Include the relevant details here -->
+
+            <h1>Bill Number</h1>
+            <!-- Include the relevant details here -->
+
+            <h1>Bill Date</h1>
+            <!-- Include the relevant details here -->
+
+            <h1>Total Amount</h1>
+            <!-- Include the relevant details here -->
+        `;
+
+        // Set the content of the new window
+        printWindow.document.write(content);
+
+        // Trigger the print function
+        printWindow.print();
     }
 </script>
+<script>
+    function downloadExcel() {
+        // Your Excel content (replace this with the actual content)
+        var excelContent = `
+            <table>
+                <tr>
+                    <td>Cell 1</td>
+                    <td>Cell 2</td>
+                </tr>
+                <tr>
+                    <td>Cell 3</td>
+                    <td>Cell 4</td>
+                </tr>
+            </table>
+        `;
+
+        // Convert the content to a Blob
+        var blob = new Blob([excelContent], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+
+        // Create a download link
+        var link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = 'your_excel_file.xls'; // Specify the file name
+
+        // Append the link to the document
+        document.body.appendChild(link);
+
+        // Trigger the click event on the link
+        link.click();
+
+        // Remove the link from the document
+        document.body.removeChild(link);
+    }
+</script>
+ 
+  <script>
+    // Function to show the popup
+    function showPopup() {
+      document.getElementById("sharePopup").style.display = "block";
+      document.getElementById("overlay").style.display = "block";
+    }
+
+    // Function to close the popup
+    function closePopup() {
+      document.getElementById("sharePopup").style.display = "none";
+      document.getElementById("overlay").style.display = "none";
+    }
+
+    function shareWithGmail() {
+  var subject = encodeURIComponent("Your Debit Note invoice details");
+  var message = encodeURIComponent("Dear [Recipient],\n\nThanks for doing business with us. Below are your invoice details. Also attached are the PDF of the invoice for your convenience.\nAmount: 0\nTotal Balance: 0\n\nThanks & Regards");
+
+  // Creating the link to compose a new Gmail message
+  var gmailLink = `https://mail.google.com/mail/?view=cm&fs=1&to=&su=${subject}&body=${message}`;
+
+  // Opening the link in a new tab
+  window.open(gmailLink, '_blank');
+}
+
+
+function shareWithWhatsApp() {
+  // Add your logic for sharing with WhatsApp here
+
+  // Replace '1234567890' with the recipient's phone number (include the country code)
+  var phoneNumber = '1234567890';
+
+  // Replace 'Hello, this is the message!' with your predefined message
+  var message = encodeURIComponent('Hello, this is the message!');
+
+  // Creating the WhatsApp link
+  var whatsappLink = `https://wa.me/${phoneNumber}?text=${message}`;
+
+  // Opening the link in a new tab
+  window.open(whatsappLink, '_blank');
+}
+    // Event listener for the share button
+    document.getElementById("shareButton").addEventListener("click", showPopup);
+  </script>
+
 
 </div>
 {% endblock %}

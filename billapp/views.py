@@ -551,15 +551,13 @@ def create_party(request):
             additionalfield3=additionalfield3,
         )
         new_party.save()
+        request.session.save()
 
-       
         parties = Party.objects.filter(company_id=company_id, user_id=user_id)
         messages.success(request, 'Party created successfully')
         return render(request, 'createdebitnote.html', {'status': 'success', 'message': 'Party created successfully', 'parties': parties})
     else:
-      
-        return JsonResponse({'status': 'error'})
-
+        return render(request, 'createdebitnote.html')
 
 def extract_percentage(vat_string):
     # Split the string by space
@@ -642,6 +640,32 @@ def create_unit(request):
     return JsonResponse({'success': False, 'message': 'Invalid request method'})
 
 
+def save_debit_note(request):
+    if request.method == 'POST':
+        print("Form submitted")
+        company_id = request.session.get('company')
+
+        user_id = request.session.get('user')
+        return_no = request.POST.get('return_no')
+        date = request.POST.get('current-date')
+        party_id = request.POST.get('party')
+        bill_id = request.POST.get('bill')
+        item_id=request.POST.get('item')
+
+        # Create a new instance of the DebitNote model
+        debit_note = DebitNote(
+            returnno=return_no,date=date,party_id=party_id,bill_id=bill_id,item_id=item_id
+           
+        )
+
+       
+        debit_note.save()
+
+       
+        return redirect('debitnote2') 
+
+   
+    return render(request, 'debitnote2.html')  
 def debitnote2(request):
     company_id = request.session.get('company')
     user_id = request.session.get('user')

@@ -147,7 +147,7 @@ class DebitNote(models.Model):
     company = models.ForeignKey(Company, on_delete=models.CASCADE, null=True, blank=True)
     party = models.ForeignKey(Party, on_delete=models.CASCADE)
     bill = models.ForeignKey(PurchaseBill, on_delete=models.CASCADE)
-    items = models.ManyToManyField(Item)  # Assuming a ManyToMany relationship with Item
+    items = models.ForeignKey(Item,on_delete=models.CASCADE,null=True,blank=True)
     returnno = models.CharField(max_length=255)
     grandtotal = models.DecimalField(max_digits=10, decimal_places=2,null=True,blank=True)
     amount = models.DecimalField(max_digits=10, decimal_places=2)
@@ -155,3 +155,7 @@ class DebitNote(models.Model):
 
     def __str__(self):
         return f"DebitNote {self.debit_note_number} - {self.party} - {self.bill}"
+
+class DebitNoteItem(models.Model):
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, null=True, blank=True)
+    company = models.ForeignKey(Company, on_delete=models.CASCADE, null=True, blank=True)

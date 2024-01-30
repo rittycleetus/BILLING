@@ -37,7 +37,7 @@ urlpatterns = [
     path('item_create',views.item_create,name='item_create'),
     path('create_unit', views.create_unit, name='create_unit'),
 
-    path('debitnote2',views.debitnote2,name='debitnote2'),
-    
+    path('save_debit_note/', views.save_debit_note, name='save_debit_note'),
+    path('debitnote2', views.debitnote2, name='debitnote2'),
 
 ]
