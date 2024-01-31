@@ -229,17 +229,19 @@
                         <label for="party">Party</label>
                         <div class="input-group">
                             <select name="party" id="party" class="form-control" style="width: 450px" onchange="handlePartySelection()">
-                                <option value="">-- Select/Search Party --</option>
-                                {% for party in parties %}
-                                <option value="{{ party.id }}" 
-                                    data-contact="{{ party.contact }}" 
-                                    data-address="{{ party.address }}" 
-                                    data-openingbalance="{{ party.openingbalance }}"
-                                    data-billno="{{ party.bill.billno }}"
-                                    data-billdate="{{ party.bill.billdate }}">
-                                    {{ party.party_name }}
-                                </option>
-                            {% endfor %}
+                         <option value="">-- Select/Search Party --</option>
+    {% for party in parties %}
+    <option value="{{ party.id }}" 
+        data-contact="{{ party.contact }}" 
+        data-address="{{ party.address }}" 
+        data-openingbalance="{{ party.openingbalance }}"
+        {% if party.bill %}
+            data-billno="{{ party.bill.billno }}"
+        {% endif %}
+        data-billdate="{{ party.bill.billdate }}">
+        {{ party.party_name }}
+    </option>
+    {% endfor %}
                         </select>
                             <div class="input-group-append">
                                 <button type="button" class="btn btn-outline-secondary" style="background-color: maroon;" data-toggle="modal" data-target="#createPartyModal">+</button>
@@ -326,7 +328,7 @@
                                     <select name="selected_item[]" onchange="fillItemDetails1(this)" style="width: 130px;" class="form-control select2" id="select1">
                                         <option value="">-Select-</option>
                                         {% for item in items %}
-                                            <option value="{{ item.id }}" data-hsn="{{ item.itm_hsn }}" data-price="{{ item.itm_purchase_price }}"  data-tax="VAT {{ item.itm_vat|floatformat:0 }}%" data-tax-rate="{{ item.get_vat_integer }}">{{ item.itm_name }}</option>
+                                            <option value="{{ item.id }}" data-hsn="{{ item.itm_hsn }}" data-price="{{ item.itm_purchase_price }}"  data-tax="VAT {{ item.itm_vat|floatformat:0 }}%" >{{ item.itm_name }}</option>
                                         {% endfor %}
                                     </select>
                             
@@ -662,7 +664,7 @@
                             <td><input type="number" name="item_quantity[]" style="width: 90px;" class="form-control" value="0" oninput="updateTotalAmount1(this);updateTotals(this); updateTaxAmount(this);" required></td>
                             <td><span id="purchasePrice" style="width: 90px; height: 40px;" class="form-control"></span></td>
                             <td><span id="vat" style="width: 90px; height: 40px;" class="form-control"></span></td>
-                            <td><input type="number" name="item_discount[]" class="form-control" style="width: 90px;" value="0" oninput="updateTotalAmount1(this);updateTotals(this); updateTaxAmount(this);
+                            <td><input type="number" name="item_discount[]" class="form-control" style="width: 80px;" value="0" oninput="updateTotalAmount1(this);updateTotals(this); updateTaxAmount(this);
                             "></td>
                             <td><input type="number" name="item_total_amount[]" readonly class="form-control" style="width: 100px;" value="0"></td>
                         <td><i class="fas fa-trash-alt fa-lg delete-row"  style="margin-left: 10px;"></i></td>
@@ -732,7 +734,8 @@
                     </div>
                 </div>
  </div> 
-<a href="{% url 'debitnote2' %}" class="btn btn-primary">Submit</a>
+ <button type="submit" class="btn btn-primary">Submit</button>
+
         </form>
     </div>
 </div>
@@ -751,13 +754,13 @@
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
-            
+
             <div class="modal-body">
-                <!-- Form for creating a new party -->
-                <form method="POST" class="p-10" enctype="multipart/form-data" novalidate id="forms">
+               
+                <form id="createPartyForm" class="p-10" enctype="multipart/form-data" novalidate>
                     {% csrf_token %}
-              
-                <div class="body-wrapper">
+
+                    <div class="body-wrapper">
                     <div class="container-fluid">
                         <div class="col-md-3">
                             <a class="text-dark" style="font-size: 1.5rem;">Add New Party</a>
@@ -851,48 +854,46 @@
                         <input type="submit" class="btn btn-primary save-button" name="save_and_new" value="Save&New">
                         <input type="submit" class="btn btn-primary save-button" name="save" value="Save">
                     </div>
-            
                 </div>
-                </form>
-                </div>
-                
+            </form>
+        </div>
+    </div>
+</div>
+</div>
+<script>
+    $(document).ready(function () {
+        // Function to clear the form fields
+        function clearFormFields() {
+            // Set input values to empty string
+            $('#partyname').val('');
+            $('#trn_no').val('');
+            $('#contact').val('');
+            $('#trn_type').val('');
+            $('#address').val('');
+            $('#state').val('');
+            $('#email').val('');
+            $('#balance').val('');
+            $('input[name="paymentType"]').prop('checked', false);
+            $('#current-date1').val('');
+            $('#additionalfield1').val('');
+            $('#additionalfield2').val('');
+            $('#additionalfield3').val('');
+        }
 
-                <script>
-                    $(document).ready(function () {
-                        // Function to clear the form fields
-                        function clearFormFields() {
-                            function clearFormFields() {
-    // Set input values to empty string
-    $('#partyname').val('');
-    $('#trn_no').val('');
-    $('#contact').val('');
-    $('#trn_type').val('');
-    $('#address').val('');
-    $('#state').val('');
-    $('#email').val('');
-    $('#balance').val('');
-    $('input[name="paymentType"]').prop('checked', false);
-    $('#current-date1').val('');
-    $('#additionalfield1').val('');
-    $('#additionalfield2').val('');
-    $('#additionalfield3').val('');
-}
-                        }
-                
-                        // Submit form handler
-                        $('#forms').submit(function (e) {
-                            e.preventDefault();
-                
-                            var formData = new FormData(this);
-                
-                            // Using jQuery AJAX
-                            $.ajax({
-                                url: "{% url 'create_party' %}",
-                                type: 'POST',
-                                data: formData,
-                                processData: false,
-                                contentType: false,
-                                success: function (data) {
+        // Submit form handler
+        $('#createPartyForm').submit(function (e) {
+            e.preventDefault();
+
+            var formData = new FormData(this);
+
+            // Using jQuery AJAX
+            $.ajax({
+                url: "{% url 'create_party' %}",
+                type: 'POST',
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function (data) {
     console.log(data);
     // Handle success or redirect as needed
     window.location.href = "{% url 'create_party' %}";
@@ -901,16 +902,14 @@
                                     console.error('Error:', error);
                                 }
                             });
-                        });
-                
-                        // Clear form fields when modal is hidden
-                        $('#createPartyModal').on('hidden.bs.modal', function () {
-                            clearFormFields();
-                            
-                        });
-                    });
-                </script>
 
+        // Clear form fields when modal is hidden
+        $('#createPartyModal').on('hidden.bs.modal', function () {
+            clearFormFields();
+        });
+    });
+</script>
+               
 
                 <script>
                     function toggleSection(sectionId) {
@@ -1135,44 +1134,68 @@
         });
     });
 </script>
-<!-- <script>
-function closeAndOpenUnitModal() {
-    // Close the first modal
-    $('#itemCreateModal').modal('hide');
+// <!-- <script>
+// function closeAndOpenUnitModal() {
+//     // Close the first modal
+//     $('#itemCreateModal').modal('hide');
 
-    // Open the second modal
-    $('#unitmodal').modal('show');
+//     // Open the second modal
+//     $('#unitmodal').modal('show');
     
-    // Attach an event handler to unitmodal's hidden.bs.modal event
-    $('#unitmodal').on('hidden.bs.modal', function () {
-        // Show the first modal when the second modal is hidden
-        $('#itemCreateModal').modal('show');
+//     // Attach an event handler to unitmodal's hidden.bs.modal event
+//     $('#unitmodal').on('hidden.bs.modal', function () {
+//         // Show the first modal when the second modal is hidden
+//         $('#itemCreateModal').modal('show');
 
-        // Remove the event handler to avoid interference
-        $('#unitmodal').off('hidden.bs.modal');
-    });
-}
-    }
-</script> -->
+//         // Remove the event handler to avoid interference
+//         $('#unitmodal').off('hidden.bs.modal');
+//     });
+// }
+//     }
+// </script> -->
 <script>
-     function handlePartySelection() {
-        var partySelect = document.getElementById("party");
-        var selectedOption = partySelect.options[partySelect.selectedIndex];
-        var addressSection = document.getElementById("addressSection");
+    function handlePartySelection() {
+        var partySelect = $("#party");
+        var selectedOption = partySelect.find(":selected");
+        var billDropdown = $("#bill");
+        var billDateInput = $("#bill_date");
+        var addressSection = $("#addressSection");
+
+        // Update the "Select Bill" dropdown options
+        billDropdown.empty();
+        billDropdown.append($('<option>', {
+            value: "",
+            text: "NIL"
+        }));
+
+        // Check if the selected party has associated bills
+        if (selectedOption.data('billno') !== undefined) {
+            billDropdown.append($('<option>', {
+                value: selectedOption.data('billno'),
+                text: selectedOption.data('billno')
+            }));
+        }
+
+        // Set the value of the "Bill Date" input field
+        if (selectedOption.data('billdate') !== undefined) {
+            billDateInput.val(selectedOption.data('billdate'));
+        } else {
+            billDateInput.val("NIL");
+        }
 
         // Check if the selected party has an address
-        var address = selectedOption.getAttribute("data-address");
+        var address = selectedOption.data("address");
         if (address && address !== "none") {
             // Display the address section
-            addressSection.style.display = "block";
+            addressSection.show();
         } else {
             // Hide the address section
-            addressSection.style.display = "none";
+            addressSection.hide();
         }
     }
 
     // Trigger handlePartySelection on page load to handle default selection
-    document.addEventListener("DOMContentLoaded", function() {
+    $(document).ready(function () {
         handlePartySelection();
     });
 </script>
@@ -1184,13 +1207,15 @@ function closeAndOpenUnitModal() {
         // Get the associated details
         var hsn = selectedOption.getAttribute("data-hsn") || "";
         var purchasePrice = selectedOption.getAttribute("data-price") || "";
-        var vatRate = parseFloat(selectedOption.getAttribute("data-tax-rate")) || 0;
+        var vat = selectedOption.getAttribute("data-tax") || "";
+        var vatRate = parseFloat(vat.match(/\d+/)) || 0;
+        
 
         // Update the elements in the current row with the details
         var row = selectElement.closest('tr');
         row.querySelector('span[id="hsn"]').textContent = hsn;
         row.querySelector('span[id="purchasePrice"]').textContent = purchasePrice;
-        row.querySelector('span[id="vat"]').textContent = vatRate;
+        row.querySelector('span[id="vat"]').textContent = vat;
         updateTaxAmount();
 
       
@@ -1284,7 +1309,7 @@ document.getElementById('adjustment').addEventListener('input', function () {
 
         // Cell 7: Discount
         var cell7 = newRow.insertCell(6);
-        cell7.innerHTML = '<input type="number" name="item_discount[]" class="form-control" style="width: 90px;" value="0" oninput="updateTotalAmount(this)">';
+        cell7.innerHTML = '<input type="number" name="item_discount[]" class="form-control" style="width: 80px;" value="0" oninput="updateTotalAmount(this)">';
 
         // Cell 8: Total Amount
         var cell8 = newRow.insertCell(7);

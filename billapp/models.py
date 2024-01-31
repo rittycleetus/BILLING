@@ -122,7 +122,7 @@ class PurchaseBill(models.Model):
     grandtotal = models.FloatField(default=0, null=True)
     advance=models.CharField(null=True,blank=True,max_length=255)
     balance=models.CharField(null=True,blank=True,max_length=255)
-    bill_no = models.IntegerField(default=0, null=True)
+    
     
 
 class PurchaseBillItem(models.Model):
@@ -147,11 +147,13 @@ class DebitNote(models.Model):
     company = models.ForeignKey(Company, on_delete=models.CASCADE, null=True, blank=True)
     party = models.ForeignKey(Party, on_delete=models.CASCADE)
     bill = models.ForeignKey(PurchaseBill, on_delete=models.CASCADE)
-    items = models.ForeignKey(Item,on_delete=models.CASCADE,null=True,blank=True)
+    
     returnno = models.CharField(max_length=255)
-    grandtotal = models.DecimalField(max_digits=10, decimal_places=2,null=True,blank=True)
-    amount = models.DecimalField(max_digits=10, decimal_places=2)
     created_at = models.DateTimeField(auto_now_add=True)
+    subtotal=models.IntegerField(default=0,null=True)
+    taxamount=models.IntegerField(default=0,null=True)
+    adjustment=models.IntegerField(default=0,null=True)
+    grandtotal=models.IntegerField(default=0,null=True)
 
     def __str__(self):
         return f"DebitNote {self.debit_note_number} - {self.party} - {self.bill}"
@@ -159,3 +161,9 @@ class DebitNote(models.Model):
 class DebitNoteItem(models.Model):
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, null=True, blank=True)
     company = models.ForeignKey(Company, on_delete=models.CASCADE, null=True, blank=True)
+    debitnote=models.ForeignKey(DebitNote,on_delete=models.CASCADE,null=True, blank=True)
+    items = models.ForeignKey(Item,on_delete=models.CASCADE,null=True,blank=True)
+    qty=models.IntegerField(default=0,null=True)
+    discount=models.IntegerField(default=0,null=True)
+    total=models.IntegerField(default=0,null=True)
+   
