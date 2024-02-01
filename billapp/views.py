@@ -435,15 +435,16 @@ def firstdebitnote(request):
 logger = logging.getLogger(__name__)
 
 def createdebitnote(request):
-    parties = Party.objects.all()
-    bills = PurchaseBill.objects.all()
-    unit = Unit.objects.all()
-
+    
     # Fetch the company based on the user's role
     if request.user.is_company:
         cmp = request.user.company
     else:
         cmp = request.user.employee.company
+
+    parties = Party.objects.filter(company=cmp)
+    bills = PurchaseBill.objects.filter(company=cmp)
+    unit = Unit.objects.filter(company=cmp)
 
     items = Item.objects.filter(company=cmp)
 
@@ -509,12 +510,10 @@ def create_party(request):
     
     if request.method == 'POST':
       
-        company_id = request.session.get('company')
-
-        user_id = request.session.get('user')
-        
-
-      
+       
+        user_id=request.POST.get('user_id')
+        company_id = request.POST.get('company_id')
+       
 
         
         party_name = request.POST.get('partyname')
@@ -646,7 +645,7 @@ def create_unit(request):
 
 def save_debit_note(request):
     if request.method == 'POST':
-        # Get the form data from the request
+   
         party_id = request.POST.get('party')
         return_no = request.POST.get('return_no')
         current_date = request.POST.get('current_date')
@@ -657,21 +656,19 @@ def save_debit_note(request):
         adjustment = request.POST.get('adjustment')
         grand_total = request.POST.get('grandTotal')
 
-        # Get the selected party details and bill
+       
         selected_party = Party.objects.get(id=party_id)
         selected_bill = PurchaseBill.objects.get(id=selected_bill_id)
 
-        # Create a DebitNote instance and save it
+        
         debit_note = DebitNote.objects.create(
             user=request.user,
-            company=request.user.company,  # Assuming user has a 'company' attribute
+            company=request.user.company,  
             party=selected_party,
             bill=selected_bill,
             returnno=return_no,
             created_at=current_date
         )
-
-        # Iterate through the items in the table and create DebitNoteItem instances
         for i in range(int(request.POST.get('totalItems'))):
             item_id = request.POST.get(f'item_id_{i}')
             quantity = request.POST.get(f'item_quantity_{i}')
@@ -680,7 +677,7 @@ def save_debit_note(request):
 
             item = Item.objects.get(id=item_id)
 
-            # Create DebitNoteItem instance and save it
+  
             DebitNoteItem.objects.create(
                 user=request.user,
                 company=request.user.company,
@@ -689,10 +686,9 @@ def save_debit_note(request):
                 qty=quantity,
                 discount=discount,
                 total=total_amount,
-                # Add other fields as needed
+                
             )
 
-        # Save additional details to DebitNote instance
         debit_note.payment_type = payment_type
         debit_note.subtotal = subtotal
         debit_note.tax_amount = tax_amount
@@ -700,8 +696,6 @@ def save_debit_note(request):
         debit_note.grand_total = grand_total
         debit_note.save()
 
-
-    # Render the form template if it's a GET request
     return render(request, 'debitnote2.html', context={'parties': Party.objects.all(), 'bills': PurchaseBill.objects.all(), 'items': Item.objects.all()})
 
 

@@ -6,13 +6,89 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+     
 
 <style>
+         .ellipsis-menu {
+        position: relative;
+        display: inline-block;
+        cursor: pointer;
+    }
+
+    .menu-options {
+        display: none;
+        position: absolute;
+        background-color: #fff;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        padding: 8px;
+        z-index: 1;
+        min-width: 120px;
+        text-align: left;
+        border-radius: 4px;
+        border: 1px solid #ddd;
+        top: 20px; /* Adjust the top position as needed */
+        right: 0; /* Adjust the right position as needed */
+    }
+
+    .ellipsis-menu:hover .menu-options {
+        display: block;
+    }
+
+    .menu-option {
+        padding: 8px;
+        cursor: pointer;
+        transition: background-color 0.3s;
+    }
+
+    .menu-option:hover {
+        background-color: #f0f0f0;
+    }
+     .filter-box {
+            display: none;
+            position: absolute;
+            background-color: #fff;
+            border: 1px solid #ccc;
+            padding: 5px;
+            z-index: 1;
+           
+        }
+        .filter-box1 {
+            display: none;
+            position: absolute;
+            background-color: #fff;
+            border: 1px solid #ccc;
+            padding: 5px;
+            z-index: 1;
+            left: 850px;
+        }
+        .filter-box2 {
+            display: none;
+            position: absolute;
+            background-color: #fff;
+            border: 1px solid #ccc;
+            padding: 5px;
+            z-index: 1;
+            left: 890px;
+        }
+
+        .filter-box input,
+        .filter-box select {
+            margin-bottom: 5px;
+        }
+
+        .filter-btns {
+            text-align: center;
+        }
+        .custom-button {
+        background-color: #68020F;
+        color: white;
+        width: 50px;
+    }
        td{
     border-right: 1px solid rgb(12, 12, 12);
   }
   th{
-    width: 300px;
+    width: 200px;
   }
 
   tbody:hover td:not(:last-child){
@@ -50,7 +126,7 @@
         }
        
     /* Style for the popup */
-    .popup {
+    /* .popup {
       display: none;
       position: fixed;
       top: 50%;
@@ -61,7 +137,20 @@
       border: 1px solid #ccc;
       box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
       z-index: 1000;
-    }
+    } */
+    .popup {
+    display: none;
+    position: absolute;
+    top: 30px;
+    left: 0;
+    background-color: #fff;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    padding: 10px;
+}
+
+.share-icon {
+    cursor: pointer;
+}
 
     /* Style for the overlay */
     .overlay {
@@ -87,7 +176,7 @@
             <div class="dateclass" style="display: flex; justify-content: space-between; align-items: center; width: 800px; margin-top: 70px;">
                 <div>
                     <label for="fromDate" style="margin-right: 10px;">From Date</label>
-                    <input type="date" id="fromDate" name="fromDate" style="width: 380px; padding: 5px; border-radius: 4px;">
+                    <input type="date" id="fromDate" name="fromDate" style="width: 380px; padding: 5px; border-radius: 4px;" onchange="updateToDateMin()">
                 </div>
             
                 <div>
@@ -99,17 +188,27 @@
     <div style="display: flex;  justify-content: flex-end;">
         <a href="#" class="btn-icon" onclick="downloadExcel()"><i class="fas fa-file-excel" style="color: green; font-size: 24px; width: 50px;"></i><br>Excel</a>
         <a href="#" class="btn-icon" onclick="printPage()"><i class="fas fa-print" style="color: red; font-size: 24px; width: 50px;"></i><br>Print</a>
-        <a href="#" class="btn-icon" id="shareButton"><i class="fas fa-share" style="color: darkblue; font-size: 24px; width: 50px;"></i><br>Share</a>
+        <div class="share-icon" onclick="toggleSharePopup()">
+            
+        <i class="fas fa-share" style="color: darkblue; font-size: 24px; width: 50px;"></i><br>Share</a>
+    </div>
      <!-- Popup content -->
-  <div class="popup" id="sharePopup">
+ 
+
+<div class="popup" id="sharePopup">
     <p>Choose a platform to share:</p>
-    <button onclick="shareWithGmail()">
-        <i class="fas fa-envelope"></i>
+    <button onclick="shareWithCustomEmail()">
+        <i class="fas fa-envelope" style="color: #4285F4;"></i>
         Gmail
-      </button>
-      <button onclick="shareWithWhatsApp()"><i class="fab fa-whatsapp"></i>WhatsApp</button>
-      <button onclick="closePopup()"><i class="fas fa-times"></i> </button>
-  </div>
+    </button>
+    <button onclick="shareWithWhatsApp()">
+        <i class="fab fa-whatsapp" style="color: #25D366;"></i>
+        WhatsApp
+    </button>
+    <button onclick="closePopup()">
+        <i class="fas fa-times" style="color: #333;"></i>
+    </button>
+</div>
 
   <!-- Overlay to cover the background when the popup is open -->
   <div class="overlay" id="overlay"></div>
@@ -119,7 +218,7 @@
     
      
     </div>
-<div class="container" style="border: 1px solid #ccc; border-radius: 8px; padding: 20px; margin-top: 20px;">
+
 
     <h2>Debit Note</h2>
     
@@ -132,21 +231,149 @@
         </div>
         <a href="{% url 'createdebitnote' %}" class="btn btn-primary" style="background-color: maroon;"><b>+</b> Add Debit Note</a>
     </div>
-    <div style="overflow-x:auto;">  
+   
         <table class="table table-hover  mt-5 " style="background-color: white;box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);">
             <thead style="background: #68020F;">
               <tr class=" text-start text-light" style="font-size: 12px;">
                 <th scope="col"class="custom-width" style="border-right: 1px solid;">#</th>
-                <th scope="col"  style="border-right: 1px solid;">Date&nbsp;&nbsp;        <i class="fas fa-filter fa-xs"></i></th>
-                <th scope="col"  style="border-right: 1px solid;width: 500px;">Ref.No&nbsp;&nbsp;<i class="fas fa-filter fa-xs"></i></th>
-                <th scope="col" style="border-right: 1px solid;width: 1500px;">Party Name&nbsp;&nbsp;<i class="fas fa-filter fa-xs"></i></th>
-                <th scope="col" style="border-right: 1px solid;width: 1500px;">Category Name&nbsp;&nbsp;<i class="fas fa-filter fa-xs"></i></th>
-                <th scope="col"  style="border-right: 1px solid;">Type&nbsp;&nbsp;<i class="fas fa-filter fa-xs"></i></th>
-                <th scope="col"style="border-right: 1px solid;">Total&nbsp;&nbsp;<i class="fas fa-filter fa-xs"></i></th>
-                <th scope="col"  style="width: 1500px; border-right: 1px solid;">Received/Paid&nbsp;&nbsp;<i class="fas fa-filter fa-xs"></i></th>
-                <th scope="col"  style="border-right: 1px solid;width: 350px;">Balance&nbsp;&nbsp;<i class="fas fa-filter fa-xs"></i></th>
-                <th scope="col"  style="border-right: 1px solid;width: 350px;">Action&nbsp;&nbsp;<i class="fas fa-filter fa-xs"></i></th>
-                <th scope="col" class="custom-width" style="border-right: 1px solid;">By&nbsp;&nbsp;<i class="fas fa-filter fa-xs"></i></th>
+                <th scope="col" style="border-right: 1px solid; position: relative;">
+                    Date
+                    <i class="fas fa-filter fa-xs" onclick="toggleFilterBox(this)" style="color: #3498db;"></i>
+                    <div class="filter-box" id="dateFilterBox" >
+                        <select style="width: 190px;">
+                            <option value="exact">Exact match</option>
+                            <option value="contains">Contains</option>
+                        </select>
+                        <input type="text" placeholder="Search...">
+                        <div class="filter-btns">
+                            <button onclick="clearFilter()" class="custom-button">CLEAR</button>
+                            <button onclick="applyFilter()" class="custom-button">APPLY</button>
+                        </div>
+                    </div>
+                </th>
+                <th scope="col" style="border-right: 1px solid; width: 500px;">
+                    Ref.No&nbsp;&nbsp;
+                    <i class="fas fa-filter fa-xs" onclick="toggleFilterBox(this)" style="color: #3498db;"></i>
+                    <div class="filter-box" id="refNoFilterBox" style="width:200px">
+                        <select style="width: 190px;">
+                            <option value="exact">Exact match</option>
+                            <option value="contains">Contains</option>
+                        </select>
+                        <input type="text" placeholder="Search...">
+                        <div class="filter-btns">
+                            <button onclick="clearFilter()" class="custom-button">CLEAR</button>
+                            <button onclick="applyFilter()" class="custom-button">APPLY</button>
+                        </div>
+                    </div>
+                </th>
+                <th scope="col" style="border-right: 1px solid; width: 1500px;">
+                    Party Name&nbsp;&nbsp;
+                    <i class="fas fa-filter fa-xs" onclick="toggleFilterBox(this)" style="color: #3498db;"></i>
+                    <div class="filter-box" id="partyNameFilterBox" style="width:200px">
+                        <select style="width: 190px;">
+                            <option value="exact">Exact match</option>
+                            <option value="contains">Contains</option>
+                        </select>
+                        <input type="text" placeholder="Search...">
+                        <div class="filter-btns">
+                            <button onclick="clearFilter()" class="custom-button">CLEAR</button>
+                            <button onclick="applyFilter()" class="custom-button">APPLY</button>
+                        </div>
+                    </div>
+                </th>
+                <th scope="col" style="border-right: 1px solid;width: 1500px;">Category Name<i class="fas fa-filter fa-xs" onclick="toggleFilterBox(this)" style="color: #3498db;"></i>
+                    <div class="filter-box" id="categoryNameFilterBox" style="width:200px">
+                        <select style="width: 190px;">
+                            <option value="exact">Exact match</option>
+                            <option value="contains">Contains</option>
+                        </select>
+                        <input type="text" placeholder="Search...">
+                        <div class="filter-btns">
+                            <button onclick="clearFilter()" class="custom-button">CLEAR</button>
+                            <button onclick="applyFilter()" class="custom-button">APPLY</button>
+                        </div>
+                    </div>
+                </th>
+                <th scope="col"  style="border-right: 1px solid;width: 800px;">Type<i class="fas fa-filter fa-xs" onclick="toggleFilterBox(this)" style="color: #3498db;"></i>
+                    <div class="filter-box" id="typeFilterBox" style="width:200px">
+                        <select style="width: 190px;">
+                            <option value="exact">Exact match</option>
+                            <option value="contains">Contains</option>
+                        </select>
+                        <input type="text" placeholder="Search...">
+                        <div class="filter-btns">
+                            <button onclick="clearFilter()" class="custom-button">CLEAR</button>
+                            <button onclick="applyFilter()" class="custom-button">APPLY</button>
+                        </div>
+                    </div>
+                </th>
+                <th scope="col"style="border-right: 1px solid;width: 800px;">Total<i class="fas fa-filter fa-xs"onclick="toggleFilterBox(this)" style="color: #3498db;"></i>
+                    <div class="filter-box" id="totalFilterBox" style="width:200px">
+                        <select style="width: 190px;">
+                            <option value="exact">Exact match</option>
+                            <option value="contains">Contains</option>
+                        </select>
+                        <input type="text" placeholder="Search...">
+                        <div class="filter-btns">
+                            <button onclick="clearFilter()" class="custom-button">CLEAR</button>
+                            <button onclick="applyFilter()" class="custom-button">APPLY</button>
+                        </div>
+                    </div>
+                </th>
+                <th scope="col"  style="width: 1300px; border-right: 1px solid;">Received/Paid<i class="fas fa-filter fa-xs"onclick="toggleFilterBox(this)" style="color: #3498db;"></i>
+                    <div class="filter-box" id="recievedFilterBox" style="width:200px">
+                        <select style="width: 190px;">
+                            <option value="exact">Exact match</option>
+                            <option value="contains">Contains</option>
+                        </select>
+                        <input type="text" placeholder="Search...">
+                        <div class="filter-btns">
+                            <button onclick="clearFilter()" class="custom-button">CLEAR</button>
+                            <button onclick="applyFilter()" class="custom-button">APPLY</button>
+                        </div>
+                    </div>
+                </th>
+                <th scope="col"  style="border-right: 1px solid;width: 500px;">Balance<i class="fas fa-filter fa-xs" onclick="toggleFilterBox(this)" style="color: #3498db;"></i>
+                    <div class="filter-box" id="balanceFilterBox" style="width:200px">
+                        <div>
+                            <select style="width: 190px;">
+                                <option value="exact">Exact match</option>
+                                <option value="contains">Contains</option>
+                            </select>
+                            <input type="text" placeholder="Search...">
+                            <div class="filter-btns">
+                                <button onclick="clearFilter()" class="custom-button">CLEAR</button>
+                                <button onclick="applyFilter()" class="custom-button">APPLY</button>
+                            </div>
+                        </div>
+                    </th>
+                <th scope="col"  style="border-right: 1px solid;width: 350px;">Action<i class="fas fa-filter fa-xs" onclick="toggleFilterBox(this)" style="color: #3498db;"></i>
+                    <div class="filter-box1" id="actionFilterBox" style="width:200px">
+                        <select style="width: 190px;">
+                            <option value="exact">Exact match</option>
+                            <option value="contains">Contains</option>
+                        </select>
+                        <input type="text" placeholder="Search...">
+                        <div class="filter-btns">
+                            <button onclick="clearFilter()" class="custom-button">CLEAR</button>
+                            <button onclick="applyFilter()" class="custom-button">APPLY</button>
+                        </div>
+                    </div>
+                </th>
+                <th scope="col"  style="border-right: 1px solid;width: 400px;">By<i class="fas fa-filter fa-xs" onclick="toggleFilterBox(this)" style="color: #3498db;"></i>
+                    <div class="filter-box2" id="byFilterBox" style="width:200px">
+                        <select style="width: 190px;">
+                            <option value="exact">Exact match</option>
+                            <option value="contains">Contains</option>
+                        </select>
+                        <input type="text" placeholder="Search...">
+                        <div class="filter-btns">
+                            <button onclick="clearFilter()" class="custom-button">CLEAR</button>
+                            <button onclick="applyFilter()" class="custom-button">APPLY</button>
+                        </div>
+                    </div>
+                </th>
+                <th scope="col"  style="border-right: 1px solid;width: 20px;"></th>
                 </tr>
             </thead>
          
@@ -165,53 +392,137 @@
                            <td></td> 
                            
                     <td></td>
+                    <td>
+                        <div class="ellipsis-menu" id="ellipsisMenu">
+                            <i class="fas fa-ellipsis-v"></i>
+                       
+                            <div class="menu-options">
+                                <div class="menu-option" onclick="editAction()">
+                                    <i class="fas fa-edit" style="color: #3498db;"></i> View/Edit
+                                </div>
+                                <div class="menu-option" onclick="historyAction()">
+                                    <i class="fas fa-history" style="color: #e67e22;"></i> History
+                                </div>
+                                <div class="menu-option" onclick="viewPdfAction()">
+                                    <i class="fas fa-file-pdf" style="color: #27ae60;"></i> View PDF
+                                </div>
+                                <div class="menu-option" onclick="deleteAction()">
+                                    <i class="fas fa-trash" style="color: #e74c3c;"></i> Delete
+                                </div>
+                            </div>
+                    </div>
+                </td>
+                    
                     </tr>
         </table>
     <!-- Table -->
    
-</div>
-</div>
+
+
 
 <!-- Additional HTML content -->
+<script>
+    function toggleFilterBox(icon) {
+        const filterBox = icon.nextElementSibling;
+        filterBox.style.display = (filterBox.style.display === 'none' || filterBox.style.display === '') ? 'block' : 'none';
+    }
+
+    function clearFilter() {
+        // Implement logic to clear the filter
+        console.log('Clearing filter...');
+    }
+
+    function applyFilter() {
+        // Implement logic to apply the filter
+        console.log('Applying filter...');
+    }
+</script>
 
 <script>
-    function printPage() {
-        // Open a new window for printing
-        var printWindow = window.open('', '_blank');
+function printPage() {
+    // Open a new window for printing
+    var printWindow = window.open('', '_blank');
 
-        // Content to be printed
-        var content = `
-            <h1>Company Details</h1>
-            <!-- Include the relevant details here -->
+    // Sample content for demonstration
+    var companyName = "ABC Company";
+    var partyName = "Party XYZ";
+    var phoneNumber = "123-456-7890";
+    var debitNoteNumber = "DN123";
+    var debitNoteDate = "2022-02-01";
+    var returnTo = "Return To: ABC Company";
+    var shipTo = "Ship To: Address XYZ";
+    var returnNo = "Return No: RN456";
+    var returnDate = "2022-02-05";
 
-            <h1>Party Details</h1>
-            <!-- Include the relevant details here -->
+    // Sample table data
+    var tableData = `
+        <table border="1" cellspacing="0" cellpadding="5" width="100%">
+            <thead>
+                <tr style="background-color:blue;">
+                    <th>#</th>
+                    <th>Items</th>
+                    <th>HSN</th>
+                    <th>Price</th>
+                    <th>Qty</th>
+                    <th>Tax</th>
+                    <th>Discount</th>
+                    <th>Total</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>1</td>
+                    <td>Item A</td>
+                    <td>12345</td>
+                    <td>$50.00</td>
+                    <td>2</td>
+                    <td>$5.00</td>
+                    <td>$10.00</td>
+                    <td>$90.00</td>
+                </tr>
+                <!-- Add more rows as needed -->
+            </tbody>
+        </table>
+    `;
 
-            <h1>Item Details</h1>
-            <!-- Include the relevant details here -->
+    // Sample summary data
+    var summaryData = `
+        <div style="text-align: right; margin-top: 10px;">
+            <p>Subtotal: $140.00</p>
+            <p>Tax Amount: $10.00</p>
+            <p>Adjustment: -$5.00</p>
+            <p>Grand Total: $145.00</p>
+        </div>
+    `;
 
-            <h1>Debit Note Number</h1>
-            <!-- Include the relevant details here -->
+    // Set the content of the new window
+    var content = `
+        <div style="margin-bottom: 20px;">
+            <div style="float: left;">
+                <h2>${partyName}</h2>
+                <p>${phoneNumber}</p>
+            </div>
+            <div style="text-align: center;">
+                <h1 style="color: blue;">DEBIT NOTE</h1>
+                <p style=>${returnTo}</p>
+                <p style=>${shipTo}</p>
+                <p style="text-align: right;">Debit No: ${debitNoteNumber} - Debit Date: ${debitNoteDate}</p>
+            </div>
+        </div>
+        
+        <h2>${companyName}</h2>
+        
+        ${tableData}
 
-            <h1>Debit Note Date</h1>
-            <!-- Include the relevant details here -->
+        ${summaryData}
+    `;
 
-            <h1>Bill Number</h1>
-            <!-- Include the relevant details here -->
+    printWindow.document.write(content);
 
-            <h1>Bill Date</h1>
-            <!-- Include the relevant details here -->
+    // Trigger the print function
+    printWindow.print();
+}
 
-            <h1>Total Amount</h1>
-            <!-- Include the relevant details here -->
-        `;
-
-        // Set the content of the new window
-        printWindow.document.write(content);
-
-        // Trigger the print function
-        printWindow.print();
-    }
 </script>
 <script>
     function downloadExcel() {
@@ -250,27 +561,34 @@
  
   <script>
     // Function to show the popup
-    function showPopup() {
-      document.getElementById("sharePopup").style.display = "block";
-      document.getElementById("overlay").style.display = "block";
+    function toggleSharePopup() {
+    var sharePopup = document.getElementById('sharePopup');
+    sharePopup.style.display = (sharePopup.style.display === 'none' || sharePopup.style.display === '') ? 'block' : 'none';
+}
+
+  
+
+    function shareWithCustomEmail() {
+    // Prompt for email address
+    var to = prompt("Enter recipient's email address:");
+
+    if (to === null) {
+        // User clicked Cancel
+        return;
     }
 
-    // Function to close the popup
-    function closePopup() {
-      document.getElementById("sharePopup").style.display = "none";
-      document.getElementById("overlay").style.display = "none";
-    }
+    // Prompt for subject
+    var subject = "Your Debit Note invoice details";
 
-    function shareWithGmail() {
-  var subject = encodeURIComponent("Your Debit Note invoice details");
-  var message = encodeURIComponent("Dear [Recipient],\n\nThanks for doing business with us. Below are your invoice details. Also attached are the PDF of the invoice for your convenience.\nAmount: 0\nTotal Balance: 0\n\nThanks & Regards");
+    // Prompt for message
+    var message = `Dear,\nThanks for doing business with us. Below are your invoice details.\nAmount: 336\nBalance: 336\nTotal Balance: -2352\n\nThanks & Regards`;
 
-  // Creating the link to compose a new Gmail message
-  var gmailLink = `https://mail.google.com/mail/?view=cm&fs=1&to=&su=${subject}&body=${message}`;
+    // Create the mailto link
+    var mailtoLink = `mailto:${to}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(message)}`;
 
-  // Opening the link in a new tab
-  window.open(gmailLink, '_blank');
-    }
+    // Opening the link in a new tab
+    window.open(mailtoLink, '_blank');
+}
 
 
 function shareWithWhatsApp() {
@@ -288,10 +606,95 @@ function shareWithWhatsApp() {
   // Opening the link in a new tab
   window.open(whatsappLink, '_blank');
 }
-    // Event listener for the share button
-    document.getElementById("shareButton").addEventListener("click", showPopup);
+
+
+    function closePopup() {
+    var sharePopup = document.getElementById('sharePopup');
+    sharePopup.style.display = 'none';
+}
   </script>
 
+<script>
+      function updateToDateMin() {
+        // Get the value of the "From Date" input
+        var fromDateValue = document.getElementById('fromDate').value;
+
+        // Set the minimum date for the "To Date" input
+        document.getElementById('toDate').min = fromDateValue;
+
+        // If you want to clear the "To Date" value when changing the "From Date"
+        // uncomment the line below
+        document.getElementById('toDate').value = "";
+    }
+
+</script>
+<script>
+    document.getElementById('ellipsisMenu').addEventListener('click', function (event) {
+        const ellipsisIcon = event.target.closest('.ellipsis-menu i');
+        if (ellipsisIcon) {
+            const menuOptions = ellipsisIcon.nextElementSibling;
+            menuOptions.style.display = (menuOptions.style.display === 'none' || menuOptions.style.display === '') ? 'block' : 'none';
+        }
+    });
+
+    document.addEventListener('click', function (event) {
+        const ellipsisMenu = document.getElementById('ellipsisMenu');
+        if (!ellipsisMenu.contains(event.target)) {
+            // Hide menu if click is outside the ellipsis menu
+            document.querySelector('.menu-options').style.display = 'none';
+        }
+    });
+
+    document.querySelector('.menu-options').addEventListener('click', function (event) {
+        const menuOption = event.target.closest('.menu-option');
+        if (menuOption) {
+            const action = menuOption.getAttribute('data-action');
+            handleAction(action);
+            // Hide menu after an option is clicked
+            this.style.display = 'none';
+        }
+    });
+
+    function handleAction(action) {
+        switch (action) {
+            case 'view':
+                viewAction();
+                break;
+            case 'edit':
+                editAction();
+                break;
+            case 'history':
+                historyAction();
+                break;
+            case 'viewPdf':
+                viewPdfAction();
+                break;
+            case 'delete':
+                deleteAction();
+                break;
+        }
+    }
+
+    function viewAction() {
+        console.log('View action triggered');
+    }
+
+    function editAction() {
+        console.log('Edit action triggered');
+    }
+
+    function historyAction() {
+        console.log('History action triggered');
+    }
+
+    function viewPdfAction() {
+        console.log('View PDF action triggered');
+    }
+
+    function deleteAction() {
+        console.log('Delete action triggered');
+    }
+</script>
 
 </div>
 {% endblock %}
