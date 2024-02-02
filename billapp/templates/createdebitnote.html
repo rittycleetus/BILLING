@@ -222,8 +222,7 @@
             <div class="row">
 
                 <div class="col-md-6">
-                    <!-- Left side of the form -->
-
+                 workon test1
                   
                     <div class="form-group">
                         <label for="party">Party</label>
@@ -231,17 +230,25 @@
                             <select name="party" id="party" class="form-control" style="width: 450px" onchange="handlePartySelection()">
                          <option value="">-- Select/Search Party --</option>
     {% for party in parties %}
+  
     <option value="{{ party.id }}" 
         data-contact="{{ party.contact }}" 
         data-address="{{ party.address }}" 
         data-openingbalance="{{ party.openingbalance }}"
-        {% if party.bill %}
-            data-billno="{{ party.bill.billno }}"
-        {% endif %}
-        data-billdate="{{ party.bill.billdate }}">
+        {% for bill in bills %}
+        {% if party.id == bill.party_id %}
+
+            data-billno="{{ bill.billno }}"
+            data-billdate="{{bill.billdate }}"
+            {% endif %}
+            {% endfor %}
+ >
+
         {{ party.party_name }}
     </option>
     {% endfor %}
+ 
+
                         </select>
                             <div class="input-group-append">
                                 <button type="button" class="btn btn-outline-secondary" style="background-color: maroon;" data-toggle="modal" data-target="#createPartyModal">+</button>
@@ -293,7 +300,7 @@
                         <select id="bill" name="bill" class="form-control">
                             <option value="" disabled selected>NIL</option>
                         </select>
-                    </div>
+                    </div> 
                     
                     <div class="form-group">
                         <label for="billdate">Bill Date</label>
@@ -338,6 +345,141 @@
 
 
 
+
+
+
+
+
+
+              
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                                </div>
+                            </td>
+                            <td><span id="hsn" class="form-control" style="height: 40px; width: 90px;"></span></td>
+                            <td><input type="number" name="item_quantity[]" style="width: 90px;" class="form-control" value="0" oninput="updateTotalAmount1(this);updateTotals(this); updateTaxAmount(this);" required></td>
+                            <td><span id="purchasePrice" style="width: 90px; height: 40px;" class="form-control"></span></td>
+                            <td><span id="vat" style="width: 90px; height: 40px;" class="form-control"></span></td>
+                            <td><input type="number" name="item_discount[]" class="form-control" style="width: 80px;" value="0" oninput="updateTotalAmount1(this);updateTotals(this); updateTaxAmount(this);
+                            "></td>
+                            <td><input type="number" name="item_total_amount[]" readonly class="form-control" style="width: 100px;" value="0"></td>
+                        <td><i class="fas fa-trash-alt fa-lg delete-row"  style="margin-left: 10px;"></i></td>
+                     
+                     
+                    </tbody>
+                    </table>
+                    <!-- + button to add a new row -->
+                    <button type="button" onclick="addRow()" class="btn btn-outline-secondary" style="background-color: maroon; height: 40px; width: 45px; text-align: center; padding: 2px;font-size: 20px;"><b>+</b></button>
+                </div>
+            </div>
+
+
+
+
+
+
+
+
+            <div class="container-fluid">
+                <div class="row">
+                    <!-- Left side for Payment Type -->
+                    <div class="col-md-4">
+                        <label for="paymentType">Payment Type</label>
+                        <select id="paymentType" name="paymentType" class="form-control" required>
+                            <option value="">Select Payment Type</option>
+                            <option value="cash">Cash</option>
+                            <option value="cheque">Cheque</option>
+                            <option value="upi">UPI</option>
+                        </select>
+                    </div>
+            
+                    
+                    <!-- Right side for Input Details -->
+                    <div class="col-md-6" style="margin-left: 170px;"  class="form-control">
+                        <div class="container-fluid border p-3">
+                            <!-- Subtotal Input -->
+                            <div class="form-group row">
+                                <label for="subtotal" class="col-sm-4 col-form-label">Subtotal</label>
+                                <div class="col-sm-8">
+                                    <input type="text" id="subtotal" name="subtotal" class="form-control" readonly>
+                                </div>
+                            </div>
+<!--                     
+                            Tax Amount Input -->
+                             <div class="form-group row">
+                                <label for="taxAmount" class="col-sm-4 col-form-label">Tax Amount</label>
+                                <div class="col-sm-8">
+                                    <input type="text" id="taxAmount" name="taxAmount" class="form-control" readonly>
+                                </div>
+                            </div> 
+                    
+                              <div class="form-group row">
+                                <label for="adjustment" class="col-sm-4 col-form-label">Adjustment</label>
+                                <div class="col-sm-8">
+                                    <input type="text" id="adjustment" name="adjustment" class="form-control" value="0.00">
+                                </div>
+                            </div>  
+                       
+                             <!-- Grand Total Input  -->
+                             <div class="form-group row">
+                             <label for="grandTotal" class="col-sm-4 col-form-label">Grand Total</label>
+                             <div class="col-sm-8">
+                                 <input type="text" id="grandTotal" name="grandTotal" class="form-control" readonly>
+                        </div>
+                    </div>
+                    </div>
+                </div>
+ </div> 
+ <!-- <a href="{% url 'debitnote2' %}">Submit</button> -->
+    <button type="submit" class="btn-primary">SUBMIT</button>
+
+        </form>
+    </div>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div>
 
 
 
@@ -613,7 +755,7 @@
 
               
                 
-  
+</div>
  
 
 
@@ -625,143 +767,20 @@
 
 
 
-
-
-
-
-
-              
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-                                </div>
-                            </td>
-                            <td><span id="hsn" class="form-control" style="height: 40px; width: 90px;"></span></td>
-                            <td><input type="number" name="item_quantity[]" style="width: 90px;" class="form-control" value="0" oninput="updateTotalAmount1(this);updateTotals(this); updateTaxAmount(this);" required></td>
-                            <td><span id="purchasePrice" style="width: 90px; height: 40px;" class="form-control"></span></td>
-                            <td><span id="vat" style="width: 90px; height: 40px;" class="form-control"></span></td>
-                            <td><input type="number" name="item_discount[]" class="form-control" style="width: 80px;" value="0" oninput="updateTotalAmount1(this);updateTotals(this); updateTaxAmount(this);
-                            "></td>
-                            <td><input type="number" name="item_total_amount[]" readonly class="form-control" style="width: 100px;" value="0"></td>
-                        <td><i class="fas fa-trash-alt fa-lg delete-row"  style="margin-left: 10px;"></i></td>
-                     
-                     
-                    </tbody>
-                    </table>
-                    <!-- + button to add a new row -->
-                    <button type="button" onclick="addRow()" class="btn btn-outline-secondary" style="background-color: maroon; height: 40px; width: 45px; text-align: center; padding: 2px;font-size: 20px;"><b>+</b></button>
-                </div>
-            </div>
-
-
-
-
-
-
-
-
-            <div class="container-fluid">
-                <div class="row">
-                    <!-- Left side for Payment Type -->
-                    <div class="col-md-4">
-                        <label for="paymentType">Payment Type</label>
-                        <select id="paymentType" name="paymentType" class="form-control" required>
-                            <option value="">Select Payment Type</option>
-                            <option value="cash">Cash</option>
-                            <option value="cheque">Cheque</option>
-                            <option value="upi">UPI</option>
-                        </select>
-                    </div>
-            
-                    
-                    <!-- Right side for Input Details -->
-                    <div class="col-md-6" style="margin-left: 170px;"  class="form-control">
-                        <div class="container-fluid border p-3">
-                            <!-- Subtotal Input -->
-                            <div class="form-group row">
-                                <label for="subtotal" class="col-sm-4 col-form-label">Subtotal</label>
-                                <div class="col-sm-8">
-                                    <input type="text" id="subtotal" name="subtotal" class="form-control" readonly>
-                                </div>
-                            </div>
-<!--                     
-                            Tax Amount Input -->
-                             <div class="form-group row">
-                                <label for="taxAmount" class="col-sm-4 col-form-label">Tax Amount</label>
-                                <div class="col-sm-8">
-                                    <input type="text" id="taxAmount" name="taxAmount" class="form-control" readonly>
-                                </div>
-                            </div> 
-                    
-                              <div class="form-group row">
-                                <label for="adjustment" class="col-sm-4 col-form-label">Adjustment</label>
-                                <div class="col-sm-8">
-                                    <input type="text" id="adjustment" name="adjustment" class="form-control" value="0.00">
-                                </div>
-                            </div>  
-                       
-                             <!-- Grand Total Input  -->
-                             <div class="form-group row">
-                             <label for="grandTotal" class="col-sm-4 col-form-label">Grand Total</label>
-                             <div class="col-sm-8">
-                                 <input type="text" id="grandTotal" name="grandTotal" class="form-control" readonly>
-                        </div>
-                    </div>
-                    </div>
-                </div>
- </div> 
- <a href="{% url 'debitnote2' %}">Submit</button>
-    <!-- <button type="submit" class="btn-primary">SUBMIT</button> -->
-
-        </form>
-    </div>
-</div>
-
-
-
-
-
-
-<div class="modal" id="createPartyModal" tabindex="-1" role="dialog">
-    <div class="modal-dialog modal-lg" role="document" style="max-width: 1200px;height: 300px;">
-        <div class="modal-content" style="background-color: #FFD6D7;">
+<div class="modal fade" id="createPartyModal" tabindex="-1" role="dialog" aria-labelledby="createPartyModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
             <div class="modal-header">
                 <h2 class="modal-title" style="font-size: 2.5rem;"><b>Create New Party</b></h2>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
-
             <div class="modal-body">
                
-                <form id="createPartyForm" class="p-10" enctype="multipart/form-data" novalidate>
-                    {% csrf_token %}
+             
 
-                    <div class="body-wrapper">
+              
                     <div class="container-fluid">
                         <div class="col-md-3">
                             <a class="text-dark" style="font-size: 1.5rem;">Add New Party</a>
@@ -799,8 +818,9 @@
                                     <option>Registered Business - Composition</option>
                                 </select>
                             </div>
-                            <div class="col-sm-5 ">
-                                <textarea style="background-color: white;" class="form-control mt-4" name="address" id="" cols="56" rows="3"
+                            <div class="col-sm-5">
+                               
+                                <textarea style="background-color: white;" class="form-control mt-4" name="address" id="address" cols="56" rows="3"
                                     placeholder="&nbsp;Address"></textarea>
                             </div>
                     
@@ -851,9 +871,11 @@
                     </fieldset>
             
                    
-                    <div class="col-md-5 mt-4">
-                        <input type="submit" class="btn btn-primary save-button" name="save_and_new" value="Save&New">
-                        <input type="submit" class="btn btn-primary save-button" name="save" value="Save">
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-primary save-button" onclick="saveParty()">Save</button>
+                   
+               
+                    </div>
                     </div>
                 </div>
             </form>
@@ -862,55 +884,117 @@
 </div>
 </div>
 <script>
-    $(document).ready(function () {
-        // Function to clear the form fields
-        function clearFormFields() {
-            // Set input values to empty string
-            $('#partyname').val('');
-            $('#trn_no').val('');
-            $('#contact').val('');
-            $('#trn_type').val('');
-            $('#address').val('');
-            $('#state').val('');
-            $('#email').val('');
-            $('#balance').val('');
-            $('input[name="paymentType"]').prop('checked', false);
-            $('#current-date1').val('');
-            $('#additionalfield1').val('');
-            $('#additionalfield2').val('');
-            $('#additionalfield3').val('');
-        }
+function saveParty() {
 
-        // Submit form handler
-        $('#createPartyForm').submit(function (e) {
-            e.preventDefault();
+    const partyName = document.getElementById('partyname').value;
+    const trnNo = document.getElementById('trn_no').value;
+    const contact = document.getElementById('contact').value;
+    const trnType = document.getElementById('trn_type').value;
+    const address = document.getElementById('address').value;
+    const state = document.getElementById('state').value;
+    const email = document.getElementById('email').value;
+    const balance = document.getElementById('balance').value;
+    const paymentType = document.querySelector('input[name="paymentType"]:checked').value;
+    const currentDate = document.getElementById('current-date1').value;  
+    const additionalField1 = document.getElementById('additionalfield1').value;
+    const additionalField2 = document.getElementById('additionalfield2').value;
+    const additionalField3 = document.getElementById('additionalfield3').value;
 
-            var formData = new FormData(this);
 
-            // Using jQuery AJAX
-            $.ajax({
-                url: "{% url 'create_party' %}",
-                type: 'POST',
-                data: formData,
-                processData: false,
-                contentType: false,
-                success: function (data) {
-    console.log(data);
-    // Handle success or redirect as needed
-    window.location.href = "{% url 'create_party' %}";
-},
-                                error: function (error) {
-                                    console.error('Error:', error);
-                                }
-                            });
+    const data = {
+        partyname: partyName,
+        trn_no: trnNo,
+        contact: contact,
+        trn_type: trnType,
+        address: address,
+        state: state,
+        email: email,
+        balance: balance,
+        paymentType: paymentType,
+        currentdate: currentDate, 
+        additionalfield1: additionalField1,
+        additionalfield2: additionalField2,
+        additionalfield3: additionalField3,
+   
+    };
 
-        // Clear form fields when modal is hidden
-        $('#createPartyModal').on('hidden.bs.modal', function () {
+   
+        
+    $.ajax({
+        url: "{% url 'create_party' %}",
+        type: 'POST',
+        data: data,
+        processData: true,
+   
+       
+        success: function (data) {
+          
+            console.log('Success:', data);
+       
+            $('#createPartyModal').modal('hide');
+         
             clearFormFields();
-        });
+        },
+        error: function (error) {
+      
+            console.error('Error:', error);
+        }
     });
+}
+
+
+function clearFormFields() {
+
+    $('#partyname').val('');
+    $('#trn_no').val('');
+    $('#contact').val('');
+    $('#trn_type').val('');
+    $('#address').val('');
+    $('#state').val('');
+    $('#email').val('');
+    $('#balance').val('');
+    $('input[name="paymentType"]').prop('checked', false);
+    $('#current-date1').val('');
+    $('#additionalfield1').val('');
+    $('#additionalfield2').val('');
+    $('#additionalfield3').val('');
+}
 </script>
-               
+// <!-- $(document).ready(function () {
+//     // Submit form handler -->
+//     <!-- $('#createPartyForm').submit(function (e) {
+//         e.preventDefault();
+
+//         var formData = new FormData(this);
+
+//         // Using jQuery AJAX
+//         $.ajax({
+//             url: "{% url 'create_party' %}",
+//             type: 'POST',
+//             data: formData,
+//             processData: false,
+//             contentType: false,
+//             success: function (data) { -->
+//                 <!-- // Handle success response
+//                 console.log(data);
+//                 // Close the modal
+//                 $('#createPartyModal').modal('hide');
+//                 // Clear form fields
+//                 clearFormFields();
+//             },
+//             error: function (error) {
+//                 // Handle error response
+//                 console.error('Error:', error);
+//             }
+//         });
+//     });
+
+//     // Clear form fields when modal is hidden
+//     $('#createPartyModal').on('hidden.bs.modal', function () {
+//         clearFormFields();
+//     });
+// }); -->
+    
 
                 <script>
                     function toggleSection(sectionId) {
@@ -1014,6 +1098,10 @@
                     $('#contact_number').val(selectedOption.data('contact'));
                     $('#address').val(selectedOption.data('address'));
                     $('#available_balance').val(selectedOption.data('openingbalance'));
+                    var billno=selectedOption.data('billno');
+                    console.log(billno)
+                    $('#bill').empty();
+                    $('#bill').append(`<option selected>${billno}</option> `)
                 });
             });
         </script>
@@ -1164,10 +1252,7 @@
 
         // Update the "Select Bill" dropdown options
         billDropdown.empty();
-        billDropdown.append($('<option>', {
-            value: "",
-            text: "NIL"
-        }));
+       
 
         // Check if the selected party has associated bills
         if (selectedOption.data('billno') !== undefined) {
@@ -1175,6 +1260,11 @@
                 value: selectedOption.data('billno'),
                 text: selectedOption.data('billno')
             }));
+        }else{
+            billDropdown.append($('<option>', {
+            value: "",
+            text: "NIL"
+        }));
         }
 
         // Set the value of the "Bill Date" input field
@@ -1506,8 +1596,8 @@ function updateTaxAmount() {
        
 
         // Fetch itm_vat for the current row
-        var itmVat = parseFloat(row.querySelector('select[name="selected_item[]"]').selectedOptions[0].getAttribute('data-vat')) || 0;
-
+        var itmVat = parseFloat(row.querySelector('select[name="selected_item[]"]').selectedOptions[0].getAttribute('data-tax')) || 0;
+        console.log(itmVat)
         // Calculate Tax Amount for the current row as total * itm_vat
         var rowTaxAmount = (quantity * price - discount) * (itmVat / 100);
         taxAmount += rowTaxAmount;
