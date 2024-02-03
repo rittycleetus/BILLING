@@ -513,8 +513,11 @@ def create_party(request):
     if request.method == 'POST':
       
        
-        user_id=request.POST.get('user_id')
-        company_id = request.POST.get('company_id')
+     
+      
+        company_id = request.session.get('company')
+
+        user_id = request.session.get('user')
        
 
         
@@ -560,6 +563,8 @@ def create_party(request):
 
         parties = Party.objects.filter(company_id=company_id, user_id=user_id)
         messages.success(request, 'Party created successfully')
+        # response_data = {'success': True, 'message': 'Party created successfully!'}
+        # return render(request, 'createdebitnote.html',response_data)
         return render(request, 'createdebitnote.html', {'status': 'success', 'message': 'Party created successfully', 'parties': parties})
     else:
         return render(request, 'createdebitnote.html')

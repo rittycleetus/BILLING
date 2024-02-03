@@ -10,7 +10,7 @@
 
 <!-- Include Select2 JS -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js" integrity="sha384-GLhlTQ8iM4jQqR8r+cktRTt8Zp1eklHfEAg/8mtP1wwj1z9EGg6S5q6Z1PI5piJ6" crossorigin="anonymous"></script>
-
+<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
 <style>
         .new-row {
         background-color: #FFADB0;
@@ -222,7 +222,7 @@
             <div class="row">
 
                 <div class="col-md-6">
-                 workon test1
+                 
                   
                     <div class="form-group">
                         <label for="party">Party</label>
@@ -239,7 +239,7 @@
         {% if party.id == bill.party_id %}
 
             data-billno="{{ bill.billno }}"
-            data-billdate="{{bill.billdate }}"
+            data-billdate="{{ bill.billdate|date:'d/m/Y' }}"
             {% endif %}
             {% endfor %}
  >
@@ -407,7 +407,7 @@
 
             <div class="container-fluid">
                 <div class="row">
-                    <!-- Left side for Payment Type -->
+            
                     <div class="col-md-4">
                         <label for="paymentType">Payment Type</label>
                         <select id="paymentType" name="paymentType" class="form-control" required>
@@ -419,7 +419,6 @@
                     </div>
             
                     
-                    <!-- Right side for Input Details -->
                     <div class="col-md-6" style="margin-left: 170px;"  class="form-control">
                         <div class="container-fluid border p-3">
                             <!-- Subtotal Input -->
@@ -823,10 +822,12 @@
                                 <textarea style="background-color: white;" class="form-control mt-4" name="address" id="address" cols="56" rows="3"
                                     placeholder="&nbsp;Address"></textarea>
                             </div>
-                    
-                            <div class="col-sm-5 ">
-                                <input style="background-color: white;" type="text" class="form-control mt-4" id="state" name="state" placeholder="State">
-                            </div> 
+                            <div class="col-sm-5">
+                               
+                                <select class="form-control mt-4" id="state" name="state" style="background-color: white;">
+                                  
+                                </select>
+                            </div>
                             
             
                     
@@ -928,27 +929,42 @@ function saveParty() {
    
        
         success: function (data) {
-          
             console.log('Success:', data);
-       
+
             $('#createPartyModal').modal('hide');
-         
+            
             clearFormFields();
+            addToDropdown(data);
+
+           
+            toastr.success('New party created successfully!');
         },
         error: function (error) {
-      
             console.error('Error:', error);
         }
     });
-}
+    function addToDropdown(data) {
 
+    var dropdown = $('#partyDropdown');
+
+   
+    var option = $('<option>', {
+        value: data.id,
+        text: data.name
+    });
+
+    
+    dropdown.append(option);
+    }
+}
+    
 
 function clearFormFields() {
 
     $('#partyname').val('');
     $('#trn_no').val('');
     $('#contact').val('');
-    $('#trn_type').val('');
+    $('#trn_type').prop('selectedIndex', 0);
     $('#address').val('');
     $('#state').val('');
     $('#email').val('');
@@ -958,7 +974,43 @@ function clearFormFields() {
     $('#additionalfield1').val('');
     $('#additionalfield2').val('');
     $('#additionalfield3').val('');
+
+$('input[name="paymentType"]').prop('checked', false);
 }
+</script>
+<script>
+$(document).ready(function () {
+    // Function to populate Indian states in the dropdown
+    function populateIndianStates() {
+        const indianStates = [
+            "Andhra Pradesh", "Arunachal Pradesh", "Assam", "Bihar", "Chhattisgarh", "Goa", "Gujarat",
+            "Haryana", "Himachal Pradesh", "Jharkhand", "Karnataka", "Kerala", "Madhya Pradesh", "Maharashtra",
+            "Manipur", "Meghalaya", "Mizoram", "Nagaland", "Odisha", "Punjab", "Rajasthan", "Sikkim", "Tamil Nadu",
+            "Telangana", "Tripura", "Uttar Pradesh", "Uttarakhand", "West Bengal"
+        ];
+
+        const dropdown = $('#state');
+
+        // Clear existing options
+        dropdown.empty();
+
+        // Add a default option (optional)
+        dropdown.append('<option value="">Select State</option>');
+
+        // Populate the dropdown with Indian states
+        indianStates.forEach(function (state) {
+            const option = $('<option>', {
+                value: state,
+                text: state
+            });
+
+            dropdown.append(option);
+        });
+    }
+
+    // Call the populateIndianStates function to populate the dropdown on page load
+    populateIndianStates();
+});
 </script>
 // <!-- $(document).ready(function () {
 //     // Submit form handler -->
@@ -1336,7 +1388,8 @@ function clearFormFields() {
 document.getElementById('adjustment').addEventListener('input', function () {
     updateTotals(); // Call the function to update Grand Total and Tax Amount
     
- 
+    updateTaxAmount();
+
     
 });
 
@@ -1581,7 +1634,6 @@ function updateTotals() {
 
     console.log("Page Loaded");
 });
-
 function updateTaxAmount() {
     // Get all rows in the table
     var rows = document.querySelectorAll('.table tbody tr');
@@ -1593,11 +1645,11 @@ function updateTaxAmount() {
         var quantity = parseFloat(row.querySelector('[name="item_quantity[]"]').value) || 0;
         var price = parseFloat(row.querySelector('#purchasePrice' + row.rowIndex).innerText) || 0;
         var discount = parseFloat(row.querySelector('[name="item_discount[]"]').value) || 0;
-       
 
         // Fetch itm_vat for the current row
         var itmVat = parseFloat(row.querySelector('select[name="selected_item[]"]').selectedOptions[0].getAttribute('data-tax')) || 0;
-        console.log(itmVat)
+        console.log(itmVat);
+
         // Calculate Tax Amount for the current row as total * itm_vat
         var rowTaxAmount = (quantity * price - discount) * (itmVat / 100);
         taxAmount += rowTaxAmount;
@@ -1605,10 +1657,12 @@ function updateTaxAmount() {
 
     // Update the Tax Amount input field
     document.getElementById('taxAmount').value = taxAmount.toFixed(2);
-    console.log(taxAmount)
+    console.log(taxAmount);
+
     // Trigger the updateTotals function to recalculate subtotal and grand total
     updateTotals();
 }
+
 </script>
    </body>
             
