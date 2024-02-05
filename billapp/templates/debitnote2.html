@@ -378,21 +378,22 @@
             </thead>
          
        
-            <tr style="background-color: #FFADB0;">
-                <td style="color: black;">1</td>
-                <td style="width: 990px;">
-                    </td>
-                    <td></td>
-                    <td></td>
-                    <td></td>   
-                    <td></td>  
-                     <td></td> 
-                       <td></td> 
-                         <td></td> 
-                           <td></td> 
-                           
-                    <td></td>
-                    <td>
+            <tbody>
+                {% for debit in debits %}
+                    <tr>
+                        <td>{{ forloop.counter }}</td>
+                        <td>{{ debit.created_at|date:'Y-m-d' }}</td>
+                        <td>{{ debit.returnno }}</td> 
+                        <td>{{ debit.party.party_name }}</td>  {# Assuming 'party' is the related field in DebitNote #}
+                        <td>{{ debit.category_name }}</td> 
+                        <td>Debit Note</td> 
+                        <td>{{ debit.grandtotal }}</td> 
+                        <td>{{ debit.received_paid }}</td> 
+                        <td>{{ debit.balance }}</td>
+                        <td>
+                            <!-- Add your action buttons or links here -->
+                        
+                        <td>
                         <div class="ellipsis-menu" id="ellipsisMenu">
                             <i class="fas fa-ellipsis-v"></i>
                        
@@ -414,6 +415,9 @@
                 </td>
                     
                     </tr>
+                </tr>
+                {% endfor %}
+            </tbody>
         </table>
     <!-- Table -->
    

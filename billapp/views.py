@@ -12,6 +12,7 @@ from django.http.response import JsonResponse
 from billapp.models import Company,Employee,Party,Item,Unit,ItemTransactions,ItemTransactionsHistory,DebitNote
 import logging
 from django.views.decorators.csrf import csrf_exempt
+from django.core.serializers import serialize
 
 def home(request):
   return render(request, 'home.html')
@@ -511,6 +512,7 @@ def createdebitnote(request):
 def create_party(request):
     
     if request.method == 'POST':
+        
       
        
      
@@ -562,10 +564,11 @@ def create_party(request):
         request.session.save()
 
         parties = Party.objects.filter(company_id=company_id, user_id=user_id)
-        messages.success(request, 'Party created successfully')
+        data={'name': new_party.party_name, 'id':new_party.id}
+        # messages.success(request, 'Party created successfully')
         # response_data = {'success': True, 'message': 'Party created successfully!'}
         # return render(request, 'createdebitnote.html',response_data)
-        return render(request, 'createdebitnote.html', {'status': 'success', 'message': 'Party created successfully', 'parties': parties})
+        return JsonResponse({'status': 'success','parties':data})
     else:
         return render(request, 'createdebitnote.html')
 
@@ -653,7 +656,7 @@ def save_debit_note(request):
     if request.method == 'POST':
         party_id = request.POST.get('party')
         return_no = request.POST.get('return_no')
-        current_date = request.POST.get('current_date')
+        current_date = request.POST.get('current-date1') 
         subtotal = request.POST.get('subtotal')
         tax_amount = request.POST.get('taxAmount')
         adjustment = request.POST.get('adjustment')
@@ -669,35 +672,22 @@ def save_debit_note(request):
             created_at=current_date
         )
 
-       
-        if 'totalItems' in request.POST and request.POST['totalItems']:
-            total_items = int(request.POST['totalItems'])
+        items = request.POST.getlist("selected_item[]")
+        quantities = request.POST.getlist("item_quantity[]")
+        discounts = request.POST.getlist("item_discount[]")
+        total_amounts = request.POST.getlist("item_total_amount[]")
 
-            for i in range(total_items):
-                item_id = request.POST.get(f'item_id{i}')
-                quantity = request.POST.get(f'item_quantity_{i}')
-                discount = request.POST.get(f'item_discount_{i}')
-                total_amount = request.POST.get(f'item_total_amount_{i}')
-                print(f'Item {i + 1}: {item_id}, {quantity}, {discount}, {total_amount}')
-
-
-                item = Item.objects.get(id=item_id)
-
-                debit_note_item = DebitNoteItem.objects.create(
-                    user=request.user,
-                    company=request.user.company,
-                    debitnote=debit_note,
-                    items=item,
-                    qty=quantity,
-                    discount=discount,
-                    total=total_amount,
-                )
-
-             
-                debit_note_item.qty= quantity
-                debit_note_item.discount = discount
-                debit_note_item.total = total_amount
-                debit_note_item.save()
+        for item, qty, discount, total_amount in zip(items, quantities, discounts, total_amounts):
+            itm = Item.objects.get(id=item)
+            DebitNoteItem.objects.create(
+                user=request.user,
+                company=request.user.company,
+                debitnote=debit_note,
+                items=itm,
+                qty=qty,
+                discount=discount,
+                total=total_amount
+            )
 
         debit_note.subtotal = subtotal
         debit_note.taxamount = tax_amount
@@ -705,7 +695,13 @@ def save_debit_note(request):
         debit_note.grandtotal = grand_total
         debit_note.save()
 
+       
+        debits = DebitNote.objects.filter(user=request.user)
+
+        return render(request, 'debitnote2.html', context={'parties': Party.objects.all(), 'items': Item.objects.all(), 'debits': debits})
+
     return render(request, 'debitnote2.html', context={'parties': Party.objects.all(), 'items': Item.objects.all()})
+  
 def debitnote2(request):
     company_id = request.session.get('company')
     user_id = request.session.get('user')

@@ -10,7 +10,9 @@
 
 <!-- Include Select2 JS -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js" integrity="sha384-GLhlTQ8iM4jQqR8r+cktRTt8Zp1eklHfEAg/8mtP1wwj1z9EGg6S5q6Z1PI5piJ6" crossorigin="anonymous"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.0.1/css/toastr.css" rel="stylesheet"/>
+      
+<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.0.1/js/toastr.js"></script>
 <style>
         .new-row {
         background-color: #FFADB0;
@@ -383,7 +385,7 @@
                             </td>
                             <td><span id="hsn" class="form-control" style="height: 40px; width: 90px;"></span></td>
                             <td><input type="number" name="item_quantity[]" style="width: 90px;" class="form-control" value="0" oninput="updateTotalAmount1(this);updateTotals(this); updateTaxAmount(this);" required></td>
-                            <td><span id="purchasePrice" style="width: 90px; height: 40px;" class="form-control"></span></td>
+                            <td><span id="purchasePrice" style="width: 90px; height: 40px;" class="form-control" name="purchaseprice[]"></span></td>
                             <td><span id="vat" style="width: 90px; height: 40px;" class="form-control"></span></td>
                             <td><input type="number" name="item_discount[]" class="form-control" style="width: 80px;" value="0" oninput="updateTotalAmount1(this);updateTotals(this); updateTaxAmount(this);
                             "></td>
@@ -771,7 +773,7 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h2 class="modal-title" style="font-size: 2.5rem;"><b>Create New Party</b></h2>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close" id="close-btn">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
@@ -879,7 +881,7 @@
                     </div>
                     </div>
                 </div>
-            </form>
+          
         </div>
     </div>
 </div>
@@ -928,29 +930,36 @@ function saveParty() {
         processData: true,
    
        
-        success: function (data) {
-            console.log('Success:', data);
-
-            $('#createPartyModal').modal('hide');
+        success: function (response) {
+           console.log('New party created successfully!');
+           console.log('Success:', response);
+            
+            toastr.success('New party created successfully!');
+            // $('#createPartyModal').modal('hide');
             
             clearFormFields();
-            addToDropdown(data);
+            $('#close-btn').click();
+            console.log(response.parties);
+            
+            addToDropdown(response.parties);
 
            
-            toastr.success('New party created successfully!');
+           
         },
         error: function (error) {
             console.error('Error:', error);
         }
     });
     function addToDropdown(data) {
+    console.log(data.name,'gee');
 
-    var dropdown = $('#partyDropdown');
+    var dropdown = $('#party');
 
    
     var option = $('<option>', {
         value: data.id,
         text: data.name
+
     });
 
     
@@ -1046,7 +1055,22 @@ $(document).ready(function () {
 //         clearFormFields();
 //     });
 // }); -->
-    
+<script>
+
+    function clearFieldsOnLoad() {
+        document.getElementById("return_no").value = "";
+        document.getElementById("current-date").value = "";
+        document.getElementById("bill").value = "";
+        document.getElementById("bill_date").value = "NIL";
+        document.getElementById("address").value = "";
+        document.getElementById("available_balance").value = "";
+  
+        document.getElementById("party").value = "";
+        document.getElementById("contact_number").value = "";
+    }
+
+    window.onload = clearFieldsOnLoad;
+</script>
 
                 <script>
                     function toggleSection(sectionId) {
@@ -1441,11 +1465,11 @@ document.getElementById('adjustment').addEventListener('input', function () {
 
         // Cell 4: Quantity
         var cell4 = newRow.insertCell(3);
-        cell4.innerHTML = '<input type="number" name="item_quantity[]" style="width: 90px;" class="form-control" value="0" oninput="updateTotalAmount(this)" required>';
+        cell4.innerHTML = '<input type="number" name="item_quantity[]" style="width: 90px;" class="form-control" value="0" oninput="updateTotalAmount(this);updateTotals(this); updateTaxAmount(this);" required>';
 
         // Cell 5: Purchase Price
         var cell5 = newRow.insertCell(4);
-        cell5.innerHTML = '<span id="purchasePrice' + tableBody.rows.length + '" style="width: 90px; height: 40px;" class="form-control"></span>';
+        cell5.innerHTML = '<span id="purchasePrice' + tableBody.rows.length + '" style="width: 90px; height: 40px;" class="form-control" name="purchaseprice[]"></span>';
 
         // Cell 6: VAT
         var cell6 = newRow.insertCell(5);
@@ -1453,7 +1477,7 @@ document.getElementById('adjustment').addEventListener('input', function () {
 
         // Cell 7: Discount
         var cell7 = newRow.insertCell(6);
-        cell7.innerHTML = '<input type="number" name="item_discount[]" class="form-control" style="width: 80px;" value="0" oninput="updateTotalAmount(this)">';
+        cell7.innerHTML = '<input type="number" name="item_discount[]" class="form-control" style="width: 80px;" value="0" oninput="updateTotalAmount(this);updateTotals(this); updateTaxAmount(this);">';
 
         // Cell 8: Total Amount
         var cell8 = newRow.insertCell(7);
@@ -1591,7 +1615,9 @@ function updateTotals() {
 
     var adjustment = parseFloat(document.getElementById('adjustment').value) || 0;
 
-    var grandTotal = subtotal + adjustment;
+ 
+
+    var grandTotal = subtotal + adjustment ;
 
     // Update grand total input field
     document.getElementById('grandTotal').value = grandTotal.toFixed(2);
@@ -1639,17 +1665,19 @@ function updateTaxAmount() {
     var rows = document.querySelectorAll('.table tbody tr');
 
     var taxAmount = 0;
-
+    // const getNumber=parseFloat(inputString.replace(/[^\d.]/g, ''))
     // Calculate Tax Amount for each row
     rows.forEach(function (row) {
-        var quantity = parseFloat(row.querySelector('[name="item_quantity[]"]').value) || 0;
-        var price = parseFloat(row.querySelector('#purchasePrice' + row.rowIndex).innerText) || 0;
-        var discount = parseFloat(row.querySelector('[name="item_discount[]"]').value) || 0;
+        console.log('hai');
+        var quantity = parseFloat(row.querySelector('[name="item_quantity[]"]').value) ;
+        // var price = row.querySelector('[name="purchaseprice[]"]').value;
+        var discount = parseFloat(row.querySelector('[name="item_discount[]"]').value) ;
 
         // Fetch itm_vat for the current row
-        var itmVat = parseFloat(row.querySelector('select[name="selected_item[]"]').selectedOptions[0].getAttribute('data-tax')) || 0;
+        var itmVat =(row.querySelector('select[name="selected_item[]"]').selectedOptions[0].getAttribute('data-tax')).replace(/[^\d.]/g, '') || 0;
+        var price = parseFloat(row.querySelector('select[name="selected_item[]"]').selectedOptions[0].getAttribute('data-price')) || 0;
         console.log(itmVat);
-
+        console.log(price,"hai");
         // Calculate Tax Amount for the current row as total * itm_vat
         var rowTaxAmount = (quantity * price - discount) * (itmVat / 100);
         taxAmount += rowTaxAmount;
