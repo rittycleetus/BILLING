@@ -768,12 +768,12 @@
 
 
 
-<div class="modal fade" id="createPartyModal" tabindex="-1" role="dialog" aria-labelledby="createPartyModalLabel" aria-hidden="true">
+<div class="modal fade" id="createPartyModal" tabindex="-1" role="dialog" aria-labelledby="createPartyModalLabel" aria-hidden="true" >
     <div class="modal-dialog modal-lg">
-        <div class="modal-content">
+        <div class="modal-content" style="background-color: #FFD6D7;">
             <div class="modal-header">
                 <h2 class="modal-title" style="font-size: 2.5rem;"><b>Create New Party</b></h2>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close" id="close-btn">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close" id="close-btn" style="background-color:  #68020F;width: 30px;color: white;font-size: 20px;">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
@@ -784,7 +784,7 @@
               
                     <div class="container-fluid">
                         <div class="col-md-3">
-                            <a class="text-dark" style="font-size: 1.5rem;">Add New Party</a>
+       
                         </div>
                         <div class="col-md-9 row" style="margin-top: 3vw;">
                             <div class="col-md-4">
@@ -875,7 +875,7 @@
             
                    
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-primary save-button" onclick="saveParty()">Save</button>
+                        <button type="button" class="btn btn-primary save-button" onclick="saveParty()" style="background-color: #68020F; ;">Save</button>
                    
                
                     </div>
@@ -887,6 +887,7 @@
 </div>
 </div>
 <script>
+    
 function saveParty() {
 
     const partyName = document.getElementById('partyname').value;
@@ -921,7 +922,7 @@ function saveParty() {
    
     };
 
-   
+    
         
     $.ajax({
         url: "{% url 'create_party' %}",
@@ -951,7 +952,7 @@ function saveParty() {
         }
     });
     function addToDropdown(data) {
-    console.log(data.name,'gee');
+    // console.log(data.name,'gee');
 
     var dropdown = $('#party');
 
@@ -964,6 +965,7 @@ function saveParty() {
 
     
     dropdown.append(option);
+    handlePartySelection();
     }
 }
     
@@ -1059,9 +1061,9 @@ $(document).ready(function () {
 
     function clearFieldsOnLoad() {
         document.getElementById("return_no").value = "";
-        document.getElementById("current-date").value = "";
+        
         document.getElementById("bill").value = "";
-        document.getElementById("bill_date").value = "NIL";
+        document.getElementById("bill_date").value = "";
         document.getElementById("address").value = "";
         document.getElementById("available_balance").value = "";
   
@@ -1147,22 +1149,22 @@ $(document).ready(function () {
             }
             
             </script>
-            <script>
-                // Function to format the date as "YYYY-MM-DD"
-                function formatDate(date) {
-                    const year = date.getFullYear();
-                    const month = (date.getMonth() + 1).toString().padStart(2, '0');
-                    const day = date.getDate().toString().padStart(2, '0');
-                    return `${year}-${month}-${day}`;
-                }
-            
-                // Get the current date
-                const currentDateInput = document.getElementById("current-date");
-                currentDate = new Date();
-            
-                // Format the date as "YYYY-MM-DD" and set it in the input field
-                currentDateInput.value = formatDate(currentDate);
-            </script>
+           <script>
+            // Function to format the date as "YYYY-MM-DD"
+            function formatDate(date) {
+                const year = date.getFullYear();
+                const month = (date.getMonth() + 1).toString().padStart(2, '0');
+                const day = date.getDate().toString().padStart(2, '0');
+                return `${year}-${month}-${day}`;
+            }
+        
+            // Get the current date
+            const currentDateInput = document.getElementById("current-date");
+            const currentdate = new Date();
+        
+            // Format the date as "YYYY-MM-DD" and set it in the input field
+            currentDateInput.value = formatDate(currentDate);
+        </script>
         <script>
             $(document).ready(function () {
                 // Handle change event when a party is selected
@@ -1267,28 +1269,6 @@ $(document).ready(function () {
         return prefix + (number + 1);
     }
 </script>
-<script>
-    $('#party').change(function () {
-            // Get the selected party option
-            var selectedOption = $(this).find(':selected');
-
-            // Check if the selected party has an associated bill
-            if (selectedOption.val() !== '' && selectedOption.text() !== 'No bills available for the selected party.') {
-                // Get the bill number and date from the selected option's data attributes
-                var billNumber = selectedOption.data('billno');
-                var billDate = selectedOption.data('billdate');
-
-                // Autofill the bill number and date fields
-                $('#bill').val(billNumber);
-                $('#bill_date').val(billDate);
-            } else {
-                // Clear the fields if no associated bill
-                $('#bill').val('');
-                $('#bill_date').val('NIL');
-            }
-        });
-  
-</script>
 
 <script>
     $(document).ready(function() {
@@ -1319,52 +1299,82 @@ $(document).ready(function () {
 //     }
 // </script> -->
 <script>
-    function handlePartySelection() {
-        var partySelect = $("#party");
-        var selectedOption = partySelect.find(":selected");
-        var billDropdown = $("#bill");
-        var billDateInput = $("#bill_date");
-        var addressSection = $("#addressSection");
+$(document).ready(function () {
+    // Check if the page has been loaded before
+    var isFirstLoad = sessionStorage.getItem('isFirstLoad');
 
-        // Update the "Select Bill" dropdown options
-        billDropdown.empty();
-       
+    // If it's the first load or the page is being reloaded, set the default values
+    if (!isFirstLoad) {
+        // Set default values for the input fields
+        $('#contact_number').val('');
+        $('#address').val('');
+        $('#available_balance').val('');
+        $('#bill').val('');
+        $('#bill_date').val('NIL');
 
-        // Check if the selected party has associated bills
-        if (selectedOption.data('billno') !== undefined) {
-            billDropdown.append($('<option>', {
-                value: selectedOption.data('billno'),
-                text: selectedOption.data('billno')
-            }));
-        }else{
-            billDropdown.append($('<option>', {
-            value: "",
-            text: "NIL"
-        }));
-        }
-
-        // Set the value of the "Bill Date" input field
-        if (selectedOption.data('billdate') !== undefined) {
-            billDateInput.val(selectedOption.data('billdate'));
-        } else {
-            billDateInput.val("NIL");
-        }
-
-        // Check if the selected party has an address
-        var address = selectedOption.data("address");
-        if (address && address !== "none") {
-            // Display the address section
-            addressSection.show();
-        } else {
-            // Hide the address section
-            addressSection.hide();
-        }
+        // Indicate that the page has been loaded
+        sessionStorage.setItem('isFirstLoad', true);
     }
 
-    // Trigger handlePartySelection on page load to handle default selection
-    $(document).ready(function () {
-        handlePartySelection();
+    // Handle change event when a party is selected
+    $('#party').change(function () {
+        // Get the selected party option
+        var selectedOption = $(this).find(':selected');
+
+        // Update the input fields with the data attributes of the selected party
+        $('#contact_number').val(selectedOption.data('contact'));
+        $('#address').val(selectedOption.data('address'));
+        $('#available_balance').val(selectedOption.data('openingbalance'));
+
+        // Update the bill dropdown and date input based on selected party
+        handlePartySelection(selectedOption);
     });
+
+    // Trigger handlePartySelection on page load to handle default selection
+    handlePartySelection($('#party').find(':selected'));
+});
+function handlePartySelection(selectedOption) {
+    var billDropdown = $("#bill");
+    var billDateInput = $("#bill_date");
+    var addressSection = $("#addressSection");
+
+    // Update the "Select Bill" dropdown options
+    billDropdown.empty();
+
+    // Check if the selected party has associated bills
+    if (selectedOption.data('billno') !== undefined) {
+        billDropdown.append($('<option>', {
+            value: selectedOption.data('billno'),
+            text: selectedOption.data('billno')
+        }));
+    } else {
+        billDropdown.append($('<option>', {
+            value: "",
+            text: "No bills available for the selected party."
+        }));
+    }
+
+    // Set the value of the "Bill Date" input field
+    if (selectedOption.data('billdate') !== undefined) {
+        billDateInput.val(selectedOption.data('billdate'));
+    } else {
+        billDateInput.val("NIL");
+    }
+
+    // Update the address section based on whether there is an address available
+    var address = selectedOption.data("address");
+    if (address && address !== "none") {
+        // Display the address section
+        addressSection.show();
+    } else {
+        // Hide the address section
+        addressSection.hide();
+    }
+}
+window.onload = function () {
+    // Clear all fields on page load
+    clearFieldsOnLoad();
+};
 </script>
 <script>
     function fillItemDetails1(selectElement) {
@@ -1598,8 +1608,7 @@ function updateRowNumbers() {
     rows.forEach(function (row, index) {
         row.cells[0].innerText = index + 1;
     });
-}</script>
-<script>
+}
 function updateTotals() {
     // Get all total amount input fields
     var totalAmountFields = document.querySelectorAll('[name="item_total_amount[]"]');
@@ -1615,14 +1624,13 @@ function updateTotals() {
 
     var adjustment = parseFloat(document.getElementById('adjustment').value) || 0;
 
- 
+    var taxAmount = parseFloat(document.getElementById('taxAmount').value) || 0;
 
-    var grandTotal = subtotal + adjustment ;
+    var grandTotal = subtotal + adjustment + taxAmount;
 
     // Update grand total input field
     document.getElementById('grandTotal').value = grandTotal.toFixed(2);
 }
-
     // Function to set default values when the page loads
     document.addEventListener('DOMContentLoaded', function () {
     // Get all quantity, discount, and total amount input fields
