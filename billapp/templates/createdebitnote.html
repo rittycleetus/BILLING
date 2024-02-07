@@ -472,268 +472,263 @@
 
 
 
-
-
-
-
-
-
-
-
 <div>
 
 
 
- <!-- Modal -->
- <div class="modal fade" id="itemCreateModal" tabindex="-1" aria-labelledby="ItemCreateModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h1 class="modal-title fs-5" id="itemCreateModalLabel" style="color: #68020F; font-weight: 900;">CREATE ITEM</h1>
-                <button type="button" class="btn-close" data-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                {% if success_message %}
-                <script>
-                    alert("{{ success_message }}");
-                </script>
-                {% endif %}
-
-                {% if messages %}
-                <div class="messages">
-                    {% for message in messages %}
-                    <div style="border: 1px solid #000; padding: 10px; margin: 10px 0; background-color: #f8f9fa; color: #000; {% if message.tags == 'success' %}background-color: #d4edda; border-color: #c3e6cb; color: #155724;{% endif %}">
-                        {{ message }}
-                    </div>
-                    {% endfor %}
-                </div>
-                {% endif %}
-
-                <div class="bs p-4 rounded mb-5">
-                    <br>
-                    <div class="row">
-                        <div class="col-sm-12 col-md-1"></div>
-                        <div class="col-sm-12 col-md-10 pb-4 ">
-                            <div class=" pb-0 mb-0 p-2" style="height:100%;width:100%">
-                                <br><br>
-
-                                <center>
-                                    <h3><strong class="fw-bolder " style="color: #68020F;">ITEM DETAILS</strong></h3>
-                                </center>
-                                <div class="p-3" style="border: 2px solid #68020F; border-radius: 2.5vh; background-color: #FFD6D7;">
-                                    <div class="d-flex">
-                                        <div class="pt-5 w-50">
-                                            <input type="text" name="itm_type" id="itm_type" hidden>
-                                            <label style="user-select: none;" class="fs-4 tb" for="goods">Goods</label>
-                                            <input id="goods" class="me-3 " type="radio" name="item_ty" required>
-                                            <label style="user-select: none;" class="fs-4 tb" for="service">Services</label>
-                                            <input id="service" type="radio" name="item_ty" required>
-                                        </div>
-                                        <div class="mb-3 w-50 mt-3">
-                                            <label class="fw-bold tb fs-3" for="">NAME</label><br>
-                                            <input style="color: black;" class="form-control mt-2 input_border text-black" type="text" placeholder="Enter Item Name" autocomplete="off" name="name">
-                                        </div>
-                                    </div>
-
-                                    <div class="d-flex mt-2">
-                                        <div class=" me-3 w-50">
-                                            <label class="fw-bold tb fs-3 " for="">HSN </label><br>
-                                            <input style="color: black;" class="form-control mt-2 input_border text-black" type="number" placeholder="Enter HSN value" name="hsn">
-                                        </div>
-                                        <br>
-                                        <div class="mb-3 w-50">
-                                            <label class="fw-bold tb fs-3" for="units">UNIT</label><br>
-                                            <div class="d-flex">
-                                                <select style="color: black;" class="form-control me-3 mt-2 input_border text-black" id="unit" name="unit">
-                                                    <option value="" hidden>Select an option</option>
-                                                    <option value="Numbers">Numbers</option>
-                                                    <option value="Packages">Packages</option>
-                                                    <option value="Box">Box</option>
-                                                    {% for i in units %}
-                                                    <option value="{{ i.unit_name }}">{{ i.unit_name }}</option>
-                                                    {% endfor %}
-                                                </select>
-                                                <button type="button" class="btn mt-2 button_border" data-toggle="modal" data-target="#unitmodal" data-whatever="@mdo">
-                                                    <span class="fa fa-plus"></span>
-                                                </button>
-                                            </div>
-                                            <div class="modal fade" id="unitmodal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
-                                                <div class="modal-dialog">
-                                                    <div class="modal-content">
-                                                        <div class="modal-header">
-                                                            <h1 class="modal-title fs-5" id="exampleModalLabel" style="color: #68020F; font-weight: 900;">ADD UNIT</h1>
-                                                            <button type="button" class="btn-close" data-dismiss="modal" aria-label="Close"></button>
-                                                        </div>
-                                                        <div class="modal-body mb-1 pb-1">
-                                                            <form class="mb-0" id="unitmodal">
-                                                                <div class="mb-3">
-                                                                    <label for="unit_name" class="col-form-label">UNIT</label>
-                                                                    <input type="text" class="form-control _border" id="unit_name" placeholder="Enter Unit" style="border: 2px solid #68020F;" name='unit_name'>
-                                                                </div>
-                                                                <div class="m-0 text-center">
-                                                                    <label for="message-text" class="col-form-label text-danger fw-lighter">Example : PCS/BOX/LITER</label>
-                                                                </div>
-                                                            </form>
-                                                        </div>
-                                                        <div class="modal-footer d-flex justify-content-center mt-1">
-                                                            <button type="button" class="btn ps-5 pe-5 button_border" data-dismiss="modal">Close</button>
-                                                            <button type="button" class="btn ps-5 pe-5 button_border" id="unitmodalsubmit">ADD</button>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <br>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="row">
-                <div class="col-sm-12 col-md-1"></div>
-                <div class="col-sm-12 col-md-5 pb-4">
-                    <div class="me-3 text-center">
-                        <h3><strong class="fw-bolder" style="color: #68020F;">PRICING</strong></h3>
-                    </div>
-                    <div class="p-3" style="border: 2px solid #68020F; border-radius: 2.5vh; background-color: #FFD6D7;">
-                        <div class="pt-5 mb-4">
-                            <input type="text" name="taxable_result" id="taxable_result" hidden>
-                            <label style="user-select: none;" class="fs-4 tb" for="item_tax_1">Tax</label> &nbsp;
-                            <input id="item_tax_1" class="me-3" type="radio" name="item_tax_result" required>
-                            <label style="user-select: none;" class="fs-4 tb" for="item_tax_2">Tax Excempted</label>&nbsp;
-                            <input id="item_tax_2" type="radio" name="item_tax_result" required>
-                        </div>
-
-                        <div id="vatdiv" class="mb-2 pt-3" hidden>
-                            <label class="fw-bold tb fs-3" for="">VAT</label><br>
-                            <input type="text" class="form-control mt-1 input_border text-black" name="vat" id='vat'>
-                        </div>
-
-                        <div class="mb-4 pt-3">
-                            <label class="tb fw-bold" for="pur_price">SALES PRICE</label><br>
-                            <input id="sal_price" class="form-control fw-normal fs-3 mt-1 input_border text-black" type="number" placeholder="Enter Sales Price" name="sale_price" required>
-                        </div>
-
-                        <div class="mb-4">
-                            <label class="tb fw-bold" for="">PURCHASE PRICE</label><br>
-                            <input id="pur_price" class="form-control fw-normal fs-3 mt-1 input_border text-black" type="number" placeholder="Enter Purchase Price" name="purchase_price" required>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-sm-12 col-md-5 pb-4">
-                    <div class="me-3 text-center">
-                        <h3><strong class="fw-bolder" style="color: #68020F;">STOCKS</strong></h3>
-                    </div>
-                    <div class="p-3" style="border: 2px solid #68020F; border-radius: 2.5vh; background-color: #FFD6D7;">
-                        <div class="mb-4 pt-4">
-                            <label class="tb fw-bold" for="opn_stock_">STOCK IN HAND</label><br>
-                            <input id="opn_stock_" class="form-control fw-normal fs-3 mt-1 input_border text-black" type="number" placeholder="Enter Opening Stock" name="stock_in_hand" required>
-                        </div>
-                        <div class="mb-4">
-                            <label class="tb fw-bold" for="at_price">AT PRICE</label><br>
-                            <input id="at_price" class="form-control fw-normal fs-3 mt-1 input_border text-black" type="number" placeholder="Enter Price" name="at_price" required>
-                        </div>
-                        <div class="mb-4">
-                            <label class="tb fw-bold" for="date_">DATE</label><br>
-                            <input id="date" class="form-control fw-normal fs-3 mt-1 input_border text-black" type="date" value="{{ tod }}" name="itm_date">
-                        </div>
-                    </div>
-                </div>
-                <div class="col-sm-12 col-md-1"></div>
-                <div class="text-start" style="margin-left: 9%;">
-                    <button class="btn me-3 button_border" type="button" id="submitForm">Save</button>
-             
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<script>
-    $(document).ready(function () {
-        $('#item_tax_1').on('click', function () {
-            $('#vatdiv').attr('hidden', false);
-            $('#vat').val('VAT 5%');
-        });
-
-        $('#item_tax_2').on('click', function () {
-            $('#vatdiv').attr('hidden', false);
-            $('#vat').val('VAT 0%');
-        });
-
-        $('#item_tax_1').on('click', function () {
-            $('#taxable_result').val('Taxable');
-        });
-
-        $('#item_tax_2').on('click', function () {
-            $('#taxable_result').val('Non Taxable');
-        });
-
-        $('#goods').on('click', function () {
-            $('#itm_type').val('Goods');
-        });
-
-        $('#service').on('click', function () {
-            $('#itm_type').val('Service');
-        });
-
-        // AJAX form submission
-        $("#submitForm").click(function () {
-            $.ajax({
-                type: "POST",
-                url: "{% url 'item_create' %}",
-                data: $("form").serialize(),  // Serialize the form data
-                success: function (response) {
-                    // Handle the success response as needed
-                    $("#itemCreateModal").hide();
-                    $(".modal-backdrop").remove();
-                    console.log("Item created successfully!");
-                    alert("Item created successfully!");
-                    var newItem = response.newItem;
-
-                    // Add the new item to the dropdown
-                    $("#select1").append('<option value="' + newItem.id + '" data-hsn="' + newItem.itm_hsn + '" data-price="' + newItem.itm_purchase_price + '" data-tax="VAT ' + newItem.itm_vat + '%" data-tax-rate="' + newItem.get_vat_integer + '">' + newItem.itm_name + '</option>');
-
-                   
-        
+    <!-- Modal -->
+    <div class="modal fade" id="itemCreateModal" tabindex="-1" aria-labelledby="ItemCreateModalLabel" aria-hidden="true">
+       <div class="modal-dialog modal-lg">
+           <div class="modal-content">
+               <div class="modal-header">
+                   <h1 class="modal-title fs-5" id="itemCreateModalLabel" style="color: #68020F; font-weight: 900;">CREATE ITEM</h1>
+                   <button type="button" class="btn-close" data-dismiss="modal" aria-label="Close"></button>
+               </div>
+               <div class="modal-body">
+                   {% if success_message %}
+                   <script>
+                       alert("{{ success_message }}");
+                   </script>
+                   {% endif %}
+   
+                   {% if messages %}
+                   <div class="messages">
+                       {% for message in messages %}
+                       <div style="border: 1px solid #000; padding: 10px; margin: 10px 0; background-color: #f8f9fa; color: #000; {% if message.tags == 'success' %}background-color: #d4edda; border-color: #c3e6cb; color: #155724;{% endif %}">
+                           {{ message }}
+                       </div>
+                       {% endfor %}
+                   </div>
+                   {% endif %}
+   
+                   <div class="bs p-4 rounded mb-5">
+                       <br>
+                       <div class="row">
+                           <div class="col-sm-12 col-md-1"></div>
+                           <div class="col-sm-12 col-md-10 pb-4 ">
+                               <div class=" pb-0 mb-0 p-2" style="height:100%;width:100%">
+                                   <br><br>
+   
+                                   <center>
+                                       <h3><strong class="fw-bolder " style="color: #68020F;">ITEM DETAILS</strong></h3>
+                                   </center>
+                                   <div class="p-3" style="border: 2px solid #68020F; border-radius: 2.5vh; background-color: #FFD6D7;">
+                                       <div class="d-flex">
+                                           <div class="pt-5 w-50">
+                                               <input type="text" name="itm_type" id="itm_type" hidden>
+                                               <label style="user-select: none;" class="fs-4 tb" for="goods">Goods</label>
+                                               <input id="goods" class="me-3 " type="radio" name="item_ty" required>
+                                               <label style="user-select: none;" class="fs-4 tb" for="service">Services</label>
+                                               <input id="service" type="radio" name="item_ty" required>
+                                           </div>
+                                           <div class="mb-3 w-50 mt-3">
+                                               <label class="fw-bold tb fs-3" for="">NAME</label><br>
+                                               <input style="color: black;" class="form-control mt-2 input_border text-black" type="text" placeholder="Enter Item Name" autocomplete="off" name="name">
+                                           </div>
+                                       </div>
+   
+                                       <div class="d-flex mt-2">
+                                           <div class=" me-3 w-50">
+                                               <label class="fw-bold tb fs-3 " for="">HSN </label><br>
+                                               <input style="color: black;" class="form-control mt-2 input_border text-black" type="number" placeholder="Enter HSN value" name="hsn">
+                                           </div>
+                                           <br>
+                                           <div class="mb-3 w-50">
+                                               <label class="fw-bold tb fs-3" for="units">UNIT</label><br>
+                                               <div class="d-flex">
+                                                   <select style="color: black;" class="form-control me-3 mt-2 input_border text-black" id="unit" name="unit">
+                                                       <option value="" hidden>Select an option</option>
+                                                       <option value="Numbers">Numbers</option>
+                                                       <option value="Packages">Packages</option>
+                                                       <option value="Box">Box</option>
+                                                       {% for i in units %}
+                                                       <option value="{{ i.unit_name }}">{{ i.unit_name }}</option>
+                                                       {% endfor %}
+                                                   </select>
+                                                   <button type="button" class="btn mt-2 button_border" data-toggle="modal" data-target="#unitmodal" data-whatever="@mdo">
+                                                       <span class="fa fa-plus"></span>
+                                                   </button>
+                                               </div>
+                                               <div class="modal fade" id="unitmodal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+                                                   <div class="modal-dialog">
+                                                       <div class="modal-content">
+                                                           <div class="modal-header">
+                                                               <h1 class="modal-title fs-5" id="exampleModalLabel" style="color: #68020F; font-weight: 900;">ADD UNIT</h1>
+                                                               <button type="button" class="btn-close" data-dismiss="modal" aria-label="Close"></button>
+                                                           </div>
+                                                           <div class="modal-body mb-1 pb-1">
+                                                               <form class="mb-0" id="unitmodal">
+                                                                   <div class="mb-3">
+                                                                       <label for="unit_name" class="col-form-label">UNIT</label>
+                                                                       <input type="text" class="form-control _border" id="unit_name" placeholder="Enter Unit" style="border: 2px solid #68020F;" name='unit_name'>
+                                                                   </div>
+                                                                   <div class="m-0 text-center">
+                                                                       <label for="message-text" class="col-form-label text-danger fw-lighter">Example : PCS/BOX/LITER</label>
+                                                                   </div>
+                                                               </form>
+                                                           </div>
+                                                           <div class="modal-footer d-flex justify-content-center mt-1">
+                                                               <button type="button" class="btn ps-5 pe-5 button_border" data-dismiss="modal">Close</button>
+                                                               <button type="button" class="btn ps-5 pe-5 button_border" id="unitmodalsubmit">ADD</button>
+                                                           </div>
+                                                       </div>
+                                                   </div>
+                                               </div>
+                                           </div>
+                                       </div>
+                                       <br>
+                                   </div>
+                               </div>
+                           </div>
+                       </div>
+                   </div>
+               </div>
+   
+               <div class="row">
+                   <div class="col-sm-12 col-md-1"></div>
+                   <div class="col-sm-12 col-md-5 pb-4">
+                       <div class="me-3 text-center">
+                           <h3><strong class="fw-bolder" style="color: #68020F;">PRICING</strong></h3>
+                       </div>
+                       <div class="p-3" style="border: 2px solid #68020F; border-radius: 2.5vh; background-color: #FFD6D7;">
+                           <div class="pt-5 mb-4">
+                               <input type="text" name="taxable_result" id="taxable_result" hidden>
+                               <label style="user-select: none;" class="fs-4 tb" for="item_tax_1">Tax</label> &nbsp;
+                               <input id="item_tax_1" class="me-3" type="radio" name="item_tax_result" required>
+                               <label style="user-select: none;" class="fs-4 tb" for="item_tax_2">Tax Excempted</label>&nbsp;
+                               <input id="item_tax_2" type="radio" name="item_tax_result" required>
+                           </div>
+   
+                           <div id="vatdiv" class="mb-2 pt-3" hidden>
+                               <label class="fw-bold tb fs-3" for="">VAT</label><br>
+                               <input type="text" class="form-control mt-1 input_border text-black" name="vat" id='vat'>
+                           </div>
+   
+                           <div class="mb-4 pt-3">
+                               <label class="tb fw-bold" for="pur_price">SALES PRICE</label><br>
+                               <input id="sal_price" class="form-control fw-normal fs-3 mt-1 input_border text-black" type="number" placeholder="Enter Sales Price" name="sale_price" required>
+                           </div>
+   
+                           <div class="mb-4">
+                               <label class="tb fw-bold" for="">PURCHASE PRICE</label><br>
+                               <input id="pur_price" class="form-control fw-normal fs-3 mt-1 input_border text-black" type="number" placeholder="Enter Purchase Price" name="purchase_price" required>
+                           </div>
+                       </div>
+                   </div>
+                   <div class="col-sm-12 col-md-5 pb-4">
+                       <div class="me-3 text-center">
+                           <h3><strong class="fw-bolder" style="color: #68020F;">STOCKS</strong></h3>
+                       </div>
+                       <div class="p-3" style="border: 2px solid #68020F; border-radius: 2.5vh; background-color: #FFD6D7;">
+                           <div class="mb-4 pt-4">
+                               <label class="tb fw-bold" for="opn_stock_">STOCK IN HAND</label><br>
+                               <input id="opn_stock_" class="form-control fw-normal fs-3 mt-1 input_border text-black" type="number" placeholder="Enter Opening Stock" name="stock_in_hand" required>
+                           </div>
+                           <div class="mb-4">
+                               <label class="tb fw-bold" for="at_price">AT PRICE</label><br>
+                               <input id="at_price" class="form-control fw-normal fs-3 mt-1 input_border text-black" type="number" placeholder="Enter Price" name="at_price" required>
+                           </div>
+                           <div class="mb-4">
+                               <label class="tb fw-bold" for="date_">DATE</label><br>
+                               <input id="date" class="form-control fw-normal fs-3 mt-1 input_border text-black" type="date" value="{{ tod }}" name="itm_date">
+                           </div>
+                       </div>
+                   </div>
+                   <div class="col-sm-12 col-md-1"></div>
+                   <div class="text-start" style="margin-left: 9%;">
+                       <button class="btn me-3 button_border" type="button" id="submitForm">Save</button>
                 
-                },
-                error: function (xhr, textStatus, errorThrown) {
-                    // Handle the error response as needed
-                    console.error("Error creating item:", errorThrown);
-                }
-            });
-        });
-    });
-
-  
-                  $("#unitmodalsubmit").click(function () {
+                   </div>
+               </div>
+           </div>
+       </div>
+   </div>
+   
+   <script>
+       $(document).ready(function () {
+           $('#item_tax_1').on('click', function () {
+               $('#vatdiv').attr('hidden', false);
+               $('#vat').val('VAT 5%');
+           });
+   
+           $('#item_tax_2').on('click', function () {
+               $('#vatdiv').attr('hidden', false);
+               $('#vat').val('VAT 0%');
+           });
+   
+           $('#item_tax_1').on('click', function () {
+               $('#taxable_result').val('Taxable');
+           });
+   
+           $('#item_tax_2').on('click', function () {
+               $('#taxable_result').val('Non Taxable');
+           });
+   
+           $('#goods').on('click', function () {
+               $('#itm_type').val('Goods');
+           });
+   
+           $('#service').on('click', function () {
+               $('#itm_type').val('Service');
+           });
+   
+           // AJAX form submission
+           $("#submitForm").click(function () {
+               $.ajax({
+                   type: "POST",
+                   url: "{% url 'item_create' %}",
+                   data: $("form").serialize(),  // Serialize the form data
+                   success: function (response) {
+                       // Handle the success response as needed
+                       $("#itemCreateModal").hide();
+                       $(".modal-backdrop").remove();
+                       console.log("Item created successfully!");
+                       alert("Item created successfully!");
+                       var newItem = response.newItem;
+   
+                       // Add the new item to the dropdown
+                       $("#select1").append('<option value="' + newItem.id + '" data-hsn="' + newItem.itm_hsn + '" data-price="' + newItem.itm_purchase_price + '" data-tax="VAT ' + newItem.itm_vat + '%" data-tax-rate="' + newItem.get_vat_integer + '">' + newItem.itm_name + '</option>');
+   
+                      
+           
+                   
+                   },
+                   error: function (xhr, textStatus, errorThrown) {
+                       // Handle the error response as needed
+                       console.error("Error creating item:", errorThrown);
+                   }
+               });
+           });
+       });
+   
+       $("#unitmodalsubmit").click(function () {
     $.ajax({
         type: "POST",
         url: "{% url 'create_unit' %}",
         data: {
-            unit_name: document.getElementById('unit_name').value
+            unit_name: $('#unit_name').val() // Use jQuery to get the value of unit_name
         },
         beforeSend: function (xhr, settings) {
             xhr.setRequestHeader("X-CSRFToken", "{{ csrf_token }}");
         },
         success: function (response) {
-            $("#unitmodal").hide();
+            // Close the modal
+            $('#unitmodal').hide();
             $(".modal-backdrop").remove();
-            document.getElementById('unit_name').value = '';
-
-            var dropdown = $('#unit');
-            dropdown.empty(); 
-
-            dropdown.append('<option value="" hidden>Select an option</option>');
-
-         
-            dropdown.append(`<option value='${response.unit_name}'>${response.unit_name}</option>`);
-
-       
+            // Clear the input field
+            $('#unit_name').val('');
+            // Add the new unit to the dropdown
+            $('#unit').append($('<option>', {
+                value: response.id,
+                text: response.unit_name
+            }));
+            
+     
+          
+  
+   
+   
+            // Provide feedback to the user
             console.log("Unit added successfully!");
             alert("Unit added successfully!");
         },
@@ -742,337 +737,351 @@
         }
     });
 });
-              </script>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-
-
-
-
-              
-                
-</div>
- 
-
-
-
-
-
-
-
-
-
-
-<div class="modal fade" id="createPartyModal" tabindex="-1" role="dialog" aria-labelledby="createPartyModalLabel" aria-hidden="true" >
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content" style="background-color: #FFD6D7;">
-            <div class="modal-header">
-                <h2 class="modal-title" style="font-size: 2.5rem;"><b>Create New Party</b></h2>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close" id="close-btn" style="background-color:  #68020F;width: 30px;color: white;font-size: 20px;">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body">
-               
-             
-
-              
-                    <div class="container-fluid">
-                        <div class="col-md-3">
-       
-                        </div>
-                        <div class="col-md-9 row" style="margin-top: 3vw;">
-                            <div class="col-md-4">
-                                <input type="text" style="background-color: white;" class="form-control" id="partyname" name="partyname" placeholder="Party Name" required>
-                            </div>                
-                            <div class="col-md-4" style="position: relative;">
-                                <input type="text" style="background-color: white;" class="form-control" id="trn_no" name="trn_no" placeholder="TRN NO" oninput="validateGSTIN(this)">
-                                <span id="gstno-validation" style="position: absolute; right: 14px; top: 8px;"></span>
-                                <label style="color: rgb(101, 3, 3);">* 32AAQFR1222B1ZS</label>
-                            </div>
-                            
-                            <div class="col-md-4" style="position: relative;">
-                                <input required type="number" style="background-color: white;" class="form-control" id="contact" pattern="[0-9]{10}" name="contact" placeholder="Phone Number" oninput="validatePhoneNumber(this)">
-                                <span id="contact-validation" style="position: absolute; right: 15px; top: 8px;"></span>
-                            </div>  
-                            
-                            
-                            <div class="options" style="margin-top: 5vw;">
-                                <a href="javascript:void(0);" onclick="toggleSection('GST')" style="color: black;"><b>GST &
-                                        Address<b></a>
-                                <a href="javascript:void(0);" onclick="toggleSection('Credit')"
-                                    style="color: black; margin-left: 3vw;"><b>Credit & Balances<b></a>
-                                <a href="javascript:void(0);" onclick="toggleSection('additionalfield')"
-                                    style="color: black; margin-left: 3vw;">Additional Fields</a>
-                            </div>
-                        </div>
-                        <fieldset id="GST" class="GST">
-                            <div style="background-color: white;" class="col-sm-5"><select class="form-control mt-4 " id="trn_type" name="trn_type">
-                                    <option disabled selected>Select TRN Type</option>
-                                    <option >Unregistered/Consumers</option>
-                                    <option>Registered Business - Regular</option>
-                                    <option>Registered Business - Composition</option>
-                                </select>
-                            </div>
-                            <div class="col-sm-5">
-                               
-                                <textarea style="background-color: white;" class="form-control mt-4" name="address" id="address" cols="56" rows="3"
-                                    placeholder="&nbsp;Address"></textarea>
-                            </div>
-                            <div class="col-sm-5">
-                               
-                                <select class="form-control mt-4" id="state" name="state" style="background-color: white;">
-                                  
-                                </select>
-                            </div>
-                            
-            
-                    
-                    <div class="col-sm-5 ">
-                        <input style="background-color: white;" type="email" class="form-control mt-4" id="email" name="email" placeholder="Email">
-                    </div>
-                    </fieldset>
-            
-                    <fieldset id="Credit" class="Credit" style="display:none;">
-                        <div class="col-sm-5">
-                            <input style="background-color: white;" type="number" class="form-control mt-4" id="balance" name="balance" placeholder="Opening Balance">
-                        </div>
-                    
-                        <div  class="col-sm-7 mt-4">
-                            <label class="radio-label">To Pay</label>
-                            <input type="radio" class="radio-input" id="toPayRadio" name="paymentType" value="To Pay" style="margin-right: 2vw; margin-left: 5px;">
-                            <label class="radio-label">To Receive</label>
-                            <input type="radio" class="radio-input" id="toReceiveRadio" name="paymentType" value="To Receive" style="margin-right: 2vw; margin-left: 5px;">
-                        </div>
-                    
-                       
-                    
-                        <div class="col-md-5 mt-4">
-                            <input type="date" class="form-control" id="current-date1" name="currentdate" placeholder="Current Date" style="background-color: white;">
-                        </div>
-                    
-            
-                    </fieldset>
-                    
-                    <fieldset id="additionalfield" class="additionalfield" style="display:none;">
-                        <div class="col-md-5 mt-4">
-                            <input type="text" class="form-control" name="additionalfield1" id="additionalfield1" placeholder="Additional Field" style="background-color: white;">
-                        </div>
-                
-                        <div class="col-md-5 mt-4">
-                            <input type="text" class="form-control" name="additionalfield2" id="additionalfield2" placeholder="Additional Field" style="background-color: white;">
-                        </div>
-                
-                        <div class="col-md-5 mt-4">
-                            <input type="text" class="form-control" name="additionalfield3" id="additionalfield3" placeholder="Additional Field" style="background-color: white;">
-                        </div>
-                    </fieldset>
-            
+                 </script>
+               </div>
+             </div>
+           </div>
+         </div>
+       </div>
+     </div>
+   
+   
+   
+   
+   
+                 
                    
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-primary save-button" onclick="saveParty()" style="background-color: #68020F; ;">Save</button>
-                   
-               
-                    </div>
-                    </div>
-                </div>
+   </div>
+    
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   <div class="modal fade" id="createPartyModal" tabindex="-1" role="dialog" aria-labelledby="createPartyModalLabel" aria-hidden="true" >
+       <div class="modal-dialog modal-lg">
+           <div class="modal-content" style="background-color: #FFD6D7;">
+               <div class="modal-header">
+                   <h2 class="modal-title" style="font-size: 2.5rem;"><b>Create New Party</b></h2>
+                   <button type="button" class="close" data-dismiss="modal" aria-label="Close" id="close-btn" style="background-color:  #68020F;width: 30px;color: white;font-size: 20px;">
+                       <span aria-hidden="true">&times;</span>
+                   </button>
+               </div>
+               <div class="modal-body">
+                  
+                
+   
+                 
+                       <div class="container-fluid">
+                           <div class="col-md-3">
           
-        </div>
-    </div>
-</div>
-</div>
-<script>
-    
-function saveParty() {
-
-    const partyName = document.getElementById('partyname').value;
-    const trnNo = document.getElementById('trn_no').value;
-    const contact = document.getElementById('contact').value;
-    const trnType = document.getElementById('trn_type').value;
-    const address = document.getElementById('address').value;
-    const state = document.getElementById('state').value;
-    const email = document.getElementById('email').value;
-    const balance = document.getElementById('balance').value;
-    const paymentType = document.querySelector('input[name="paymentType"]:checked').value;
-    const currentDate = document.getElementById('current-date1').value;  
-    const additionalField1 = document.getElementById('additionalfield1').value;
-    const additionalField2 = document.getElementById('additionalfield2').value;
-    const additionalField3 = document.getElementById('additionalfield3').value;
-
-
-    const data = {
-        partyname: partyName,
-        trn_no: trnNo,
-        contact: contact,
-        trn_type: trnType,
-        address: address,
-        state: state,
-        email: email,
-        balance: balance,
-        paymentType: paymentType,
-        currentdate: currentDate, 
-        additionalfield1: additionalField1,
-        additionalfield2: additionalField2,
-        additionalfield3: additionalField3,
+                           </div>
+                           <div class="col-md-9 row" style="margin-top: 3vw;">
+                               <div class="col-md-4">
+                                   <input type="text" style="background-color: white;" class="form-control" id="partyname" name="partyname" placeholder="Party Name" required>
+                               </div>                
+                               <div class="col-md-4" style="position: relative;">
+                                   <input type="text" style="background-color: white;" class="form-control" id="trn_no" name="trn_no" placeholder="TRN NO" oninput="validateGSTIN(this)">
+                                   <span id="gstno-validation" style="position: absolute; right: 14px; top: 8px;"></span>
+                                   <label style="color: rgb(101, 3, 3);">* 32AAQFR1222B1ZS</label>
+                               </div>
+                               
+                               <div class="col-md-4" style="position: relative;">
+                                   <input required type="number" style="background-color: white;" class="form-control" id="contact" pattern="[0-9]{10}" name="contact" placeholder="Phone Number" oninput="validatePhoneNumber(this)">
+                                   <span id="contact-validation" style="position: absolute; right: 15px; top: 8px;"></span>
+                               </div>  
+                               
+                               
+                               <div class="options" style="margin-top: 5vw;">
+                                   <a href="javascript:void(0);" onclick="toggleSection('GST')" style="color: black;"><b>GST &
+                                           Address<b></a>
+                                   <a href="javascript:void(0);" onclick="toggleSection('Credit')"
+                                       style="color: black; margin-left: 3vw;"><b>Credit & Balances<b></a>
+                                   <a href="javascript:void(0);" onclick="toggleSection('additionalfield')"
+                                       style="color: black; margin-left: 3vw;">Additional Fields</a>
+                               </div>
+                           </div>
+                           <fieldset id="GST" class="GST">
+                               <div style="background-color: white;" class="col-sm-5"><select class="form-control mt-4 " id="trn_type" name="trn_type">
+                                       <option disabled selected>Select TRN Type</option>
+                                       <option >Unregistered/Consumers</option>
+                                       <option>Registered Business - Regular</option>
+                                       <option>Registered Business - Composition</option>
+                                   </select>
+                               </div>
+                               <div class="col-sm-5">
+                                  
+                                   <textarea style="background-color: white;" class="form-control mt-4" name="address1" id="address1" cols="56" rows="3"
+                                       placeholder="&nbsp;Address"></textarea>
+                               </div>
+                               <div class="col-sm-5">
+                                  
+                                   <select class="form-control mt-4" id="state" name="state" style="background-color: white;">
+                                     
+                                   </select>
+                               </div>
+                               
+               
+                       
+                       <div class="col-sm-5 ">
+                           <input style="background-color: white;" type="email" class="form-control mt-4" id="email" name="email" placeholder="Email">
+                       </div>
+                       </fieldset>
+               
+                       <fieldset id="Credit" class="Credit" style="display:none;">
+                           <div class="col-sm-5">
+                               <input style="background-color: white;" type="number" class="form-control mt-4" id="balance" name="balance" placeholder="Opening Balance">
+                           </div>
+                       
+                           <div  class="col-sm-7 mt-4">
+                               <label class="radio-label">To Pay</label>
+                               <input type="radio" class="radio-input" id="toPayRadio" name="paymentType" value="To Pay" style="margin-right: 2vw; margin-left: 5px;">
+                               <label class="radio-label">To Receive</label>
+                               <input type="radio" class="radio-input" id="toReceiveRadio" name="paymentType" value="To Receive" style="margin-right: 2vw; margin-left: 5px;">
+                           </div>
+                       
+                          
+                       
+                           <div class="col-md-5 mt-4">
+                               <input type="date" class="form-control" id="current-date1" name="currentdate" placeholder="Current Date" style="background-color: white;">
+                           </div>
+                       
+               
+                       </fieldset>
+                       
+                       <fieldset id="additionalfield" class="additionalfield" style="display:none;">
+                           <div class="col-md-5 mt-4">
+                               <input type="text" class="form-control" name="additionalfield1" id="additionalfield1" placeholder="Additional Field" style="background-color: white;">
+                           </div>
+                   
+                           <div class="col-md-5 mt-4">
+                               <input type="text" class="form-control" name="additionalfield2" id="additionalfield2" placeholder="Additional Field" style="background-color: white;">
+                           </div>
+                   
+                           <div class="col-md-5 mt-4">
+                               <input type="text" class="form-control" name="additionalfield3" id="additionalfield3" placeholder="Additional Field" style="background-color: white;">
+                           </div>
+                       </fieldset>
+               
+                      
+                       <div class="modal-footer">
+                           <button type="button" class="btn btn-primary save-button" onclick="saveParty()" style="background-color: #68020F; ;">Save</button>
+                      
+                  
+                       </div>
+                       </div>
+                   </div>
+             
+           </div>
+       </div>
+   </div>
+   </div>
+   <script>
+       
+   function saveParty() {
    
-    };
-
-    
-        
-    $.ajax({
-        url: "{% url 'create_party' %}",
-        type: 'POST',
-        data: data,
-        processData: true,
+       const partyName = document.getElementById('partyname').value;
+       const trnNo = document.getElementById('trn_no').value;
+       const contact = document.getElementById('contact').value;
+       const trnType = document.getElementById('trn_type').value;
+       const address = document.getElementById('address1').value;
+       const state = document.getElementById('state').value;
+       const email = document.getElementById('email').value;
+       const balance = document.getElementById('balance').value;
+       const paymentType = document.querySelector('input[name="paymentType"]:checked').value;
+       const currentDate = document.getElementById('current-date1').value;  
+       const additionalField1 = document.getElementById('additionalfield1').value;
+       const additionalField2 = document.getElementById('additionalfield2').value;
+       const additionalField3 = document.getElementById('additionalfield3').value;
+   
+   
+       const data = {
+           partyname: partyName,
+           trn_no: trnNo,
+           contact: contact,
+           trn_type: trnType,
+           address: address,
+           state: state,
+           email: email,
+           balance: balance,
+           paymentType: paymentType,
+           currentdate: currentDate, 
+           additionalfield1: additionalField1,
+           additionalfield2: additionalField2,
+           additionalfield3: additionalField3,
+      
+       };
    
        
-        success: function (response) {
-           console.log('New party created successfully!');
-           console.log('Success:', response);
-            
-            toastr.success('New party created successfully!');
-            // $('#createPartyModal').modal('hide');
-            
-            clearFormFields();
-            $('#close-btn').click();
-            console.log(response.parties);
-            
-            addToDropdown(response.parties);
-
            
-           
-        },
-        error: function (error) {
-            console.error('Error:', error);
-        }
-    });
-    function addToDropdown(data) {
-    // console.log(data.name,'gee');
-
-    var dropdown = $('#party');
-
+       $.ajax({
+           url: "{% url 'create_party' %}",
+           type: 'POST',
+           data: data,
+           processData: true,
+      
+          
+           success: function (response) {
+              console.log('New party created successfully!');
+              console.log('Success:', response);
+               
+               toastr.success('New party created successfully!');
+               // $('#createPartyModal').modal('hide');
+               
+               clearFormFields();
+               $('#close-btn').click();
+               console.log(response.parties);
+               
+               addToDropdown(response.parties);
    
-    var option = $('<option>', {
-        value: data.id,
-        text: data.name
+              
+              
+           },
+           error: function (error) {
+               console.error('Error:', error);
+           }
+       });
+       function addToDropdown(data) {
+       // console.log(data.name,'gee');
+   
+       var dropdown = $('#party');
+   
+      
+       var option = $('<option>', {
+           value: data.id,
+           text: data.name
+   
+       });
+   
+       
+       dropdown.append(option);
+       handlePartySelection();
+       }
+   }
+       
+//    $.ajax({
+//     url: "{% url 'create_party' %}",
+//     type: 'POST',
+//     data: data,
+//     processData: true,
+//     success: function (response) {
+//         console.log('New party created successfully!');
+//         console.log('Success:', response);
 
-    });
+//         toastr.success('New party created successfully!');
+//         // $('#createPartyModal').modal('hide');
 
-    
-    dropdown.append(option);
-    handlePartySelection();
-    }
-}
-    
+//         clearFormFields();
+//         $('#close-btn').click();
+//         console.log(response.parties);
 
-function clearFormFields() {
-
-    $('#partyname').val('');
-    $('#trn_no').val('');
-    $('#contact').val('');
-    $('#trn_type').prop('selectedIndex', 0);
-    $('#address').val('');
-    $('#state').val('');
-    $('#email').val('');
-    $('#balance').val('');
-    $('input[name="paymentType"]').prop('checked', false);
-    $('#current-date1').val('');
-    $('#additionalfield1').val('');
-    $('#additionalfield2').val('');
-    $('#additionalfield3').val('');
-
-$('input[name="paymentType"]').prop('checked', false);
-}
-</script>
-<script>
-$(document).ready(function () {
-    // Function to populate Indian states in the dropdown
-    function populateIndianStates() {
-        const indianStates = [
-            "Andhra Pradesh", "Arunachal Pradesh", "Assam", "Bihar", "Chhattisgarh", "Goa", "Gujarat",
-            "Haryana", "Himachal Pradesh", "Jharkhand", "Karnataka", "Kerala", "Madhya Pradesh", "Maharashtra",
-            "Manipur", "Meghalaya", "Mizoram", "Nagaland", "Odisha", "Punjab", "Rajasthan", "Sikkim", "Tamil Nadu",
-            "Telangana", "Tripura", "Uttar Pradesh", "Uttarakhand", "West Bengal"
-        ];
-
-        const dropdown = $('#state');
-
-        // Clear existing options
-        dropdown.empty();
-
-        // Add a default option (optional)
-        dropdown.append('<option value="">Select State</option>');
-
-        // Populate the dropdown with Indian states
-        indianStates.forEach(function (state) {
-            const option = $('<option>', {
-                value: state,
-                text: state
-            });
-
-            dropdown.append(option);
-        });
-    }
-
-    // Call the populateIndianStates function to populate the dropdown on page load
-    populateIndianStates();
-});
-</script>
-// <!-- $(document).ready(function () {
-//     // Submit form handler -->
-//     <!-- $('#createPartyForm').submit(function (e) {
-//         e.preventDefault();
-
-//         var formData = new FormData(this);
-
-//         // Using jQuery AJAX
-//         $.ajax({
-//             url: "{% url 'create_party' %}",
-//             type: 'POST',
-//             data: formData,
-//             processData: false,
-//             contentType: false,
-//             success: function (data) { -->
-//                 <!-- // Handle success response
-//                 console.log(data);
-//                 // Close the modal
-//                 $('#createPartyModal').modal('hide');
-//                 // Clear form fields
-//                 clearFormFields();
-//             },
-//             error: function (error) {
-//                 // Handle error response
-//                 console.error('Error:', error);
+//         addToDropdown(response.parties);
+        
+//         // Update fields when party is selected
+//         $('#party').change(function() {
+//             var selectedPartyId = $(this).val();
+//             var selectedParty = response.parties.find(party => party.id == selectedPartyId);
+//             if (selectedParty) {
+//                 $('#contact').val(selectedParty.contact);
+//                 $('#address1').val(selectedParty.address);
+//                 // Update other fields as needed
 //             }
 //         });
+//     },
+//     error: function (error) {
+//         console.error('Error:', error);
+//     }
+// });
+
+// function addToDropdown(parties) {
+//     var dropdown = $('#party');
+//     dropdown.empty(); // Clear existing options
+//     parties.forEach(function(party) {
+//         var option = $('<option>', {
+//             value: party.id,
+//             text: party.name
+//         });
+//         dropdown.append(option);
 //     });
+//     handlePartySelection();
+// }
 
-//     // Clear form fields when modal is hidden
-//     $('#createPartyModal').on('hidden.bs.modal', function () {
-//         clearFormFields();
-//     });
-// }); -->
-<script>
-
-    function clearFieldsOnLoad() {
-        document.getElementById("return_no").value = "";
-        
-        document.getElementById("bill").value = "";
-        document.getElementById("bill_date").value = "";
-        document.getElementById("address").value = "";
-        document.getElementById("available_balance").value = "";
-  
-        document.getElementById("party").value = "";
-        document.getElementById("contact_number").value = "";
-    }
-
-    window.onload = clearFieldsOnLoad;
-</script>
+   function clearFormFields() {
+   
+       $('#partyname').val('');
+       $('#trn_no').val('');
+       $('#contact').val('');
+       $('#trn_type').prop('selectedIndex', 0);
+       $('#address1').val('');
+       $('#state').val('');
+       $('#email').val('');
+       $('#balance').val('');
+       $('input[name="paymentType"]').prop('checked', false);
+       $('#current-date1').val('');
+       $('#additionalfield1').val('');
+       $('#additionalfield2').val('');
+       $('#additionalfield3').val('');
+   
+   $('input[name="paymentType"]').prop('checked', false);
+   }
+   </script>
+   <script>
+   $(document).ready(function () {
+       // Function to populate Indian states in the dropdown
+       function populateIndianStates() {
+           const indianStates = [
+               "Andhra Pradesh", "Arunachal Pradesh", "Assam", "Bihar", "Chhattisgarh", "Goa", "Gujarat",
+               "Haryana", "Himachal Pradesh", "Jharkhand", "Karnataka", "Kerala", "Madhya Pradesh", "Maharashtra",
+               "Manipur", "Meghalaya", "Mizoram", "Nagaland", "Odisha", "Punjab", "Rajasthan", "Sikkim", "Tamil Nadu",
+               "Telangana", "Tripura", "Uttar Pradesh", "Uttarakhand", "West Bengal"
+           ];
+   
+           const dropdown = $('#state');
+   
+           // Clear existing options
+           dropdown.empty();
+   
+           // Add a default option (optional)
+           dropdown.append('<option value="">Select State</option>');
+   
+           // Populate the dropdown with Indian states
+           indianStates.forEach(function (state) {
+               const option = $('<option>', {
+                   value: state,
+                   text: state
+               });
+   
+               dropdown.append(option);
+           });
+       }
+   
+       // Call the populateIndianStates function to populate the dropdown on page load
+       populateIndianStates();
+   });
+   </script>
+   <script>
+   
+       function clearFieldsOnLoad() 
+       {
+        clearFormFields();
+           document.getElementById("return_no").value = "";
+           
+           document.getElementById("bill").value = "";
+           document.getElementById("bill_date").value = "";
+           document.getElementById("address1").value = "";
+           document.getElementById("available_balance").value = "";
+     
+           document.getElementById("party").value = "";
+           document.getElementById("contact_number").value = "";
+       }
+   
+       window.onload = clearFieldsOnLoad;
+   </script>
 
                 <script>
                     function toggleSection(sectionId) {
@@ -1333,6 +1342,7 @@ $(document).ready(function () {
     // Trigger handlePartySelection on page load to handle default selection
     handlePartySelection($('#party').find(':selected'));
 });
+
 function handlePartySelection(selectedOption) {
     var billDropdown = $("#bill");
     var billDateInput = $("#bill_date");
@@ -1374,6 +1384,9 @@ function handlePartySelection(selectedOption) {
 window.onload = function () {
     // Clear all fields on page load
     clearFieldsOnLoad();
+    
+    // Trigger handlePartySelection with an empty selectedOption
+    handlePartySelection($()); // Passing an empty jQuery object
 };
 </script>
 <script>
@@ -1669,33 +1682,31 @@ function updateTotals() {
     console.log("Page Loaded");
 });
 function updateTaxAmount() {
-    // Get all rows in the table
+ 
     var rows = document.querySelectorAll('.table tbody tr');
 
     var taxAmount = 0;
-    // const getNumber=parseFloat(inputString.replace(/[^\d.]/g, ''))
-    // Calculate Tax Amount for each row
+
     rows.forEach(function (row) {
         console.log('hai');
         var quantity = parseFloat(row.querySelector('[name="item_quantity[]"]').value) ;
-        // var price = row.querySelector('[name="purchaseprice[]"]').value;
+  
         var discount = parseFloat(row.querySelector('[name="item_discount[]"]').value) ;
 
-        // Fetch itm_vat for the current row
+   
         var itmVat =(row.querySelector('select[name="selected_item[]"]').selectedOptions[0].getAttribute('data-tax')).replace(/[^\d.]/g, '') || 0;
         var price = parseFloat(row.querySelector('select[name="selected_item[]"]').selectedOptions[0].getAttribute('data-price')) || 0;
         console.log(itmVat);
         console.log(price,"hai");
-        // Calculate Tax Amount for the current row as total * itm_vat
+
         var rowTaxAmount = (quantity * price - discount) * (itmVat / 100);
         taxAmount += rowTaxAmount;
     });
 
-    // Update the Tax Amount input field
     document.getElementById('taxAmount').value = taxAmount.toFixed(2);
     console.log(taxAmount);
 
-    // Trigger the updateTotals function to recalculate subtotal and grand total
+
     updateTotals();
 }
 
