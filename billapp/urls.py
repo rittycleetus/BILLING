@@ -39,5 +39,6 @@ urlpatterns = [
 
     path('save_debit_note', views.save_debit_note, name='save_debit_note'),
     path('debitnote2', views.debitnote2, name='debitnote2'),
+    path('delete-debit-note/<int:debitnote_id>/',views.delete_debit_note, name='delete_debit_note'),
 
 ]

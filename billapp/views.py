@@ -653,6 +653,9 @@ def create_unit(request):
     return JsonResponse({'success': False, 'message': 'Invalid request method'})
 
 def save_debit_note(request):
+  
+    company_id = request.session.get('company')
+
     if request.method == 'POST':
         party_id = request.POST.get('party')
         return_no = request.POST.get('return_no')
@@ -664,9 +667,10 @@ def save_debit_note(request):
 
         selected_party = Party.objects.get(id=party_id)
 
+   
         debit_note = DebitNote.objects.create(
             user=request.user,
-            company=request.user.company,
+            company_id=company_id, 
             party=selected_party,
             returnno=return_no,
             created_at=current_date
@@ -679,9 +683,10 @@ def save_debit_note(request):
 
         for item, qty, discount, total_amount in zip(items, quantities, discounts, total_amounts):
             itm = Item.objects.get(id=item)
+          
             DebitNoteItem.objects.create(
                 user=request.user,
-                company=request.user.company,
+                company_id=company_id,  
                 debitnote=debit_note,
                 items=itm,
                 qty=qty,
@@ -689,21 +694,61 @@ def save_debit_note(request):
                 total=total_amount
             )
 
+       
         debit_note.subtotal = subtotal
         debit_note.taxamount = tax_amount
         debit_note.adjustment = adjustment
         debit_note.grandtotal = grand_total
         debit_note.save()
+    
+      
+        return redirect('debitnote2')  
 
-       
-        debits = DebitNote.objects.filter(user=request.user)
 
-        return render(request, 'debitnote2.html', context={'parties': Party.objects.all(), 'items': Item.objects.all(), 'debits': debits})
+    parties = Party.objects.filter(company_id=company_id)  
+    items = Item.objects.filter(company_id=company_id)  
+    debits = DebitNote.objects.filter(user=request.user)
+    
+   
+    return render(request, 'debitnote2.html', context={'parties': parties, 'items': items, 'debits': debits})
 
-    return render(request, 'debitnote2.html', context={'parties': Party.objects.all(), 'items': Item.objects.all()})
-  
 def debitnote2(request):
+ 
     company_id = request.session.get('company')
     user_id = request.session.get('user')
 
-    return render(request, 'debitnote2.html', {'company_id': company_id, 'user_id': user_id})
+    if request.user.is_company:
+        cmp = request.user.company
+    else:
+        cmp = request.user.employee.company
+
+    parties = Party.objects.filter(company=cmp)
+    items = Item.objects.filter(company=cmp)
+    
+ 
+    debits = DebitNote.objects.filter(user=request.user)
+
+    return render(request, 'debitnote2.html', {'company_id': company_id, 'user_id': user_id, 'parties': parties, 'items': items, 'debits': debits})
+
+
+def delete_debit_note(request, debitnote_id):
+    if request.method == 'POST':
+        try:
+            # Retrieve the DebitNote object to be deleted
+            debit_note = get_object_or_404(DebitNote, id=debitnote_id)
+            
+            # Delete related DebitNoteItem objects
+            debit_note.debitnoteitem_set.all().delete()
+
+            # Delete the DebitNote object
+            debit_note.delete()
+
+            # Return a success response
+            return JsonResponse({'status': 'success'})
+
+        except Exception as e:
+            # If any error occurs, return an error response
+            return JsonResponse({'status': 'error', 'message': str(e)}, status=500)
+    else:
+        # If the request method is not POST, return a method not allowed response
+        return JsonResponse({'status': 'error', 'message': 'Method not allowed'}, status=405)

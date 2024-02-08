@@ -407,7 +407,7 @@
                                 <div class="menu-option" onclick="viewPdfAction()">
                                     <i class="fas fa-file-pdf" style="color: #27ae60;"></i> View PDF
                                 </div>
-                                <div class="menu-option" onclick="deleteAction()">
+                                <div class="menu-option"  onclick="deleteAction('{{ debit.id }}')">
                                     <i class="fas fa-trash" style="color: #e74c3c;"></i> Delete
                                 </div>
                             </div>
@@ -423,7 +423,8 @@
    
 
 
-
+</div>
+</form>
 <!-- Additional HTML content -->
 <script>
     function toggleFilterBox(icon) {
@@ -619,19 +620,39 @@ function shareWithWhatsApp() {
   </script>
 
 <script>
-      function updateToDateMin() {
-        // Get the value of the "From Date" input
-        var fromDateValue = document.getElementById('fromDate').value;
-
-        // Set the minimum date for the "To Date" input
-        document.getElementById('toDate').min = fromDateValue;
-
-        // If you want to clear the "To Date" value when changing the "From Date"
-        // uncomment the line below
-        document.getElementById('toDate').value = "";
+    
+    // Define a function to clear the "To Date" input field
+    function clearToDateInput() {
+        document.getElementById("toDate").value = "";
+        document.getElementById("fromDate").value = "";
     }
 
+    // Attach the clearToDateInput function to the window.onload event
+    window.onload = function() {
+        clearToDateInput(); // Call the function to clear the "To Date" input field when the page loads
+    };
+      // Function to update the minimum date for the "To Date" input field based on the selected "From Date"
+      function updateToDateMin() {
+        // Get the value of the "From Date" input field
+        var fromDateValue = document.getElementById("fromDate").value;
+
+        // Set the minimum date for the "To Date" input field to the selected "From Date"
+        document.getElementById("toDate").min = fromDateValue;
+
+        // Get the value of the "To Date" input field
+        var toDateValue = document.getElementById("toDate").value;
+
+        // Check if the "From Date" is empty or null
+        if (!fromDateValue) {
+            // If "From Date" is empty, clear the "To Date" input field
+            document.getElementById("toDate").value = "";
+        } else if (fromDateValue && toDateValue) {
+            // If both "From Date" and "To Date" are selected, call a function to fetch and display data based on the selected date range
+            fetchDataFromToDate(fromDateValue, toDateValue);
+        }
+    }
 </script>
+
 <script>
     document.getElementById('ellipsisMenu').addEventListener('click', function (event) {
         const ellipsisIcon = event.target.closest('.ellipsis-menu i');
@@ -695,10 +716,40 @@ function shareWithWhatsApp() {
         console.log('View PDF action triggered');
     }
 
-    function deleteAction() {
-        console.log('Delete action triggered');
-    }
+   
 </script>
+<script>
+   function deleteAction(debitNoteId) {
+    // Get the CSRF token from a hidden input field
+    var csrfToken = $('input[name="csrfmiddlewaretoken"]').val();
 
+    // Send an AJAX request to delete the DebitNote object
+    $.ajax({
+        type: 'POST',
+        url: '/delete_debit_note/',  
+        data: {
+            'debitnote_id': debitNoteId,
+            'csrfmiddlewaretoken': csrfToken  // Include the retrieved CSRF token
+        },
+        success: function(response) {
+            // Check if the deletion was successful
+            if (response.status === 'success') {
+                // Remove the deleted row from the table
+                $('#debitNoteRow_' + debitNoteId).remove();
+                // Optionally, show a success message
+                alert('DebitNote deleted successfully.');
+            } else {
+                // Show an error message if the deletion failed
+                alert('Failed to delete DebitNote.');
+            }
+        },
+        error: function(xhr, status, error) {
+            // Handle any errors that occur during the AJAX request
+            console.error(xhr.responseText);
+            alert('An error occurred while processing the request.');
+        }
+    });
+}
+</script>
 </div>
 {% endblock %}
