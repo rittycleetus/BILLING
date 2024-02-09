@@ -181,7 +181,7 @@
             
                 <div>
                     <label for="toDate" style="margin-left: 10px;">To Date</label>
-                    <input type="date" id="toDate" name="toDate" style="width: 380px; padding: 5px; border-radius: 4px;">
+                    <input type="date" id="toDate" name="toDate" style="width: 380px; padding: 5px; border-radius: 4px;" onchange="searchDebitNotes()">
                 </div>
             </div>
      
@@ -378,11 +378,11 @@
             </thead>
          
        
-            <tbody>
+            <tbody style="font-size: 10px;font-weight: 700;">
                 {% for debit in debits %}
                     <tr>
                         <td>{{ forloop.counter }}</td>
-                        <td>{{ debit.created_at|date:'Y-m-d' }}</td>
+                        <td>{{ debit.created_at|date:'d-m-Y' }}</td>
                         <td>{{ debit.returnno }}</td> 
                         <td>{{ debit.party.party_name }}</td>  {# Assuming 'party' is the related field in DebitNote #}
                         <td>{{ debit.category_name }}</td> 
@@ -632,7 +632,8 @@ function shareWithWhatsApp() {
         clearToDateInput(); // Call the function to clear the "To Date" input field when the page loads
     };
       // Function to update the minimum date for the "To Date" input field based on the selected "From Date"
-      function updateToDateMin() {
+     
+    function updateToDateMin() {
         // Get the value of the "From Date" input field
         var fromDateValue = document.getElementById("fromDate").value;
 
@@ -646,11 +647,36 @@ function shareWithWhatsApp() {
         if (!fromDateValue) {
             // If "From Date" is empty, clear the "To Date" input field
             document.getElementById("toDate").value = "";
-        } else if (fromDateValue && toDateValue) {
-            // If both "From Date" and "To Date" are selected, call a function to fetch and display data based on the selected date range
-            fetchDataFromToDate(fromDateValue, toDateValue);
         }
     }
+    document.getElementById("toDate").addEventListener("change", function() {
+    
+    var fromDate = document.getElementById("fromDate").value;
+    var toDate = this.value;  
+    searchDebitNotes(fromDate, toDate);
+});
+
+
+function searchDebitNotes(fromDate, toDate) {
+    console.log("hai");
+  
+    fetch('/search-debitnotes', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ fromDate: fromDate, toDate: toDate }),
+    })
+    .then(response => response.json())
+    .then(data => {
+        
+        console.log(data); 
+    })
+    .catch(error => {
+        console.error('Error fetching data:', error);
+    });
+}
+   
 </script>
 
 <script>

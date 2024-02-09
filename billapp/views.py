@@ -14,6 +14,7 @@ import logging
 from django.views.decorators.csrf import csrf_exempt
 from django.core.serializers import serialize
 
+
 def home(request):
   return render(request, 'home.html')
 
@@ -653,8 +654,8 @@ def create_unit(request):
     return JsonResponse({'success': False, 'message': 'Invalid request method'})
 
 def save_debit_note(request):
-  
     company_id = request.session.get('company')
+    user_id = request.session.get('user')
 
     if request.method == 'POST':
         party_id = request.POST.get('party')
@@ -667,7 +668,6 @@ def save_debit_note(request):
 
         selected_party = Party.objects.get(id=party_id)
 
-   
         debit_note = DebitNote.objects.create(
             user=request.user,
             company_id=company_id, 
@@ -683,7 +683,6 @@ def save_debit_note(request):
 
         for item, qty, discount, total_amount in zip(items, quantities, discounts, total_amounts):
             itm = Item.objects.get(id=item)
-          
             DebitNoteItem.objects.create(
                 user=request.user,
                 company_id=company_id,  
@@ -694,26 +693,31 @@ def save_debit_note(request):
                 total=total_amount
             )
 
-       
         debit_note.subtotal = subtotal
         debit_note.taxamount = tax_amount
         debit_note.adjustment = adjustment
         debit_note.grandtotal = grand_total
         debit_note.save()
-    
-      
-        return redirect('debitnote2')  
 
+        return redirect('debitnote2')  
 
     parties = Party.objects.filter(company_id=company_id)  
     items = Item.objects.filter(company_id=company_id)  
     debits = DebitNote.objects.filter(user=request.user)
     
-   
-    return render(request, 'debitnote2.html', context={'parties': parties, 'items': items, 'debits': debits})
+    # Pass necessary data to the template context
+    context = {
+        'parties': parties,
+        'items': items,
+        'debits': debits,
+        'company_id': company_id,
+        'user_id': user_id,
+        'usr': request.user  # Pass the user object to the template
+    }
+    return render(request, 'debitnote2.html', context)
+
 
 def debitnote2(request):
- 
     company_id = request.session.get('company')
     user_id = request.session.get('user')
 
@@ -724,11 +728,18 @@ def debitnote2(request):
 
     parties = Party.objects.filter(company=cmp)
     items = Item.objects.filter(company=cmp)
-    
- 
     debits = DebitNote.objects.filter(user=request.user)
 
-    return render(request, 'debitnote2.html', {'company_id': company_id, 'user_id': user_id, 'parties': parties, 'items': items, 'debits': debits})
+    # Pass necessary data to the template context
+    context = {
+        'parties': parties,
+        'items': items,
+        'debits': debits,
+        'company_id': company_id,
+        'user_id': user_id,
+        'usr': request.user  # Pass the user object to the template
+    }
+    return render(request, 'debitnote2.html', context)
 
 
 def delete_debit_note(request, debitnote_id):
@@ -752,3 +763,25 @@ def delete_debit_note(request, debitnote_id):
     else:
         # If the request method is not POST, return a method not allowed response
         return JsonResponse({'status': 'error', 'message': 'Method not allowed'}, status=405)
+    
+  
+def search_debitnotes(request):
+    if request.method == 'GET':
+        fromDate_str = request.GET.get('fromDate')
+        toDate_str = request.GET.get('toDate')
+
+       
+        fromDate = timezone.make_aware(datetime.strptime(fromDate_str, '%Y-%m-%d'))
+        toDate = timezone.make_aware(datetime.strptime(toDate_str, '%Y-%m-%d'))
+
+ 
+        debitnotes = DebitNote.objects.filter(created_at__range=[fromDate, toDate])
+
+        
+        debitnotes_list = list(debitnotes.values())
+
+        
+        return JsonResponse(debitnotes_list, safe=False)
+
+    else:
+        return JsonResponse({'error': 'Invalid request method'}, status=405)
