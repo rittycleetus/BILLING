@@ -785,3 +785,8 @@ def search_debitnotes(request):
 
     else:
         return JsonResponse({'error': 'Invalid request method'}, status=405)
+
+def delete_debit_note_item(request, debitnote_id):
+    debit_note_item = get_object_or_404(DebitNote, pk=debitnote_id)
+    debit_note_item.delete()
+    return JsonResponse({'message': 'Debit note item deleted successfully'})

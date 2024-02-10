@@ -167,6 +167,8 @@
     </style>
 
         </head>
+        
+  
 <div class="body-wrapper">
 
     <div class="container" style="border: 1px solid #ccc; border-radius: 8px; padding: 20px; margin-top: 10px; position: relative;">
@@ -176,13 +178,14 @@
             <div class="dateclass" style="display: flex; justify-content: space-between; align-items: center; width: 800px; margin-top: 70px;">
                 <div>
                     <label for="fromDate" style="margin-right: 10px;">From Date</label>
-                    <input type="date" id="fromDate" name="fromDate" style="width: 380px; padding: 5px; border-radius: 4px;" onchange="updateToDateMin()">
+                    <input type="date" id="fromDate" name="fromDate" style="width: 380px; padding: 5px; border-radius: 4px;"  onchange="filterTable(this);updateToDateMin(this)">
                 </div>
             
                 <div>
                     <label for="toDate" style="margin-left: 10px;">To Date</label>
-                    <input type="date" id="toDate" name="toDate" style="width: 380px; padding: 5px; border-radius: 4px;" onchange="searchDebitNotes()">
+                    <input type="date" id="toDate" name="toDate" style="width: 380px; padding: 5px; border-radius: 4px;" onchange="filterTable(this);updateToDateMin(this)">
                 </div>
+                
             </div>
      
     <div style="display: flex;  justify-content: flex-end;">
@@ -231,26 +234,43 @@
         </div>
         <a href="{% url 'createdebitnote' %}" class="btn btn-primary" style="background-color: maroon;"><b>+</b> Add Debit Note</a>
     </div>
-   
-        <table class="table table-hover  mt-5 " style="background-color: white;box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);">
+          <table class="table table-hover  mt-5 " style="background-color: white;box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);"  id="debitTable">
             <thead style="background: #68020F;">
               <tr class=" text-start text-light" style="font-size: 12px;">
                 <th scope="col"class="custom-width" style="border-right: 1px solid;">#</th>
+                
+
                 <th scope="col" style="border-right: 1px solid; position: relative;">
-                    Date
+                    Date&nbsp;&nbsp;
                     <i class="fas fa-filter fa-xs" onclick="toggleFilterBox(this)" style="color: #3498db;"></i>
-                    <div class="filter-box" id="dateFilterBox" >
-                        <select style="width: 190px;">
-                            <option value="exact">Exact match</option>
-                            <option value="contains">Contains</option>
+                    <div class="filter-box" id="dateFilterBox">
+                        <select id="dateFilterOption" style="width: 190px;" onchange="toggleDateInput()">
+                            <option value="equalto">Equal to</option>
+                            <option value="greaterthan">Greater than</option>
+                            <option value="lessthan">Less than</option>
+                            <option value="range">Range</option>
                         </select>
-                        <input type="text" placeholder="Search...">
+                        
+                        <!-- Input field for equal to filter -->
+                        <input type="date" id="equalToDateInput" placeholder="dd/mm/yy" style="width: 190px; display: none;">
+                        
+                        <!-- Input field for greater than filter -->
+                        <input type="date" id="greaterThanDateInput" placeholder="dd/mm/yy" style="width: 190px; display: none;">
+                        
+                        <!-- Input field for less than filter -->
+                        <input type="date" id="lessThanDateInput" placeholder="dd/mm/yy" style="width: 190px; display: none;">
+                    
+                        <label for="fromDateInput" style="color: black;">From:</label>
+                        <input type="date" id="fromDateInput" placeholder="dd/mm/yy" style="width: 190px; display: none;"><br>
+                        <label for="toDateInput"style="color: black;">To:</label>
+                        <input type="date" id="toDateInput" placeholder="dd/mm/yy" style="width: 190px; display: none;">
+                      
                         <div class="filter-btns">
                             <button onclick="clearFilter()" class="custom-button">CLEAR</button>
                             <button onclick="applyFilter()" class="custom-button">APPLY</button>
                         </div>
-                    </div>
-                </th>
+    </div>
+</th>
                 <th scope="col" style="border-right: 1px solid; width: 500px;">
                     Ref.No&nbsp;&nbsp;
                     <i class="fas fa-filter fa-xs" onclick="toggleFilterBox(this)" style="color: #3498db;"></i>
@@ -320,7 +340,7 @@
                         </div>
                     </div>
                 </th>
-                <th scope="col"  style="width: 1300px; border-right: 1px solid;">Received/Paid<i class="fas fa-filter fa-xs"onclick="toggleFilterBox(this)" style="color: #3498db;"></i>
+                <th scope="col" style="width: 100px; border-right: 1px solid; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Received/Paid<i class="fas fa-filter fa-xs" onclick="toggleFilterBox(this)" style="color: #3498db;"></i>
                     <div class="filter-box" id="recievedFilterBox" style="width:200px">
                         <select style="width: 190px;">
                             <option value="exact">Exact match</option>
@@ -381,6 +401,7 @@
             <tbody style="font-size: 10px;font-weight: 700;">
                 {% for debit in debits %}
                     <tr>
+                        
                         <td>{{ forloop.counter }}</td>
                         <td>{{ debit.created_at|date:'d-m-Y' }}</td>
                         <td>{{ debit.returnno }}</td> 
@@ -390,12 +411,14 @@
                         <td>{{ debit.grandtotal }}</td> 
                         <td>{{ debit.received_paid }}</td> 
                         <td>{{ debit.balance }}</td>
-                        <td>
+                        <td></td>
+                        <td></td>
                             <!-- Add your action buttons or links here -->
                         
                         <td>
-                        <div class="ellipsis-menu" id="ellipsisMenu">
-                            <i class="fas fa-ellipsis-v"></i>
+                            <div class="ellipsis-menu" id="ellipsisMenu" onclick="toggleMenu(event)">
+                                <i class="fas fa-ellipsis-v"></i>
+                            
                        
                             <div class="menu-options">
                                 <div class="menu-option" onclick="editAction()">
@@ -407,42 +430,105 @@
                                 <div class="menu-option" onclick="viewPdfAction()">
                                     <i class="fas fa-file-pdf" style="color: #27ae60;"></i> View PDF
                                 </div>
-                                <div class="menu-option"  onclick="deleteAction('{{ debit.id }}')">
+                                <div class="menu-option" onclick="deleteDebitNoteItem('{{ debit.id }}')">
                                     <i class="fas fa-trash" style="color: #e74c3c;"></i> Delete
                                 </div>
+                                <div class="menu-option" onclick="shareAction()">
+                                    <i class="fas fa-share" style="color: #9b59b6;"></i> Share
+                                </div>
+                                <div class="menu-option" onclick="printAction()">
+                                    <i class="fas fa-print" style="color: #34495e;"></i> Print
+                                </div>
+                                
                             </div>
                     </div>
                 </td>
                     
                     </tr>
-                </tr>
+                
                 {% endfor %}
             </tbody>
+            
         </table>
+        <div id="noDataMessage" style="display: none; text-align: center;">
+           
+            <img src="{% static 'img/blank.png' %}" alt="No data image" style="height: 150px;">
+            <p>No data is available for DebitNote,<br> Please try again after making relevant changes.</p>
+        </div>
     <!-- Table -->
    
 
 
 </div>
 </form>
-<!-- Additional HTML content -->
-<script>
+
+    <script>
+    window.onload = function() {
+        // Reset date inputs to empty string
+        document.getElementById('equalToDateInput').value = '';
+        document.getElementById('greaterThanDateInput').value = '';
+        document.getElementById('lessThanDateInput').value = '';
+        document.getElementById('fromDateInput').value = '';
+        document.getElementById('toDateInput').value = '';
+    };
+
     function toggleFilterBox(icon) {
-        const filterBox = icon.nextElementSibling;
-        filterBox.style.display = (filterBox.style.display === 'none' || filterBox.style.display === '') ? 'block' : 'none';
-    }
+    const filterBox = icon.nextElementSibling;
+    // Toggle the "show" class to handle the display of the filter box
+    filterBox.classList.toggle("show");
 
-    function clearFilter() {
-        // Implement logic to clear the filter
-        console.log('Clearing filter...');
-    }
+    // Toggle the display property to achieve the same effect as the original function
+    filterBox.style.display = (filterBox.classList.contains("show")) ? 'block' : 'none';
 
-    function applyFilter() {
-        // Implement logic to apply the filter
-        console.log('Applying filter...');
+    // Reset the select element to default "Equal to" option
+    document.getElementById('dateFilterOption').value = 'equalto';
+
+    // Call toggleDateInput to show/hide input fields based on the default option
+    toggleDateInput();
+}
+
+    function toggleDateInput() {
+        var selectedOption = document.getElementById('dateFilterOption').value;
+        var equalToInput = document.getElementById('equalToDateInput');
+        var greaterThanInput = document.getElementById('greaterThanDateInput');
+        var lessThanInput = document.getElementById('lessThanDateInput');
+        var fromDateInput = document.getElementById('fromDateInput');
+        var toDateInput = document.getElementById('toDateInput');
+        var fromDateLabel = document.querySelector('label[for="fromDateInput"]');
+        var toDateLabel = document.querySelector('label[for="toDateInput"]');
+
+        // Hide all input fields and labels first
+        equalToInput.style.display = 'none';
+        greaterThanInput.style.display = 'none';
+        lessThanInput.style.display = 'none';
+        fromDateInput.style.display = 'none';
+        toDateInput.style.display = 'none';
+        fromDateLabel.style.display = 'none';
+        toDateLabel.style.display = 'none';
+
+        // Show the input field and label corresponding to the selected option
+        switch (selectedOption) {
+            case 'equalto':
+                equalToInput.style.display = 'block';
+                break;
+            case 'greaterthan':
+                greaterThanInput.style.display = 'block';
+                break;
+            case 'lessthan':
+                lessThanInput.style.display = 'block';
+                break;
+            case 'range':
+                fromDateInput.style.display = 'block';
+                toDateInput.style.display = 'block';
+                fromDateLabel.style.display = 'block';
+                toDateLabel.style.display = 'block';
+                break;
+            default:
+                console.log("Invalid filter option");
+        }
     }
 </script>
-
+   
 <script>
 function printPage() {
     // Open a new window for printing
@@ -633,50 +719,62 @@ function shareWithWhatsApp() {
     };
       // Function to update the minimum date for the "To Date" input field based on the selected "From Date"
      
-    function updateToDateMin() {
-        // Get the value of the "From Date" input field
-        var fromDateValue = document.getElementById("fromDate").value;
+      function updateToDateMin() {
+    var fromDateValue = document.getElementById("fromDate").value;
+    document.getElementById("toDate").min = fromDateValue;
 
-        // Set the minimum date for the "To Date" input field to the selected "From Date"
-        document.getElementById("toDate").min = fromDateValue;
+    // If "From Date" is cleared, clear the "To Date" input field
+    if (!fromDateValue) {
+        clearToDateInput();
+    }
+}
 
-        // Get the value of the "To Date" input field
-        var toDateValue = document.getElementById("toDate").value;
+// Function to filter the table based on the selected date range
+function filterTable() {
+    var fromDate = document.getElementById('fromDate').value;
+    var toDate = document.getElementById('toDate').value;
+    
+    // Function to convert date format from "YY-mm-dd" to "dd-mm-yy"
+    function formatDate(date) {
+        var parts = date.split('-');
+        return parts[2] + '-' + parts[1] + '-' + parts[0];
+    }
 
-        // Check if the "From Date" is empty or null
-        if (!fromDateValue) {
-            // If "From Date" is empty, clear the "To Date" input field
-            document.getElementById("toDate").value = "";
+    // Get all the table rows
+    var table = document.getElementById('debitTable');
+    var rows = table.getElementsByTagName('tr');
+    
+    var noDataMessage = document.getElementById('noDataMessage'); // Get the message container
+    
+    // Initialize a variable to track if any rows are visible after filtering
+    var hasVisibleRows = false;
+    
+    // Loop through each row (skipping the header row)
+    for (var i = 1; i < rows.length; i++) {
+        var dateCell = rows[i].getElementsByTagName('td')[1]; // Assuming date is in the second column
+        var dateValue = dateCell.textContent.trim();
+        
+        // Convert date format from "dd-mm-yy" to "YY-mm-dd"
+        var formattedDateValue = formatDate(dateValue);
+
+        // Check if the row date falls within the selected date range
+        if (fromDate && toDate && formattedDateValue >= fromDate && formattedDateValue <= toDate) {
+            // If the row date falls within the range, display the row
+            rows[i].style.display = '';
+            hasVisibleRows = true; // Set to true if any row is visible
+        } else {
+            // Otherwise, hide the row
+            rows[i].style.display = 'none';
         }
     }
-    document.getElementById("toDate").addEventListener("change", function() {
     
-    var fromDate = document.getElementById("fromDate").value;
-    var toDate = this.value;  
-    searchDebitNotes(fromDate, toDate);
-});
-
-
-function searchDebitNotes(fromDate, toDate) {
-    console.log("hai");
-  
-    fetch('/search-debitnotes', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ fromDate: fromDate, toDate: toDate }),
-    })
-    .then(response => response.json())
-    .then(data => {
-        
-        console.log(data); 
-    })
-    .catch(error => {
-        console.error('Error fetching data:', error);
-    });
+    // Toggle the message container based on the visibility of rows
+    if (!hasVisibleRows) {
+        noDataMessage.style.display = 'block'; // Show the message container
+    } else {
+        noDataMessage.style.display = 'none'; // Hide the message container
+    }
 }
-   
 </script>
 
 <script>
@@ -745,37 +843,52 @@ function searchDebitNotes(fromDate, toDate) {
    
 </script>
 <script>
-   function deleteAction(debitNoteId) {
-    // Get the CSRF token from a hidden input field
-    var csrfToken = $('input[name="csrfmiddlewaretoken"]').val();
+    function toggleMenu(event) {
+    var menu = event.currentTarget.querySelector('.menu-options');
+    menu.classList.toggle('show-menu');
 
-    // Send an AJAX request to delete the DebitNote object
-    $.ajax({
-        type: 'POST',
-        url: '/delete_debit_note/',  
-        data: {
-            'debitnote_id': debitNoteId,
-            'csrfmiddlewaretoken': csrfToken  // Include the retrieved CSRF token
-        },
-        success: function(response) {
-            // Check if the deletion was successful
-            if (response.status === 'success') {
-                // Remove the deleted row from the table
-                $('#debitNoteRow_' + debitNoteId).remove();
-                // Optionally, show a success message
-                alert('DebitNote deleted successfully.');
-            } else {
-                // Show an error message if the deletion failed
-                alert('Failed to delete DebitNote.');
-            }
-        },
-        error: function(xhr, status, error) {
-            // Handle any errors that occur during the AJAX request
-            console.error(xhr.responseText);
-            alert('An error occurred while processing the request.');
-        }
-    });
+    // Check if menu is overflowing
+    var overflowRight = menu.getBoundingClientRect().right > window.innerWidth;
+    var overflowBottom = menu.getBoundingClientRect().bottom > window.innerHeight;
+
+    if (overflowRight) {
+        menu.style.left = 'auto';
+        menu.style.right = '0';
+    }
+
+    if (overflowBottom) {
+        menu.style.top = 'auto';
+        menu.style.bottom = '0';
+    }
 }
-</script>
+
+// Close menu when clicking outside
+document.addEventListener('click', function(event) {
+    var menu = document.getElementById('ellipsisMenu').querySelector('.menu-options');
+    if (!event.target.closest('.ellipsis-menu')) {
+        menu.classList.remove('show-menu');
+    }
+});
+
+    function deleteDebitNoteItem(debitnoteId) {
+        if (confirm('Are you sure you want to delete this debit note item?')) {
+            fetch(`/delete_debit_note_item/${debitnoteId}/`, {
+                method: 'DELETE',
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}'
+                }
+            })
+            .then(response => {
+                if (response.ok) {
+                    // Refresh the page or update UI as needed
+                    location.reload();
+                } else {
+                    alert('Failed to delete debit note item');
+                }
+            })
+            .catch(error => console.error('Error:', error));
+        }
+    }
+    </script>
 </div>
 {% endblock %}
