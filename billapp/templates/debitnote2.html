@@ -267,7 +267,7 @@
                       
                         <div class="filter-btns">
                             <button onclick="clearFilter()" class="custom-button">CLEAR</button>
-                            <button onclick="applyFilter()" class="custom-button">APPLY</button>
+                            <button onclick="applyFilter()" class="custom-button" id="applyButton">APPLY</button>
                         </div>
     </div>
 </th>
@@ -528,7 +528,123 @@
         }
     }
 </script>
-   
+<script>
+    window.onload = function() {
+        // Add event listener to the "Apply" button
+        var applyButton = document.getElementById("applyButton");
+        if (applyButton) {
+            applyButton.addEventListener("click", applyFilter);
+        } else {
+            console.error("Element with ID 'applyButton' not found.");
+        }
+    };
+
+    function applyFilter(event) {
+    // Prevent the default form submission behavior
+    event.preventDefault();
+
+    // Retrieve filter option and input fields
+    var filterOption = document.getElementById("dateFilterOption").value;
+    var equalToDateInput = document.getElementById("equalToDateInput").value;
+    var greaterThanInput = document.getElementById("greaterThanDateInput").value;
+    var lessThanInput = document.getElementById("lessThanDateInput").value;
+    var fromDateInput = document.getElementById("fromDateInput").value;
+    var toDateInput = document.getElementById("toDateInput").value;
+
+    function formatDate1(date) {
+        var parts = date.split('-');
+        return parts[2] + '-' + parts[1] + '-' + parts[0];
+    }
+
+    // Retrieve table rows
+    var tableRows = document.getElementsByTagName("tr");
+    var noDataMessage = document.getElementById('noDataMessage');
+
+
+    for (var i = 1; i < tableRows.length; i++) {
+
+        var dateCell = tableRows[i].getElementsByTagName('td')[1];
+
+        var dateFieldValue = dateCell.textContent.trim(); // Trim any leading/trailing spaces
+
+
+        var rowDate = formatDate1(dateFieldValue);
+        var showRow = true;
+
+        switch (filterOption) {
+            case "equalto":
+                var equalToDate = new Date(equalToDateInput);
+
+              
+                var formattedRowDate = new Date(rowDate);
+
+              
+                if (formattedRowDate.getTime() !== equalToDate.getTime()) {
+                    showRow = false;
+                }
+                break;
+            case "greaterthan":
+                var greaterThanDate = new Date(greaterThanInput);
+
+                
+                var formattedRowDate = new Date(rowDate);
+
+                
+                if (formattedRowDate.getTime() <= greaterThanDate.getTime()) {
+                    showRow = false;
+                }
+                break;
+
+            case "lessthan":
+                var lessThanDate = new Date(lessThanInput);
+
+                
+                var formattedRowDate = new Date(rowDate);
+
+                
+                if (formattedRowDate.getTime() >= lessThanDate.getTime()) {
+                    showRow = false;
+                }
+                break;
+            case "range":
+                var fromDate = new Date(fromDateInput);
+                var toDate = new Date(toDateInput);
+
+                
+                var formattedRowDate = new Date(rowDate);
+
+                
+                if (formattedRowDate.getTime() < fromDate.getTime() || formattedRowDate.getTime() > toDate.getTime()) {
+                    showRow = false;
+                }
+                break;
+             
+
+           
+
+        }
+
+
+        if (showRow) {
+            tableRows[i].style.display = "";
+           
+        } else {
+            tableRows[i].style.display = "none";
+            noDataMessage.style.display = "";
+        }
+    }
+}
+var applyButton = document.getElementById("applyButton");
+    if (applyButton) {
+        applyButton.addEventListener("click", function(event) {
+            applyFilter(event);
+        });
+    } else {
+        console.error("Element with ID 'applyButton' not found.");
+    }
+</script>
+  
+  
 <script>
 function printPage() {
     // Open a new window for printing

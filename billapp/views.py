@@ -588,8 +588,6 @@ def extract_percentage(vat_string):
     # Return None if the string doesn't match the expected format
     return None
 
-
-
 def item_create(request):
     if request.method == 'POST':
         
@@ -599,7 +597,7 @@ def item_create(request):
         itm_unit = request.POST.get('unit')
         itm_taxable = request.POST.get('taxable_result')
         
-        
+        print(request.POST.get('vat'))
         itm_vat = extract_percentage(request.POST.get('vat'))
         
         itm_sale_price = request.POST.get('sale_price')
@@ -629,7 +627,6 @@ def item_create(request):
 
 
     return render(request, 'createdebitnote.html')
-
 def create_unit(request):
     if request.method == 'POST':
         unit_name = request.POST.get('unit_name', '')
