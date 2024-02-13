@@ -288,16 +288,16 @@
                 </th>
                 <th scope="col" style="border-right: 1px solid; width: 1500px;">
                     Party Name&nbsp;&nbsp;
-                    <i class="fas fa-filter fa-xs" onclick="toggleFilterBox(this)" style="color: #3498db;"></i>
+                    <i class="fas fa-filter fa-xs" style="color: #3498db; cursor: pointer;" onclick="toggleFilterBox1()"></i>
                     <div class="filter-box" id="partyNameFilterBox" style="width:200px">
-                        <select style="width: 190px;">
+                        <select id="optionSelect" style="width: 190px;" onchange="handleOptionChange()">
                             <option value="exact">Exact match</option>
                             <option value="contains">Contains</option>
                         </select>
-                        <input type="text" placeholder="Search...">
+                        <input type="text" placeholder="Search..." id="searchInput">
                         <div class="filter-btns">
-                            <button onclick="clearFilter()" class="custom-button">CLEAR</button>
-                            <button onclick="applyFilter()" class="custom-button">APPLY</button>
+                            <button id="clearButton" onclick="clearFilter()" class="custom-button">CLEAR</button>
+                            <button id="applyButton" onclick="applyFilter()" class="custom-button">APPLY</button>
                         </div>
                     </div>
                 </th>
@@ -405,7 +405,7 @@
                         <td>{{ forloop.counter }}</td>
                         <td>{{ debit.created_at|date:'d-m-Y' }}</td>
                         <td>{{ debit.returnno }}</td> 
-                        <td>{{ debit.party.party_name }}</td>  {# Assuming 'party' is the related field in DebitNote #}
+                        <td class="party-name">{{ debit.party.party_name }}</td> {# Assuming 'party' is the related field in DebitNote #}
                         <td>{{ debit.category_name }}</td> 
                         <td>Debit Note</td> 
                         <td>{{ debit.grandtotal }}</td> 
@@ -486,6 +486,15 @@
     // Call toggleDateInput to show/hide input fields based on the default option
     toggleDateInput();
 }
+    function toggleFilterBox1() {
+        var filterBox = document.getElementById("partyNameFilterBox");
+        if (filterBox.style.display === "none" || filterBox.style.display === "") {
+            filterBox.style.display = "block";
+        } else {
+            filterBox.style.display = "none";
+        }
+    }
+
 
     function toggleDateInput() {
         var selectedOption = document.getElementById('dateFilterOption').value;
@@ -627,10 +636,11 @@
 
         if (showRow) {
             tableRows[i].style.display = "";
-           
+            noDataMessage.style.display="";
         } else {
             tableRows[i].style.display = "none";
-            noDataMessage.style.display = "";
+            noDataMessage.style.display="none";
+            
         }
     }
 }
@@ -644,7 +654,32 @@ var applyButton = document.getElementById("applyButton");
     }
 </script>
   
-  
+<script>
+    function handleOptionChange() {
+        var selectElement = document.getElementById("optionSelect");
+        var selectedOption = selectElement.value;
+        var inputText = document.getElementById("searchInput").value.trim().toLowerCase(); // Assuming you have an input field for searching
+        var partyNameCells = document.querySelectorAll('td.party-name');
+        console.log(selectElement,selectedOption,inputText,partyNameCells);
+        if (selectedOption === "exact") {
+            partyNameCells.forEach(function(cell) {
+                if (cell.textContent.trim().toLowerCase() === inputText) {
+                    cell.parentNode.style.display = '';
+                } else {
+                    cell.parentNode.style.display = 'none';
+                }
+            });
+        } else if (selectedOption === "contains") {
+            partyNameCells.forEach(function(cell) {
+                if (cell.textContent.trim().toLowerCase().includes(inputText)) {
+                    cell.parentNode.style.display = '';
+                } else {
+                    cell.parentNode.style.display = 'none';
+                }
+            });
+        }
+    }
+</script>
 <script>
 function printPage() {
     // Open a new window for printing

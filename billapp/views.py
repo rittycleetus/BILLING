@@ -437,6 +437,19 @@ def firstdebitnote(request):
 
 logger = logging.getLogger(__name__)
 
+def debit_note_redirect(request):
+    # Check if any debit notes exist for the logged-in user or company
+    debit_notes_exist = DebitNote.objects.filter(user=request.user).exists() or \
+                        DebitNote.objects.filter(company=request.user.company).exists()
+
+    if debit_notes_exist:
+        # Debit notes exist, redirect to the page displaying the debit notes
+        return redirect('debitnote2')  # Adjust the URL name as per your project
+
+    else:
+        # No debit notes exist, redirect to the page for creating the first debit note
+        return redirect('firstdebitnote') 
+    
 def createdebitnote(request):
     
     # Fetch the company based on the user's role

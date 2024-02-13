@@ -29,7 +29,7 @@ urlpatterns = [
     path('accept_staff/<int:id>',views.accept_staff,name='accept_staff'),  
     path('reject_staff/<int:id>',views.reject_staff,name='reject_staff'),  
 
-
+    path('debit-note-redirect/', views.debit_note_redirect, name='debit_note_redirect'),
     path('firstdebitnote',views.firstdebitnote,name='firstdebitnote'),  
     path('createdebitnote',views.createdebitnote,name='createdebitnote'),
     path('create_party',views.create_party,name='create_party'), 
