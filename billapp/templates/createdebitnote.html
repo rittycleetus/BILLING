@@ -446,6 +446,7 @@
 
 
     <!-- Modal -->
+    <div class="itemmodal">
     <div class="modal fade" id="itemCreateModal" tabindex="-1" aria-labelledby="ItemCreateModalLabel" aria-hidden="true">
        <div class="modal-dialog modal-lg">
            <div class="modal-content">
@@ -492,20 +493,20 @@
                                            </div>
                                            <div class="mb-3 w-50 mt-3">
                                                <label class="fw-bold tb fs-3" for="">NAME</label><br>
-                                               <input style="color: black;" class="form-control mt-2 input_border text-black" type="text" placeholder="Enter Item Name" autocomplete="off" name="name">
+                                               <input style="color: black;" class="form-control mt-2 input_border text-black" type="text" placeholder="Enter Item Name" autocomplete="off" name="name"id="itemName">
                                            </div>
                                        </div>
    
                                        <div class="d-flex mt-2">
                                            <div class=" me-3 w-50">
                                                <label class="fw-bold tb fs-3 " for="">HSN </label><br>
-                                               <input style="color: black;" class="form-control mt-2 input_border text-black" type="number" placeholder="Enter HSN value" name="hsn">
+                                               <input style="color: black;" class="form-control mt-2 input_border text-black" type="number" placeholder="Enter HSN value" name="hsn" id="itemHSN">
                                            </div>
                                            <br>
                                            <div class="mb-3 w-50">
                                                <label class="fw-bold tb fs-3" for="units">UNIT</label><br>
                                                <div class="d-flex">
-                                                   <select style="color: black;" class="form-control me-3 mt-2 input_border text-black" id="unit" name="unit">
+                                                   <select style="color: black;" class="form-control me-3 mt-2 input_border text-black" id="unit" name="unit" >
                                                        <option value="" hidden>Select an option</option>
                                                        <option value="Numbers">Numbers</option>
                                                        <option value="Packages">Packages</option>
@@ -610,14 +611,14 @@
                    </div>
                    <div class="col-sm-12 col-md-1"></div>
                    <div class="text-start" style="margin-left: 9%;">
-                       <button class="btn me-3 button_border" type="button" id="submitForm">Save</button>
+                       <button class="btn me-3 button_border" type="button" id="itemcreate">Save</button>
                 
                    </div>
                </div>
            </div>
        </div>
    </div>
-   
+   </div>
    <script>
     $(document).ready(function () {
         $('#item_tax_1').on('click', function () {
@@ -646,34 +647,53 @@
             $('#itm_type').val('Service');
         });
    
-           // AJAX form submission
-           $("#submitForm").click(function () {
-               $.ajax({
-                   type: "POST",
-                   url: "{% url 'item_create' %}",
-                   data: $("form").serialize(),  // Serialize the form data
-                   success: function (response) {
-                       // Handle the success response as needed
-                       $("#itemCreateModal").hide();
-                       $(".modal-backdrop").remove();
-                       console.log("Item created successfully!");
-                       alert("Item created successfully!");
-                       var newItem = response.newItem;
-   
-                       // Add the new item to the dropdown
-                       $("#select1").append('<option value="' + newItem.id + '" data-hsn="' + newItem.itm_hsn + '" data-price="' + newItem.itm_purchase_price + '" data-tax="VAT ' + newItem.itm_vat + '%" data-tax-rate="' + newItem.get_vat_integer + '">' + newItem.itm_name + '</option>');
-   
-                      
-           
-                   
-                   },
-                   error: function (xhr, textStatus, errorThrown) {
-                       // Handle the error response as needed
-                       console.error("Error creating item:", errorThrown);
-                   }
-               });
-           });
-       });
+       
+    $(document).on("click", "#itemcreate", function(){
+        // Get item details from the form
+        var itemName = $('#itemName').val();
+        var itemHSN = $('#itemHSN').val();
+        var itemunit = $('#unit').val();
+        var itemtax1 = $('#item_tax_1').val();
+        var itemtax2 = $('#item_tax_2').val();
+        var vat1= $('#vat1').val();
+        var salesprice = $('#sal_price').val();
+        var purprice = $('#pur_price').val();
+        var openstock= $('#opn_stock').val();
+        var atprice = $('#at_price').val();
+        var dateitem = $('#date').val();
+        
+
+       
+        $.ajax({
+            type : 'POST',
+            url: "{% url 'item_create' %}",
+            data: {
+                name: itemName,          
+        hsn: itemHSN,           
+        unit: itemunit,          
+        tax1: itemtax1,          
+        tax2: itemtax2,          
+        vat1: vat1,              
+        sales_price: salesprice, 
+        pur_price: purprice,     
+        open_stock: openstock,   
+        at_price: atprice,       
+        date: dateitem,         
+        csrfmiddlewaretoken: '{{ csrf_token }}', 
+    }, function(response) {
+                
+                $('#itemCreationForm').trigger("reset");
+                $('#itemCreationModal').modal('hide');
+                
+                reloadItems();
+            },
+            error: function(xhr, errmsg, err) {
+                // Handle error
+                console.log(errmsg);
+            }
+        });
+    });
+
    
        $("#unitmodalsubmit").click(function () {
     $.ajax({

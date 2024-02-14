@@ -6,6 +6,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.3/jspdf.umd.min.js"></script>
      
 
 <style>
@@ -242,7 +243,7 @@
 
                 <th scope="col" style="border-right: 1px solid; position: relative;">
                     Date&nbsp;&nbsp;
-                    <i class="fas fa-filter fa-xs" onclick="toggleFilterBox(this)" style="color: #3498db;"></i>
+                    <i class="fas fa-filter fa-xs" onclick="toggleFilterBoxdate(this)" style="color: #3498db;"></i>
                     <div class="filter-box" id="dateFilterBox">
                         <select id="dateFilterOption" style="width: 190px;" onchange="toggleDateInput()">
                             <option value="equalto">Equal to</option>
@@ -296,8 +297,8 @@
                         </select>
                         <input type="text" placeholder="Search..." id="searchInput">
                         <div class="filter-btns">
-                            <button id="clearButton" onclick="clearFilter()" class="custom-button">CLEAR</button>
-                            <button id="applyButton" onclick="applyFilter()" class="custom-button">APPLY</button>
+                            <button id="clearButton" onclick="clearFilter1()" class="custom-button">CLEAR</button>
+                            <button id="applyButton" onclick="applyFilter1()" class="custom-button">APPLY</button>
                         </div>
                     </div>
                 </th>
@@ -327,18 +328,22 @@
                         </div>
                     </div>
                 </th>
-                <th scope="col"style="border-right: 1px solid;width: 800px;">Total<i class="fas fa-filter fa-xs"onclick="toggleFilterBox(this)" style="color: #3498db;"></i>
-                    <div class="filter-box" id="totalFilterBox" style="width:200px">
-                        <select style="width: 190px;">
-                            <option value="exact">Exact match</option>
-                            <option value="contains">Contains</option>
+                <th scope="col" style="border-right: 1px solid;width: 800px;">
+                    Total
+                    <i class="fas fa-filter fa-xs" onclick="toggleFilterBox('totalFilterBox')" id="totalFilterBoxIcon" style="color: #3498db;"></i>
+                    <div class="filter-box" id="totalFilterBox" style="width: 200px; display: none;">
+                        <select style="width: 190px;" id="totaloptions">
+                            <option value="equalto">Equal to</option>
+                            <option value="greaterthan">Greater than</option>
+                            <option value="lessthan">Less than</option>
                         </select>
-                        <input type="text" placeholder="Search...">
+                        <input type="number" id="totalFilterValue" placeholder="Enter value">
                         <div class="filter-btns">
-                            <button onclick="clearFilter()" class="custom-button">CLEAR</button>
-                            <button onclick="applyFilter()" class="custom-button">APPLY</button>
+                            <button onclick="clearTotalFilter()" class="custom-button">CLEAR</button>
+                            <button onclick="applyTotalFilter()" class="custom-button">APPLY</button>
                         </div>
                     </div>
+                </th>
                 </th>
                 <th scope="col" style="width: 100px; border-right: 1px solid; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Received/Paid<i class="fas fa-filter fa-xs" onclick="toggleFilterBox(this)" style="color: #3498db;"></i>
                     <div class="filter-box" id="recievedFilterBox" style="width:200px">
@@ -462,7 +467,8 @@
 </div>
 </form>
 
-    <script>
+   
+ <script>
     window.onload = function() {
         // Reset date inputs to empty string
         document.getElementById('equalToDateInput').value = '';
@@ -472,7 +478,7 @@
         document.getElementById('toDateInput').value = '';
     };
 
-    function toggleFilterBox(icon) {
+    function toggleFilterBoxdate(icon) {
     const filterBox = icon.nextElementSibling;
     // Toggle the "show" class to handle the display of the filter box
     filterBox.classList.toggle("show");
@@ -486,14 +492,7 @@
     // Call toggleDateInput to show/hide input fields based on the default option
     toggleDateInput();
 }
-    function toggleFilterBox1() {
-        var filterBox = document.getElementById("partyNameFilterBox");
-        if (filterBox.style.display === "none" || filterBox.style.display === "") {
-            filterBox.style.display = "block";
-        } else {
-            filterBox.style.display = "none";
-        }
-    }
+
 
 
     function toggleDateInput() {
@@ -538,15 +537,14 @@
     }
 </script>
 <script>
-    window.onload = function() {
-        // Add event listener to the "Apply" button
+    // Add event listener to the "Apply" button
         var applyButton = document.getElementById("applyButton");
         if (applyButton) {
             applyButton.addEventListener("click", applyFilter);
         } else {
             console.error("Element with ID 'applyButton' not found.");
         }
-    };
+    
 
     function applyFilter(event) {
     // Prevent the default form submission behavior
@@ -559,6 +557,7 @@
     var lessThanInput = document.getElementById("lessThanDateInput").value;
     var fromDateInput = document.getElementById("fromDateInput").value;
     var toDateInput = document.getElementById("toDateInput").value;
+    
 
     function formatDate1(date) {
         var parts = date.split('-');
@@ -567,18 +566,19 @@
 
     // Retrieve table rows
     var tableRows = document.getElementsByTagName("tr");
-    var noDataMessage = document.getElementById('noDataMessage');
+        var noDataMessage = document.getElementById('noDataMessage');
+        // Variable to track if any rows are visible after filtering
+        var hasVisibleRows = false;
+        var visibleRowCount = 0; 
 
+        for (var i = 1; i < tableRows.length; i++) {
 
-    for (var i = 1; i < tableRows.length; i++) {
+            var dateCell = tableRows[i].getElementsByTagName('td')[1];
 
-        var dateCell = tableRows[i].getElementsByTagName('td')[1];
+            var dateFieldValue = dateCell.textContent.trim(); // Trim any leading/trailing spaces
 
-        var dateFieldValue = dateCell.textContent.trim(); // Trim any leading/trailing spaces
-
-
-        var rowDate = formatDate1(dateFieldValue);
-        var showRow = true;
+            var rowDate = formatDate1(dateFieldValue);
+            var showRow = true;
 
         switch (filterOption) {
             case "equalto":
@@ -635,51 +635,270 @@
 
 
         if (showRow) {
+            // Increment visible row count and assign index number
+            visibleRowCount++;
             tableRows[i].style.display = "";
-            noDataMessage.style.display="";
+            hasVisibleRows = true;
+            // Assign index number to the first column of the visible row
+            tableRows[i].getElementsByTagName('td')[0].textContent = visibleRowCount;
         } else {
             tableRows[i].style.display = "none";
-            noDataMessage.style.display="none";
-            
         }
     }
-}
-var applyButton = document.getElementById("applyButton");
-    if (applyButton) {
-        applyButton.addEventListener("click", function(event) {
-            applyFilter(event);
-        });
-    } else {
-        console.error("Element with ID 'applyButton' not found.");
+
+        // Toggle the message container based on the visibility of rows
+        if (!hasVisibleRows) {
+            noDataMessage.style.display = "block"; // Show the message if no rows are visible
+        } else {
+            noDataMessage.style.display = "none"; // Hide the message if there are visible rows
+        }
+        // Hide the filter box after applying the filter
+    var filterBox = document.getElementById('dateFilterBox');
+    filterBox.style.display = 'none';
     }
+    
+
+    window.onload = function() {
+    // Execute the clearFilter function when the window is loaded
+    clearFilter();
+};
+    function clearFilter() {
+    // Reset all input fields to empty string
+    document.getElementById('equalToDateInput').value = '';
+    document.getElementById('greaterThanDateInput').value = '';
+    document.getElementById('lessThanDateInput').value = '';
+    document.getElementById('fromDateInput').value = '';
+    document.getElementById('toDateInput').value = '';
+
+    // Reset the select element to default "Equal to" option
+    document.getElementById('dateFilterOption').value = 'equalto';
+
+    // Hide all table rows
+    var tableRows = document.getElementsByTagName("tr");
+    for (var i = 1; i < tableRows.length; i++) {
+        tableRows[i].style.display = "";
+    }
+
+    // Hide the no data message
+    var noDataMessage = document.getElementById('noDataMessage');
+    noDataMessage.style.display = "none";
+
+    // Remove filter settings from localStorage
+    localStorage.removeItem('totalFilterOption');
+    localStorage.removeItem('totalFilterValue');
+}
+
+// Check for stored filter settings upon DOMContentLoaded
+document.addEventListener('DOMContentLoaded', function () {
+    // Retrieve filter settings from localStorage
+    var filterOption = localStorage.getItem('totalFilterOption');
+    var filterValue = localStorage.getItem('totalFilterValue');
+    
+    if (filterOption && filterValue) {
+        // Set the filter option and value
+        document.getElementById('totaloptions').value = filterOption;
+        document.getElementById('totalFilterValue').value = filterValue;
+        
+        // Apply the filter
+        applyTotalFilter();
+    }
+});
 </script>
   
+
+
+
+
+
+
+
+<!-- PARTY NAME FILTER -->
+  <script>
+document.addEventListener('DOMContentLoaded', function () {
+    // Retrieve filter settings from localStorage
+    var option = localStorage.getItem('filterOption');
+    var searchText = localStorage.getItem('filterText');
+    if (option && searchText) {
+        document.getElementById('optionSelect').value = option;
+        document.getElementById('searchInput').value = searchText;
+        applyFilter1();
+    }
+});
+
+function handleOptionChange() {
+    // Handle option change if needed
+}
+
+function clearFilter1() {
+    document.getElementById('searchInput').value = '';
+    applyFilter1();
+}
+
+function applyFilter1() {
+    var option = document.getElementById('optionSelect').value;
+    var searchText = document.getElementById('searchInput').value.toLowerCase();
+    var rows = document.querySelectorAll('.party-name');
+    var visibleRowCount1 = 0; 
+
+    rows.forEach(function(row, index) {
+        var rowText = row.textContent.toLowerCase();
+        var displayStyle = 'none'; // Default display style
+        if (option === 'exact') {
+            if (rowText === searchText) {
+                displayStyle = 'table-row';
+            }
+        } else if (option === 'contains') {
+            if (rowText.includes(searchText)) {
+                displayStyle = 'table-row';
+            }
+        }
+        row.closest('tr').style.display = displayStyle;
+        if (displayStyle === 'table-row') {
+            visibleRowCount1++;
+            row.closest('tr').getElementsByTagName('td')[0].textContent = visibleRowCount1;
+        }
+    });
+
+    // Check if there are any visible rows
+    var noDataMessage = document.getElementById('noDataMessage');
+    var visibleRows = document.querySelectorAll('tbody tr[style="display: table-row;"]');
+    if (visibleRows.length === 0) {
+        noDataMessage.style.display = "block"; // Show the message if no rows are visible
+    } else {
+        noDataMessage.style.display = "none"; // Hide the message if there are visible rows
+    }
+
+    // Store filter settings in localStorage
+    localStorage.setItem('filterOption', option);
+    localStorage.setItem('filterText', searchText);
+}
+
+
+function toggleFilterBox1() {
+    var filterBox = document.getElementById('partyNameFilterBox');
+    if (filterBox.style.display === 'none' || filterBox.style.display === '') {
+        filterBox.style.display = 'block';
+    } else {
+        filterBox.style.display = 'none';
+    }
+}
+</script>
+
+
+
+
+
+
+<!-- TOTAL FILTER -->
 <script>
-    function handleOptionChange() {
-        var selectElement = document.getElementById("optionSelect");
-        var selectedOption = selectElement.value;
-        var inputText = document.getElementById("searchInput").value.trim().toLowerCase(); // Assuming you have an input field for searching
-        var partyNameCells = document.querySelectorAll('td.party-name');
-        console.log(selectElement,selectedOption,inputText,partyNameCells);
-        if (selectedOption === "exact") {
-            partyNameCells.forEach(function(cell) {
-                if (cell.textContent.trim().toLowerCase() === inputText) {
-                    cell.parentNode.style.display = '';
+    document.addEventListener('DOMContentLoaded', function () {
+    // Retrieve filter settings from localStorage
+    var filterOption = localStorage.getItem('totalFilterOption');
+    var filterValue = localStorage.getItem('totalFilterValue');
+    
+    if (filterOption && filterValue) {
+        // Set the filter option and value
+        document.getElementById('totaloptions').value = filterOption;
+        document.getElementById('totalFilterValue').value = filterValue;
+        
+        // Apply the filter
+        applyTotalFilter();
+    }
+});
+
+    function toggleFilterBox(totalFilterBoxIcon) {
+    var filterBox = document.getElementById(totalFilterBoxIcon);
+    filterBox.style.display = (filterBox.style.display === 'none' || filterBox.style.display === '') ? 'block' : 'none';
+}
+function applyTotalFilter() {
+    // Retrieve selected option and input fields
+    var filterOption = document.getElementById("totaloptions").value;
+    var filterValue = parseFloat(document.getElementById("totalFilterValue").value); // Assuming input field ID is "totalFilterValue"
+
+    // Get all the table rows
+    var tableRows = document.getElementsByTagName("tr");
+
+    // Initialize a variable to track if any rows are visible after filtering
+    var hasVisibleRows = false;
+
+    // Initialize a variable to track the visible row count for updating index numbers
+    var visibleRowCount = 0;
+
+    // Loop through each row (skipping the header row)
+    for (var i = 1; i < tableRows.length; i++) {
+        var totalCell = tableRows[i].getElementsByTagName('td')[6]; // Assuming total column is the 7th column (index 6)
+        var totalValue = parseFloat(totalCell.textContent.trim()); // Parse total value as float
+
+        // Apply filter based on the selected option
+        switch (filterOption) {
+            case "equalto":
+                if (totalValue !== filterValue) {
+                    tableRows[i].style.display = 'none';
                 } else {
-                    cell.parentNode.style.display = 'none';
+                    tableRows[i].style.display = '';
+                    hasVisibleRows = true;
+                    visibleRowCount++;
                 }
-            });
-        } else if (selectedOption === "contains") {
-            partyNameCells.forEach(function(cell) {
-                if (cell.textContent.trim().toLowerCase().includes(inputText)) {
-                    cell.parentNode.style.display = '';
+                break;
+            case "greaterthan":
+                if (totalValue <= filterValue) {
+                    tableRows[i].style.display = 'none';
                 } else {
-                    cell.parentNode.style.display = 'none';
+                    tableRows[i].style.display = '';
+                    hasVisibleRows = true;
+                    visibleRowCount++;
                 }
-            });
+                break;
+            case "lessthan":
+                if (totalValue >= filterValue) {
+                    tableRows[i].style.display = 'none';
+                } else {
+                    tableRows[i].style.display = '';
+                    hasVisibleRows = true;
+                    visibleRowCount++;
+                }
+                break;
+        }
+
+        // Update the index number for visible rows
+        if (tableRows[i].style.display !== 'none') {
+            tableRows[i].getElementsByTagName('td')[0].textContent = visibleRowCount;
         }
     }
-</script>
+
+    // Toggle the "No Data" message based on the visibility of rows
+    var noDataMessage = document.getElementById('noDataMessage');
+    if (!hasVisibleRows) {
+        noDataMessage.style.display = "block"; // Show the message if no rows are visible
+    } else {
+        noDataMessage.style.display = "none"; // Hide the message if there are visible rows
+    }
+    
+    // Store filter settings in localStorage
+    localStorage.setItem('totalFilterOption', filterOption);
+    localStorage.setItem('totalFilterValue', filterValue);
+}
+function clearTotalFilter() {
+    // Clear any input fields and reset the filter settings
+    document.getElementById('totaloptions').value = 'equalto';
+    document.getElementById('totalFilterValue').value = ''; // Assuming input field ID is "totalFilterValue"
+
+    // Reset the display of table rows to show all rows
+    var tableRows = document.getElementsByTagName("tr");
+    for (var i = 1; i < tableRows.length; i++) {
+        tableRows[i].style.display = '';
+    }
+
+    // Hide the filter box
+    document.getElementById('totalFilterBox').style.display = 'none';
+
+    // Clear filter settings from localStorage
+    localStorage.removeItem('totalFilterOption');
+    localStorage.removeItem('totalFilterValue');
+
+ 
+}
+    </script>
 <script>
 function printPage() {
     // Open a new window for printing
@@ -988,8 +1207,47 @@ function filterTable() {
     }
 
     function viewPdfAction() {
-        console.log('View PDF action triggered');
-    }
+    // Create a new jsPDF instance
+    var doc = new jsPDF();
+
+    // Set properties for the PDF document
+    doc.setProperties({
+        title: 'Table Data PDF',
+        subject: 'Details of table rows',
+        author: 'Your Name',
+        keywords: 'PDF, table, details',
+        creator: 'Your Application'
+    });
+
+    // Initialize variables for positioning and page size
+    var startY = 10;
+    var pageHeight = doc.internal.pageSize.height;
+
+    // Loop through each row in the table
+    document.querySelectorAll('tbody tr').forEach(function(row, index) {
+        // Get data from each cell in the row
+        var rowData = [];
+        row.querySelectorAll('td').forEach(function(cell) {
+            rowData.push(cell.textContent.trim());
+        });
+
+        // Check if the current row will fit on the current page
+        if (startY + 10 > pageHeight) {
+            // Add a new page if the current row won't fit
+            doc.addPage();
+            startY = 10; // Reset startY for the new page
+        }
+
+        // Add the row data to the PDF document
+        doc.text(10, startY, rowData.join(', '));
+
+        // Increment startY for the next row
+        startY += 10;
+    });
+
+    // Save the PDF document
+    doc.save('table_data.pdf');
+}
 
    
 </script>
