@@ -426,7 +426,7 @@
                             
                        
                             <div class="menu-options">
-                                <div class="menu-option" onclick="editAction()">
+                                <div class="menu-option" onclick="editAction('{{ debit.id }}')">
                                     <i class="fas fa-edit" style="color: #3498db;"></i> View/Edit
                                 </div>
                                 <div class="menu-option" onclick="historyAction()">
@@ -467,7 +467,38 @@
 </div>
 </form>
 
-   
+<div class="modal-content">
+    <div class="modal-header">
+        <h5 class="modal-title">Transaction or Debit Note History</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    <div class="modal-body">
+        <!-- Render history details here -->
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Staff Name</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in history %}
+                <tr>
+                    <td>{{ item.hist_trans_date }}</td>
+                    <td>{{ item.user.company.companyname }}</td>
+                    <td>{{ item.action }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+    </div>
+</div>
  <script>
     window.onload = function() {
         // Reset date inputs to empty string
@@ -1198,8 +1229,12 @@ function filterTable() {
         console.log('View action triggered');
     }
 
-    function editAction() {
-        console.log('Edit action triggered');
+   
+
+
+    function editAction(debitnote_id) {
+        // Redirect to the edit debit note page with the debitnote_id as a parameter
+        window.location.href = `/edit_debit_note/${debitnote_id}`;
     }
 
     function historyAction() {
@@ -1298,6 +1333,26 @@ document.addEventListener('click', function(event) {
             .catch(error => console.error('Error:', error));
         }
     }
-    </script>
+  
+    function historyAction() {
+        // Make an AJAX request to fetch history details
+        $.ajax({
+            url: '/get_history/',  // URL to your Django view
+            type: 'GET',
+            data: {
+                'debitnote_id': '{{ debit.id }}',  // Pass debit note id to fetch its history
+            },
+            success: function(data) {
+                // Render the fetched data in a modal popup
+                $('#historyModal .modal-body').html(data);
+                $('#historyModal').modal('show');
+            },
+            error: function(xhr, status, error) {
+                // Handle error
+                console.error(xhr.responseText);
+            }
+        });
+    }
+</script>
 </div>
 {% endblock %}

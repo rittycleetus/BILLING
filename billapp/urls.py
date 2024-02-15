@@ -42,5 +42,7 @@ urlpatterns = [
     path('delete_debit_note_item/<int:debitnote_id>/',views.delete_debit_note_item, name='delete_debit_note_item'),
    
     path('search-debitnotes/', views.search_debitnotes, name='search_debitnotes'),
+    path('get_history/',views.get_history, name='get_history'),
+    path('edit_debit_note',views.edit_debit_note,name='edit_debit_note'),
 
 ]

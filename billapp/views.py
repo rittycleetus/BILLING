@@ -800,3 +800,21 @@ def delete_debit_note_item(request, debitnote_id):
     debit_note_item = get_object_or_404(DebitNote, pk=debitnote_id)
     debit_note_item.delete()
     return JsonResponse({'message': 'Debit note item deleted successfully'})
+
+def get_history(request):
+    if request.method == 'GET' and request.is_ajax():
+        debitnote_id = request.GET.get('debitnote_id')
+        # Fetch history details for the given debit note id
+        history = ItemTransactionsHistory.objects.filter(transaction__debitnote_id=debitnote_id)
+        return render(request, 'history_modal.html', {'history': history})
+    else:
+        # Return error response if request method is not GET or not AJAX
+        return JsonResponse({'error': 'Invalid request'})
+    
+  
+
+
+def edit_debit_note(request, debitnote_id):
+    debit_note = get_object_or_404(DebitNote, pk=debitnote_id)
+    
+    return render(request, 'editdebitnote.html', {'debit_note': debit_note})

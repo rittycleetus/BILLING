@@ -166,4 +166,18 @@ class DebitNoteItem(models.Model):
     qty=models.IntegerField(default=0,null=True)
     discount=models.IntegerField(default=0,null=True)
     total=models.DecimalField(max_digits=10, decimal_places=2, default=0, null=True)
+
+class DebitNoteHistory(models.Model):
+    ACTION_CHOICES = [
+        ('C', 'Created'),
+        ('E', 'Edited'),
+    ]
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, null=True, blank=True)
+    company = models.ForeignKey(Company, on_delete=models.CASCADE, null=True, blank=True)
+    debit_note = models.ForeignKey(DebitNote, on_delete=models.CASCADE) 
+    date = models.DateTimeField(auto_now_add=True)
+    action = models.CharField(max_length=1, choices=ACTION_CHOICES)
+
+    def __str__(self):
+        return f"{self.debit_note} - {self.action} - {self.date}"
    
