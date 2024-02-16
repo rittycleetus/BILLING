@@ -640,6 +640,9 @@ def item_create(request):
 
 
     return render(request, 'createdebitnote.html')
+
+
+
 def create_unit(request):
     if request.method == 'POST':
         unit_name = request.POST.get('unit_name', '')
@@ -663,6 +666,7 @@ def create_unit(request):
     # Handle other HTTP methods if needed
     return JsonResponse({'success': False, 'message': 'Invalid request method'})
 
+
 def save_debit_note(request):
     company_id = request.session.get('company')
     user_id = request.session.get('user')
@@ -684,6 +688,15 @@ def save_debit_note(request):
             party=selected_party,
             returnno=return_no,
             created_at=current_date
+        )
+
+        # Save to DebitNoteHistory
+        DebitNoteHistory.objects.create(
+            user=request.user,
+            company_id=company_id,
+            debit_note=debit_note,
+            date=timezone.now(),  # Use current timestamp
+            action='C'  # 'C' for created
         )
 
         items = request.POST.getlist("selected_item[]")
@@ -713,7 +726,7 @@ def save_debit_note(request):
 
     parties = Party.objects.filter(company_id=company_id)  
     items = Item.objects.filter(company_id=company_id)  
-    debits = DebitNote.objects.filter(user=request.user)
+    debits = DebitNote.objects.filter(user=request.user).prefetch_related('debitnotehistory_set')
     
     # Pass necessary data to the template context
     context = {
@@ -727,6 +740,7 @@ def save_debit_note(request):
     return render(request, 'debitnote2.html', context)
 
 
+
 def debitnote2(request):
     company_id = request.session.get('company')
     user_id = request.session.get('user')
@@ -738,7 +752,7 @@ def debitnote2(request):
 
     parties = Party.objects.filter(company=cmp)
     items = Item.objects.filter(company=cmp)
-    debits = DebitNote.objects.filter(user=request.user)
+    debits = DebitNote.objects.filter(user=request.user).prefetch_related('debitnotehistory_set')
 
     # Pass necessary data to the template context
     context = {
@@ -795,21 +809,17 @@ def search_debitnotes(request):
 
     else:
         return JsonResponse({'error': 'Invalid request method'}, status=405)
+    
+
 
 def delete_debit_note_item(request, debitnote_id):
     debit_note_item = get_object_or_404(DebitNote, pk=debitnote_id)
     debit_note_item.delete()
     return JsonResponse({'message': 'Debit note item deleted successfully'})
 
-def get_history(request):
-    if request.method == 'GET' and request.is_ajax():
-        debitnote_id = request.GET.get('debitnote_id')
-        # Fetch history details for the given debit note id
-        history = ItemTransactionsHistory.objects.filter(transaction__debitnote_id=debitnote_id)
-        return render(request, 'history_modal.html', {'history': history})
-    else:
-        # Return error response if request method is not GET or not AJAX
-        return JsonResponse({'error': 'Invalid request'})
+
+
+
     
   
 
@@ -818,3 +828,14 @@ def edit_debit_note(request, debitnote_id):
     debit_note = get_object_or_404(DebitNote, pk=debitnote_id)
     
     return render(request, 'editdebitnote.html', {'debit_note': debit_note})
+
+
+def get_debit_note_history(request, debit_id):
+    # Query the database for history data associated with the given debit_id
+    history_data = DebitNoteHistory.objects.filter(debit_note_id=debit_id).values('date', 'user__username', 'action')
+
+    # Convert queryset to list of dictionaries
+    history_data_list = list(history_data)
+
+    # Return the history data as JSON response
+    return JsonResponse(history_data_list, safe=False)
