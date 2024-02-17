@@ -11,6 +11,42 @@
      
 
 <style>
+    .modal {
+    display: none; /* Hidden by default */
+    position: fixed; /* Stay in place */
+    z-index: 1000; /* Sit on top */
+    left: 0;
+    top: 0;
+    width: 100%; /* Full width */
+    height: 100%; /* Full height */
+    overflow: auto; /* Enable scroll if needed */
+    background-color: rgba(0, 0, 0, 0.5); /* Black w/ opacity */
+    padding-top: 60px; /* Location of the box */
+}
+
+/* Modal content */
+.modal-content {
+    background-color: #fefefe;
+    margin: 5% auto; /* 5% from the top and centered */
+    padding: 40px;
+    border: 1px solid #888;
+    width: 80%; /* Could be more or less, depending on screen size */
+}
+
+/* Close button */
+.close {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+}
+
+.close:hover,
+.close:focus {
+    color: black;
+    text-decoration: none;
+    cursor: pointer;
+}
          .ellipsis-menu {
         position: relative;
         display: inline-block;
@@ -478,32 +514,32 @@
 
 
 
-
-
-
 <div id="historyModal" class="modal">
     <div class="modal-content">
-      <span class="close" onclick="closeModal()">&times;</span>
-      <h2>DEBITNOTE HISTORY</h2>
-      <div>
-        <h3>Debit Note No: <span id="debitNoteNo"></span></h3>
-        <table id="historyTable">
-          <thead>
-            <tr>
-              <th>Date</th>
-              <th>Created by</th>
-              <th>Action</th>
-            </tr>
-          </thead>
-          <tbody id="historyTableBody">
-            <!-- History details will be populated here dynamically -->
-          </tbody>
-        </table>
-      </div>
+        <span class="close" onclick="closeModal()">&times;</span>
+        <h2 style="color: maroon;">DEBIT NOTE HISTORY</h2>
+        <div style="background-color: pink; padding: 20px;">
+            <br>
+            <h3 style="color: maroon;">Debit Note No: <span id="debitNoteNo"></span></h3>
+            <br><br><br>
+            <table id="historyTable" style="width: 100%; border-collapse: collapse;">
+                <thead>
+                    <tr style="background-color: maroon; color: white;">
+                        <th style="padding: 10px;">DATE</th>
+                        <th style="padding: 10px;">STAFF NAME</th>
+                        <th style="padding: 10px;">ACTION</th>
+                    </tr>
+                    
+                </thead>
+           
+                <tbody id="historyTableBody">
+                  
+                    <!-- History details will be populated here dynamically -->
+                </tbody>
+            </table>
+        </div>
     </div>
-  </div>
-
-
+</div>
  
  <script>
     window.onload = function() {
@@ -1256,7 +1292,7 @@ function filterTable() {
         })
         .then(historyData => {
             // Populate the modal with history data
-            populateHistoryModal(historyData);
+            populateHistoryModal(historyData,debitNoteNo);
             // Open the modal
             openModal();
         })
@@ -1266,22 +1302,36 @@ function filterTable() {
 }
 
 // Function to populate the history modal with data
-function populateHistoryModal(historyData) {
-    // Clear previous history table data
-    var tbody = document.getElementById('historyTableBody');
-    tbody.innerHTML = '';
+function populateHistoryModal(historyData,debitNoteNo) {
+        document.getElementById('debitNoteNo').textContent = debitNoteNo;
+        // Clear previous history table data
+        var tbody = document.getElementById('historyTableBody');
+        tbody.innerHTML = '';
 
-    // Populate history table with data
-    historyData.forEach(function(entry) {
-        var row = "<tr>";
-        row += "<td>" + entry.date + "</td>";
-        row += "<td>" + entry.user__username + "</td>"; // Assuming 'user__username' is the username field
-        row += "<td>" + entry.action + "</td>";
-        row += "</tr>";
-        tbody.innerHTML += row;
-    });
-}
+        // Populate history table with data
+        historyData.forEach(function(entry) {
+            var row = "<tr>";
+            
+            // Convert the date string to a JavaScript Date object
+            var formattedDate = new Date(entry.date);
+            // Format the date as desired (e.g., DD/MM/YYYY)
+            var options = { day: '2-digit', month: '2-digit', year: 'numeric' };
+            var dateString = formattedDate.toLocaleDateString(undefined, options);
+            row += "<td>" + dateString + "</td>";
 
+            // Assuming 'user' is the user object field
+            // Concatenate first_name and last_name to get the full name
+            var fullName = entry.user__first_name + " " + entry.user__last_name;
+            row += "<td>" + fullName + "</td>";
+
+            // Convert action abbreviation to full form
+            var actionString = entry.action === 'C' ? 'CREATED' : (entry.action === 'E' ? 'EDITED' : entry.action);
+            row += "<td>" + actionString + "</td>";
+
+            row += "</tr>";
+            tbody.innerHTML += row;
+        });
+    }
 // Function to open the modal
 function openModal() {
     var modal = document.getElementById('historyModal');

@@ -830,9 +830,10 @@ def edit_debit_note(request, debitnote_id):
     return render(request, 'editdebitnote.html', {'debit_note': debit_note})
 
 
-def get_debit_note_history(request, debit_id):
-    # Query the database for history data associated with the given debit_id
-    history_data = DebitNoteHistory.objects.filter(debit_note_id=debit_id).values('date', 'user__username', 'action')
+
+def get_debit_note_history(request, debitnote_id):
+    # Query the database for history data associated with the given debitnote_id
+    history_data = DebitNoteHistory.objects.filter(debit_note__id=debitnote_id).select_related('debit_note__user').values('debit_note__returnno', 'date', 'user__first_name', 'user__last_name', 'action')
 
     # Convert queryset to list of dictionaries
     history_data_list = list(history_data)
