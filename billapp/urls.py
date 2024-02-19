@@ -43,7 +43,7 @@ urlpatterns = [
    
     path('search-debitnotes/', views.search_debitnotes, name='search_debitnotes'),
 
-    path('edit_debit_note',views.edit_debit_note,name='edit_debit_note'),
+    path('edit_debit_note/<int:debit_id>/',views.edit_debit_note,name='edit_debit_note'),
     path('get_debit_note_history/<int:debitnote_id>/',views.get_debit_note_history,name='get_debit_note_history'),
 
 ]

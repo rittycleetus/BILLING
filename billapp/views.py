@@ -821,14 +821,93 @@ def delete_debit_note_item(request, debitnote_id):
 
 
     
-  
+def edit_debit_note(request, debit_id):
+    company_id = request.session.get('company')
+    user_id = request.session.get('user')
 
+    debitnote = get_object_or_404(DebitNote, id=debit_id, user=request.user, company_id=company_id)
 
-def edit_debit_note(request, debitnote_id):
-    debit_note = get_object_or_404(DebitNote, pk=debitnote_id)
+    if request.method == 'POST':
+        party_id = request.POST.get('party')
+        return_no = request.POST.get('return_no')
+        current_date = request.POST.get('current-date1') 
+        subtotal = request.POST.get('subtotal')
+        tax_amount = request.POST.get('taxAmount')
+        adjustment = request.POST.get('adjustment')
+        grand_total = request.POST.get('grandTotal')
+
+        selected_party = Party.objects.get(id=party_id)
+
+        # Update debit note fields
+        debitnote.party = selected_party
+        debitnote.returnno = return_no
+        debitnote.created_at = current_date
+        debitnote.subtotal = subtotal
+        debitnote.taxamount = tax_amount
+        debitnote.adjustment = adjustment
+        debitnote.grandtotal = grand_total
+        debitnote.save()
+
+        # Update debit note items
+        items = request.POST.getlist("selected_item[]")
+        quantities = request.POST.getlist("item_quantity[]")
+        discounts = request.POST.getlist("item_discount[]")
+        total_amounts = request.POST.getlist("item_total_amount[]")
+
+        # Clear existing debit note items
+        debitnote.debitnoteitem_set.all().delete()
+
+        for item, qty, discount, total_amount in zip(items, quantities, discounts, total_amounts):
+            itm = Item.objects.get(id=item)
+            DebitNoteItem.objects.create(
+                user=request.user,
+                company_id=company_id,  
+                debitnote=debitnote,
+                items=itm,
+                qty=qty,
+                discount=discount,
+                total=total_amount
+            )
+
+        # Log the update action
+        DebitNoteHistory.objects.create(
+            user=request.user,
+            company_id=company_id,
+            debit_note=debitnote,
+            date=timezone.now(),  # Use current timestamp
+            action='Updated'
+        )
+
+        return redirect('debitnote2')  # Redirect to debit note list page or any other desired page
+
+    parties = Party.objects.filter(company_id=company_id)  
+    items = Item.objects.filter(company_id=company_id)  
+    debits = DebitNote.objects.filter(user=request.user).prefetch_related('debitnotehistory_set')
     
-    return render(request, 'editdebitnote.html', {'debit_note': debit_note})
+    # Pass necessary data to the template context
+    context = {
+        'debitnote': debitnote,
+        'parties': parties,
+        'items': items,
+        'debits': debits,
+        'company_id': company_id,
+        'user_id': user_id,
+        'usr': request.user,  
+        'selected_party': debitnote.party.id if debitnote.party else None,
+        'return_no': debitnote.returnno,
+        'current_date': debitnote.created_at.strftime('%Y-%m-%d') if debitnote.created_at else None,
+        'subtotal': debitnote.subtotal,
+        'taxAmount': debitnote.taxamount,
+        'adjustment': debitnote.adjustment,
+        'grandTotal': debitnote.grandtotal,
+        
+        # Fetch additional fields from selected_party
+        'selected_party_address': debitnote.party.address if debitnote.party else None,
+        'selected_party_contact': debitnote.party.contact if debitnote.party else None,
+        'selected_party_balance': debitnote.party.openingbalance if debitnote.party else None,
+    }
 
+    return render(request, 'editdebitnote.html', context)
 
 
 def get_debit_note_history(request, debitnote_id):

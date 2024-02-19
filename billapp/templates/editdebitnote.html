@@ -208,7 +208,7 @@
 <div class="body-wrapper">
 
     <div class="container-fluid">
-        <form action="{% url 'edit_debit_note' %}" method="post" enctype="multipart/form-data">
+        <form action="{% url 'edit_debit_note' debit_id=debitnote.id %}" method="post" enctype="multipart/form-data">
             {% csrf_token %}
             <h1 class="mb-4">DEBIT NOTE</h1>
      
@@ -224,34 +224,17 @@
             <div class="row">
 
                 <div class="col-md-6">
-                 
-                  
                     <div class="form-group">
                         <label for="party">Party</label>
                         <div class="input-group">
                             <select name="party" id="party" class="form-control" style="width: 450px" onchange="handlePartySelection()">
-                         <option value="">-- Select/Search Party --</option>
-    {% for party in parties %}
-  
-    <option value="{{ party.id }}" 
-        data-contact="{{ party.contact }}" 
-        data-address="{{ party.address }}" 
-        data-openingbalance="{{ party.openingbalance }}"
-        {% for bill in bills %}
-        {% if party.id == bill.party_id %}
-
-            data-billno="{{ bill.billno }}"
-            data-billdate="{{ bill.billdate|date:'d/m/Y' }}"
-            {% endif %}
-            {% endfor %}
- >
-
-        {{ party.party_name }}
-    </option>
-    {% endfor %}
- 
-
-                        </select>
+                                <option value="">-- Select/Search Party --</option>
+                                {% for party in parties %}
+                                    <option value="{{ party.id }}" {% if selected_party == party.id %} selected {% endif %}>
+                                        {{ party.party_name }}
+                                    </option>
+                                {% endfor %}
+                            </select>
                             <div class="input-group-append">
                                 <button type="button" class="btn btn-outline-secondary" style="background-color: maroon;" data-toggle="modal" data-target="#createPartyModal">+</button>
                             </div>
@@ -272,7 +255,6 @@
                         <label for="address">Address</label>
                         <textarea class="form-control" readonly id="address">{% if selected_party %}{{ selected_party.address }}{% endif %}</textarea>
                     </div>
-                 
                 </div>
                 <div class="col-md-6">
                     <!-- Right side of the form -->
@@ -619,7 +601,7 @@
        </div>
    </div>
    </div>
-   <script>
+   <!-- <script>
     $(document).ready(function () {
         $('#item_tax_1').on('click', function () {
             $('#vatdiv').attr('hidden', false);
@@ -692,9 +674,9 @@
                 console.log(errmsg);
             }
         });
-    });
+    }); -->
 
-   
+<!--    
        $("#unitmodalsubmit").click(function () {
     $.ajax({
         type: "POST",
@@ -957,9 +939,9 @@
        dropdown.append(option);
        handlePartySelection();
        }
-   }
+   } -->
        
-//    $.ajax({
+<!-- //    $.ajax({
 //     url: "{% url 'create_party' %}",
 //     type: 'POST',
 //     data: data,
@@ -1024,8 +1006,8 @@
    
    $('input[name="paymentType"]').prop('checked', false);
    }
-   </script>
-   <script>
+   </script> -->
+   <!-- <script>
    $(document).ready(function () {
        // Function to populate Indian states in the dropdown
        function populateIndianStates() {
@@ -1076,9 +1058,9 @@
        }
    
        window.onload = clearFieldsOnLoad;
-   </script>
+   </script> -->
 
-                <script>
+                <!-- <script>
                     function toggleSection(sectionId) {
                         // Get all the fieldsets
                         const fieldsets = document.querySelectorAll('fieldset');
@@ -1282,7 +1264,7 @@
             allowClear: true // Adds a clear button to the dropdown
         });
     });
-</script>
+</script> -->
 // <!-- <script>
 // function closeAndOpenUnitModal() {
 //     // Close the first modal
@@ -1302,7 +1284,7 @@
 // }
 //     }
 // </script> -->
-<script>
+<!-- <script>
 $(document).ready(function () {
     // Check if the page has been loaded before
     var isFirstLoad = sessionStorage.getItem('isFirstLoad');
@@ -1450,8 +1432,8 @@ document.getElementById('adjustment').addEventListener('input', function () {
 
 
     });
-</script>
-<script>
+</script> -->
+<!-- <script>
     function addRow() {
         // Get the table body
         var tableBody = document.querySelector('.table tbody');
@@ -1706,6 +1688,6 @@ function updateTaxAmount() {
 }
 
 </script>
-   </body>
+   </body> -->
             
 {% endblock %}
