@@ -4,7 +4,9 @@ from django.contrib import messages
 from django.contrib.auth.models import auth
 from django.utils.crypto import get_random_string
 import random
-
+from django.template.loader import get_template
+from django.http import HttpResponse
+from xhtml2pdf import pisa
 from django.conf import settings
 from django.core.mail import send_mail
 from django.utils import timezone
@@ -13,6 +15,8 @@ from billapp.models import Company,Employee,Party,Item,Unit,ItemTransactions,Ite
 import logging
 from django.views.decorators.csrf import csrf_exempt
 from django.core.serializers import serialize
+from reportlab.pdfgen import canvas
+import json
 
 
 def home(request):
@@ -919,3 +923,54 @@ def get_debit_note_history(request, debitnote_id):
 
     # Return the history data as JSON response
     return JsonResponse(history_data_list, safe=False)
+
+
+
+def generate_pdf(request):
+    if request.method == 'POST':
+        # Get the debit ID from the AJAX request data
+        request_data = json.loads(request.body)
+        debit_id = request_data.get('debitId')
+
+        # Fetch data related to the debit ID from your database
+        # Replace this with your actual logic to fetch data
+        # sample_data = fetch_data(debit_id)
+
+        # Sample data for demonstration
+        sample_data = {
+            "companyName": "ABC Company",
+            "partyName": "Party XYZ",
+            "phoneNumber": "123-456-7890",
+            "debitNoteNumber": "DN123",
+            "debitNoteDate": "2022-02-01",
+            "returnTo": "Return To: ABC Company",
+            "shipTo": "Ship To: Address XYZ",
+            "returnNo": "Return No: RN456",
+            "returnDate": "2022-02-05",
+            "tableData": [
+                ["#", "Items", "HSN", "Price", "Qty", "Tax", "Discount", "Total"],
+                ["1", "Item A", "12345", "$50.00", "2", "$5.00", "$10.00", "$90.00"]
+                # Add more rows as needed
+            ],
+            "summaryData": [
+                ["Subtotal:", "$140.00"],
+                ["Tax Amount:", "$10.00"],
+                ["Adjustment:", "-$5.00"],
+                ["Grand Total:", "$145.00"]
+            ]
+        }
+
+        # Generate PDF using reportlab
+        response = HttpResponse(content_type='application/pdf')
+        response['Content-Disposition'] = 'attachment; filename="debit_note.pdf"'
+        pdf = canvas.Canvas(response)
+        
+        # Write data to PDF
+        pdf.drawString(100, 800, "DEBIT NOTE")
+        # Write more data to PDF
+
+        pdf.save()
+
+        return response
+
+    return JsonResponse({'error': 'Invalid request method'}, status=400)

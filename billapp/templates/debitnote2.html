@@ -475,7 +475,7 @@
                                         <i class="fas fa-history" style="color: #e67e22;"></i> History
                                     </div>
                                     
-                                    <div class="menu-option" onclick="viewPdfAction()">
+                                    <div class="menu-option" onclick="viewPdfAction('{{ debit.id }}')">
                                         <i class="fas fa-file-pdf" style="color: #27ae60;"></i> View PDF
                                     </div>
                                     <div class="menu-option" onclick="deleteDebitNoteItem('{{ debit.id }}')">
@@ -1278,12 +1278,8 @@ function filterTable() {
         // Redirect to the edit debit note page with the debitnote_id as a parameter
         window.location.href = `/edit_debit_note/${debitnote_id}`;
     }
-    function historyAction(debitId) 
-    {
-   
-  
+    function historyAction(debitId, returnNo) {
     fetch(`/get_debit_note_history/${debitId}/`)
-   
         .then(response => {
             if (!response.ok) {
                 throw new Error('Network response was not ok');
@@ -1292,7 +1288,7 @@ function filterTable() {
         })
         .then(historyData => {
             // Populate the modal with history data
-            populateHistoryModal(historyData,debitNoteNo);
+            populateHistoryModal(historyData, returnNo);
             // Open the modal
             openModal();
         })
@@ -1300,38 +1296,38 @@ function filterTable() {
             console.error('Error fetching history data:', error);
         });
 }
-
 // Function to populate the history modal with data
-function populateHistoryModal(historyData,debitNoteNo) {
-        document.getElementById('debitNoteNo').textContent = debitNoteNo;
-        // Clear previous history table data
-        var tbody = document.getElementById('historyTableBody');
-        tbody.innerHTML = '';
+function populateHistoryModal(historyData, returnNo) {
+    document.getElementById('debitNoteNo').textContent = returnNo; // Set the debit note number in the modal header
+    // Clear previous history table data
+    console.log(returnNo);
+    var tbody = document.getElementById('historyTableBody');
+    tbody.innerHTML = '';
 
-        // Populate history table with data
-        historyData.forEach(function(entry) {
-            var row = "<tr>";
-            
-            // Convert the date string to a JavaScript Date object
-            var formattedDate = new Date(entry.date);
-            // Format the date as desired (e.g., DD/MM/YYYY)
-            var options = { day: '2-digit', month: '2-digit', year: 'numeric' };
-            var dateString = formattedDate.toLocaleDateString(undefined, options);
-            row += "<td>" + dateString + "</td>";
+    // Populate history table with data
+    historyData.forEach(function(entry) {
+        var row = "<tr>";
+        
+        // Convert the date string to a JavaScript Date object
+        var formattedDate = new Date(entry.date);
+        // Format the date as desired (e.g., DD/MM/YYYY)
+        var options = { day: '2-digit', month: '2-digit', year: 'numeric' };
+        var dateString = formattedDate.toLocaleDateString(undefined, options);
+        row += "<td>" + dateString + "</td>";
 
-            // Assuming 'user' is the user object field
-            // Concatenate first_name and last_name to get the full name
-            var fullName = entry.user__first_name + " " + entry.user__last_name;
-            row += "<td>" + fullName + "</td>";
+        // Assuming 'user' is the user object field
+        // Concatenate first_name and last_name to get the full name
+        var fullName = entry.user__first_name + " " + entry.user__last_name;
+        row += "<td>" + fullName + "</td>";
 
-            // Convert action abbreviation to full form
-            var actionString = entry.action === 'C' ? 'CREATED' : (entry.action === 'E' ? 'EDITED' : entry.action);
-            row += "<td>" + actionString + "</td>";
+        // Convert action abbreviation to full form
+        var actionString = entry.action === 'C' ? 'CREATED' : (entry.action === 'E' ? 'EDITED' : entry.action);
+        row += "<td>" + actionString + "</td>";
 
-            row += "</tr>";
-            tbody.innerHTML += row;
-        });
-    }
+        row += "</tr>";
+        tbody.innerHTML += row;
+    });
+}
 // Function to open the modal
 function openModal() {
     var modal = document.getElementById('historyModal');
