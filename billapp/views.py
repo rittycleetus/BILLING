@@ -925,52 +925,55 @@ def get_debit_note_history(request, debitnote_id):
     return JsonResponse(history_data_list, safe=False)
 
 
-
 def generate_pdf(request):
     if request.method == 'POST':
-        # Get the debit ID from the AJAX request data
-        request_data = json.loads(request.body)
-        debit_id = request_data.get('debitId')
+        user_id = request.POST.get('user_id')
 
-        # Fetch data related to the debit ID from your database
-        # Replace this with your actual logic to fetch data
-        # sample_data = fetch_data(debit_id)
+        try:
+            
+            debit_note = DebitNote.objects.get(user_id=user_id)
+            debit_note_items = DebitNoteItem.objects.filter(debitnote=debit_note)
 
-        # Sample data for demonstration
-        sample_data = {
-            "companyName": "ABC Company",
-            "partyName": "Party XYZ",
-            "phoneNumber": "123-456-7890",
-            "debitNoteNumber": "DN123",
-            "debitNoteDate": "2022-02-01",
-            "returnTo": "Return To: ABC Company",
-            "shipTo": "Ship To: Address XYZ",
-            "returnNo": "Return No: RN456",
-            "returnDate": "2022-02-05",
-            "tableData": [
-                ["#", "Items", "HSN", "Price", "Qty", "Tax", "Discount", "Total"],
-                ["1", "Item A", "12345", "$50.00", "2", "$5.00", "$10.00", "$90.00"]
-                # Add more rows as needed
-            ],
-            "summaryData": [
-                ["Subtotal:", "$140.00"],
-                ["Tax Amount:", "$10.00"],
-                ["Adjustment:", "-$5.00"],
-                ["Grand Total:", "$145.00"]
-            ]
-        }
-
-        # Generate PDF using reportlab
-        response = HttpResponse(content_type='application/pdf')
-        response['Content-Disposition'] = 'attachment; filename="debit_note.pdf"'
-        pdf = canvas.Canvas(response)
         
-        # Write data to PDF
-        pdf.drawString(100, 800, "DEBIT NOTE")
-        # Write more data to PDF
+            company_name = debit_note.company.company_name  
+            party_name = debit_note.party.party_name
+            phone_number = debit_note.party.contact  
+            debit_note_number = debit_note.returnno
+            debit_note_date = debit_note.created_at.strftime('%Y-%m-%d')
 
-        pdf.save()
 
-        return response
+            table_data = [['#', 'Items', 'HSN', 'Price', 'Qty', 'Tax', 'Discount', 'Total']]
+            for index, item in enumerate(debit_note_items, start=1):
+                table_data.append([
+                    index,
+                    item.items.itm_name,
+                    item.items.itm_hsn,
+                    item.items.itm_sale_price,
+                    item.qty,
+                    item.items.itm_vat,
+                    item.discount,
+                    item.total
+                ])
+
+            subtotal = debit_note.subtotal
+            tax_amount = debit_note.taxamount
+            adjustment = debit_note.adjustment
+            grand_total = debit_note.grandtotal
+
+            
+            response = HttpResponse(content_type='application/pdf')
+            response['Content-Disposition'] = 'attachment; filename="debit_note.pdf"'
+            pdf = canvas.Canvas(response)
+            
+         
+            pdf.drawString(100, 800, "DEBIT NOTE")
+            
+
+            pdf.save()
+
+            return response
+
+        except DebitNote.DoesNotExist:
+            return JsonResponse({'error': 'Debit note does not exist'}, status=404)
 
     return JsonResponse({'error': 'Invalid request method'}, status=400)

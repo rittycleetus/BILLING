@@ -8,6 +8,8 @@
      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
      <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.3/jspdf.umd.min.js"></script>
      
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js:2:80625"></script>
+     
      
 
 <style>
@@ -228,7 +230,10 @@
      
     <div style="display: flex;  justify-content: flex-end;">
         <a href="#" class="btn-icon" onclick="downloadExcel()"><i class="fas fa-file-excel" style="color: green; font-size: 24px; width: 50px;"></i><br>Excel</a>
-        <a href="#" class="btn-icon" onclick="printPage()"><i class="fas fa-print" style="color: red; font-size: 24px; width: 50px;"></i><br>Print</a>
+        <a href="#" class="btn-icon" onclick="printPage({{ user_id }})">
+            <i class="fas fa-print" style="color: red; font-size: 24px; width: 50px;"></i><br>
+            Print
+        </a>
         <div class="share-icon" onclick="toggleSharePopup()">
             
         <i class="fas fa-share" style="color: darkblue; font-size: 24px; width: 50px;"></i><br>Share</a>
@@ -260,8 +265,8 @@
      
     </div>
 
-
-    <h2>Debit Note</h2>
+    <div class="container">
+        <h2>Debit Note</h2>
     
     <!-- Search Column -->
     <div class="search-column" style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px;">
@@ -509,7 +514,7 @@
 </form>
 
 
-
+</div>
 
 
 
@@ -973,90 +978,44 @@ function clearTotalFilter() {
 }
     </script>
 <script>
-function printPage() {
-    // Open a new window for printing
-    var printWindow = window.open('', '_blank');
 
-    // Sample content for demonstration
-    var companyName = "ABC Company";
-    var partyName = "Party XYZ";
-    var phoneNumber = "123-456-7890";
-    var debitNoteNumber = "DN123";
-    var debitNoteDate = "2022-02-01";
-    var returnTo = "Return To: ABC Company";
-    var shipTo = "Ship To: Address XYZ";
-    var returnNo = "Return No: RN456";
-    var returnDate = "2022-02-05";
 
-    // Sample table data
-    var tableData = `
-        <table border="1" cellspacing="0" cellpadding="5" width="100%">
-            <thead>
-                <tr style="background-color:blue;">
-                    <th>#</th>
-                    <th>Items</th>
-                    <th>HSN</th>
-                    <th>Price</th>
-                    <th>Qty</th>
-                    <th>Tax</th>
-                    <th>Discount</th>
-                    <th>Total</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td>1</td>
-                    <td>Item A</td>
-                    <td>12345</td>
-                    <td>$50.00</td>
-                    <td>2</td>
-                    <td>$5.00</td>
-                    <td>$10.00</td>
-                    <td>$90.00</td>
-                </tr>
-                <!-- Add more rows as needed -->
-            </tbody>
-        </table>
-    `;
 
-    // Sample summary data
-    var summaryData = `
-        <div style="text-align: right; margin-top: 10px;">
-            <p>Subtotal: $140.00</p>
-            <p>Tax Amount: $10.00</p>
-            <p>Adjustment: -$5.00</p>
-            <p>Grand Total: $145.00</p>
-        </div>
-    `;
 
-    // Set the content of the new window
-    var content = `
-        <div style="margin-bottom: 20px;">
-            <div style="float: left;">
-                <h2>${partyName}</h2>
-                <p>${phoneNumber}</p>
-            </div>
-            <div style="text-align: center;">
-                <h1 style="color: blue;">DEBIT NOTE</h1>
-                <p style=>${returnTo}</p>
-                <p style=>${shipTo}</p>
-                <p style="text-align: right;">Debit No: ${debitNoteNumber} - Debit Date: ${debitNoteDate}</p>
-            </div>
-        </div>
-        
-        <h2>${companyName}</h2>
-        
-        ${tableData}
 
-        ${summaryData}
-    `;
 
-    printWindow.document.write(content);
 
-    // Trigger the print function
-    printWindow.print();
+
+
+
+
+function printPage(user_id) {
+    // Make an AJAX request to fetch the PDF from the backend
+    $.ajax({
+        url: '/generate_pdf/',
+        type: 'POST',
+        data: {
+            user_id: user_id
+        },
+        success: function(response) {
+            // Create a blob URL from the PDF data
+            var blob = new Blob([response], { type: 'application/pdf' });
+            var url = URL.createObjectURL(blob);
+
+            // Open the PDF in a new tab for printing
+            var printWindow = window.open(url, '_blank');
+            printWindow.print();
+
+            // Release the object URL
+            URL.revokeObjectURL(url);
+        },
+        error: function(xhr, textStatus, errorThrown) {
+            // Handle error
+            console.error('Error generating PDF:', errorThrown);
+            alert('Error generating PDF. Please try again.');
+        }
+    });
 }
-
 </script>
 <script>
     function downloadExcel() {
