@@ -844,6 +844,7 @@ def edit_debit_note(request, debit_id):
 
         # Update debit note fields
         debitnote.party = selected_party
+        debitnote.party.openingbalance=selected_party.openingbalance
         debitnote.returnno = return_no
         debitnote.created_at = current_date
         debitnote.subtotal = subtotal

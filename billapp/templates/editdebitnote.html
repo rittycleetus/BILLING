@@ -227,7 +227,7 @@
                     <div class="form-group">
                         <label for="party">Party</label>
                         <div class="input-group">
-                            <select name="party" id="party" class="form-control" style="width: 450px" onchange="handlePartySelection()">
+                            <select name="party" id="party" class="form-control" style="width: 450px">
                                 <option value="">-- Select/Search Party --</option>
                                 {% for party in parties %}
                                     <option value="{{ party.id }}" {% if selected_party == party.id %} selected {% endif %}>
