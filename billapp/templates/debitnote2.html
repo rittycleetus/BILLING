@@ -6,13 +6,23 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+     
      <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.3/jspdf.umd.min.js"></script>
      
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js:2:80625"></script>
      
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js:2:80625"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.3/xlsx.full.min.js"></script>
+
+<link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.0.1/css/toastr.css" rel="stylesheet"/>
+      
+<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.0.1/js/toastr.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.3/html2pdf.bundle.min.js"></script>
      
 
 <style>
+    .created {
+        color: red;
+    }
     .modal {
     display: none; /* Hidden by default */
     position: fixed; /* Stay in place */
@@ -234,6 +244,7 @@
             <a href="#" class="btn-icon" onclick="printPage()">
                 <i class="fas fa-print" style="color: red; font-size: 24px; width: 50px;"></i><br>Print
             </a>
+           
             <div class="share-icon" onclick="toggleSharePopup()">
                 <i class="fas fa-share" style="color: darkblue; font-size: 24px; width: 50px;"></i><br>Share
             </div>
@@ -261,14 +272,16 @@
 
     <div class="container" style="border: 1px solid #ccc; border-radius: 8px; padding: 20px; margin-top: 20px; position: relative;">
         <h2>Debit Note</h2>
-        
-        <!-- Search Column -->
-        <div class="search-column" style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; width: 100%; max-width: 800px;">
-            <div style="display: flex; align-items: center; flex-grow: 1;">
-                <input type="text" id="search" name="search" placeholder="Search" style="margin-right: 10px; width: 50%;">
-            </div>
-            <a href="{% url 'createdebitnote' %}" class="btn btn-primary" style="background-color: maroon;margin-left: 150px;"><b>+</b> Add Debit Note</a>
-        </div>
+  <!-- Search Column and Add Debit Note button on the same line -->
+  <div class="search-and-button" style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; width: 100%; max-width: 800px;">
+    <!-- Search Column -->
+    <div class="search-column" style="display: flex; align-items: center; flex-grow: 1;">
+        <input type="text" id="search" name="search" placeholder="Search" style="margin-right: 10px; width: 70%;">
+    </div>
+    <!-- Add Debit Note Button -->
+    <a href="{% url 'createdebitnote' %}" class="btn btn-primary" style="background-color: maroon; height: 40px;"><b>+</b> Add Debit Note</a>
+</div>
+
         <div style="overflow-x: auto;">
           <table class="table table-hover  mt-5 " style="background-color: white;box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);"  id="debitTable">
             <thead style="background: #68020F;">
@@ -337,8 +350,8 @@
                         </div>
                     </div>
                 </th>
-                <th scope="col" style="border-right: 1px solid;width: 1500px;">Category Name<i class="fas fa-filter fa-xs" onclick="toggleFilterBox(this)" style="color: #3498db;"></i>
-                    <div class="filter-box" id="categoryNameFilterBox" style="width:200px">
+                <!-- <th scope="col" style="border-right: 1px solid;width: 1500px;">Category Name<i class="fas fa-filter fa-xs" onclick="toggleFilterBox(this)" style="color: #3498db;"></i>
+                    <div class="filter-box" id="categoryNameFilterBox" style="width:100px">
                         <select style="width: 190px;">
                             <option value="exact">Exact match</option>
                             <option value="contains">Contains</option>
@@ -349,7 +362,7 @@
                             <button onclick="applyFilter()" class="custom-button">APPLY</button>
                         </div>
                     </div>
-                </th>
+                </th> -->
                 <th scope="col"  style="border-right: 1px solid;width: 800px;">Type<i class="fas fa-filter fa-xs" onclick="toggleFilterBox(this)" style="color: #3498db;"></i>
                     <div class="filter-box" id="typeFilterBox" style="width:200px">
                         <select style="width: 190px;">
@@ -380,7 +393,7 @@
                     </div>
                 </th>
                 </th>
-                <th scope="col" style="width: 100px; border-right: 1px solid; white-space: nowrap; overflow: hidden; ">Received/Paid<i class="fas fa-filter fa-xs" onclick="toggleFilterBox(this)" style="color: #3498db;"></i>
+                <!-- <th scope="col" style="width: 100px; border-right: 1px solid; white-space: nowrap; overflow: hidden; ">Received/Paid<i class="fas fa-filter fa-xs" onclick="toggleFilterBox(this)" style="color: #3498db;"></i>
                     <div class="filter-box" id="recievedFilterBox" style="width:200px">
                         <select style="width: 190px;">
                             <option value="exact">Exact match</option>
@@ -406,7 +419,7 @@
                                 <button onclick="applyFilter()" class="custom-button">APPLY</button>
                             </div>
                         </div>
-                    </th>
+                    </th> -->
                 <th scope="col"  style="border-right: 1px solid;width: 350px;">Action<i class="fas fa-filter fa-xs" onclick="toggleFilterBox(this)" style="color: #3498db;"></i>
                     <div class="filter-box1" id="actionFilterBox" style="width:200px">
                         <select style="width: 190px;">
@@ -437,31 +450,30 @@
                 </tr>
             </thead>
          
-       
-            <tbody style="font-size: 10px;font-weight: 700;">
+            <tbody id="searchResults" style="font-size: 10px;font-weight: 700;">
                 {% for debit in debits %}
                 <tr>
                     <td>{{ forloop.counter }}</td>
                     <td>{{ debit.created_at|date:'d-m-Y' }}</td>
                     <td>{{ debit.returnno }}</td> 
                     <td class="party-name">{{ debit.party.party_name }}</td> {# Assuming 'party' is the related field in DebitNote #}
-                    <td>{{ debit.category_name }}</td> 
+                    <!-- <td>{{ debit.category_name }}</td>  -->
                     <td>Debit Note</td> 
                     <td>{{ debit.grandtotal }}</td> 
-                    <td>{{ debit.received_paid }}</td> 
-                    <td>{{ debit.balance }}</td>
+                    <!-- <td>{{ debit.received_paid }}</td> 
+                    <td>{{ debit.balance }}</td> -->
                     {% for history in debit.debitnotehistory_set.all %}
-    <td>
-        {% if history.action == 'C' %}
-            CREATED
-        {% elif history.action == 'E' %}
-            EDITED
-        {% else %}
-            Unknown
-        {% endif %}
-    </td>
-    <td>{{ history.company.company_name }}</td>
-
+                    <td class="{% if history.action == 'C' %}created{% endif %}">
+                        {% if history.action == 'C' %}
+                            CREATED
+                        {% elif history.action == 'E' %}
+                            EDITED
+                        {% else %}
+                            Unknown
+                        {% endif %}
+                    </td>
+                        <td>{{ history.company.company_name }}</td>
+         
                         <td>
                             <div class="ellipsis-menu-container">
                                 <div class="ellipsis-menu" id="ellipsisMenu{{ forloop.parentloop.counter }}" onclick="toggleMenu(event, 'menuOptions{{ forloop.parentloop.counter }}')">
@@ -495,6 +507,7 @@
                 </tbody>
                     
         </table>
+        </div>
         <div id="noDataMessage" style="display: none; text-align: center;">
            
             <img src="{% static 'img/blank.png' %}" alt="No data image" style="height: 150px;">
@@ -537,6 +550,7 @@
         </div>
     </div>
 </div>
+
  
  <script>
     window.onload = function() {
@@ -775,6 +789,47 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 </script>
   
+
+
+
+<script>
+    document.getElementById('search').addEventListener('input', function() {
+        var input, filter, table, tr, td, i, txtValue;
+        input = document.getElementById("search");
+        filter = input.value.toUpperCase();
+        table = document.getElementById("searchResults");
+        tr = table.getElementsByTagName("tr");
+        var foundRows = 0;
+        for (i = 0; i < tr.length; i++) {
+            var tdArr = tr[i].getElementsByTagName("td");
+            var found = false;
+            for (var j = 0; j < tdArr.length; j++) {
+                td = tdArr[j];
+                if (td) {
+                    txtValue = td.textContent || td.innerText;
+                    if (txtValue.toUpperCase().indexOf(filter) > -1) {
+                        found = true;
+                        break;
+                    }
+                }
+            }
+            if (found) {
+                tr[i].style.display = "";
+                foundRows++;
+            } else {
+                tr[i].style.display = "none";
+            }
+        }
+        if (foundRows === 0) {
+            document.getElementById("noDataMessage").style.display = "block";
+        } else {
+            document.getElementById("noDataMessage").style.display = "none";
+        }
+    });
+</script>
+
+
+
 
 
 
@@ -1241,53 +1296,53 @@ window.onclick = function(event) {
         modal.style.display = 'none';
     }
 };
-    function viewPdfAction() {
-    // Create a new jsPDF instance
-    var doc = new jsPDF();
-
-    // Set properties for the PDF document
-    doc.setProperties({
-        title: 'Table Data PDF',
-        subject: 'Details of table rows',
-        author: 'Your Name',
-        keywords: 'PDF, table, details',
-        creator: 'Your Application'
-    });
-
-    // Initialize variables for positioning and page size
-    var startY = 10;
-    var pageHeight = doc.internal.pageSize.height;
-
-    // Loop through each row in the table
-    document.querySelectorAll('tbody tr').forEach(function(row, index) {
-        // Get data from each cell in the row
-        var rowData = [];
-        row.querySelectorAll('td').forEach(function(cell) {
-            rowData.push(cell.textContent.trim());
-        });
-
-        // Check if the current row will fit on the current page
-        if (startY + 10 > pageHeight) {
-            // Add a new page if the current row won't fit
-            doc.addPage();
-            startY = 10; // Reset startY for the new page
-        }
-
-        // Add the row data to the PDF document
-        doc.text(10, startY, rowData.join(', '));
-
-        // Increment startY for the next row
-        startY += 10;
-    });
-
-    // Save the PDF document
-    doc.save('table_data.pdf');
-}
-
-   
 </script>
+<script type="text/javascript">
+    $(document).ready(function () {
+        $(document).on('click', '.menu-option', function (event) {
+            event.preventDefault();
+            var debit_id = $(this).data('debit-id');
 
+            // Make an AJAX request to fetch the DebitNote details
+            $.ajax({
+                url: '/get_debit_note_details_view/',  // Update the URL to your server endpoint
+                method: 'GET',
+                data: {debit_id: debit_id},
+                success: function (response) {
+                    if (response.success) {
+                        var debitNote = response.debitNote;
 
+                        // Construct the content for the PDF
+                        var content = `
+                            <h2>DebitNote Details</h2>
+                            <p>Return No: ${debitNote.returnno}</p>
+                            <p>Created At: ${debitNote.created_at}</p>
+                            <p>Subtotal: ${debitNote.subtotal}</p>
+                            <p>Tax Amount: ${debitNote.taxamount}</p>
+                            <p>Adjustment: ${debitNote.adjustment}</p>
+                            <p>Grand Total: ${debitNote.grandtotal}</p>
+                            <!-- Add more details as needed -->
+                        `;
+
+                        // Create a new jsPDF instance
+                        var doc = new jsPDF();
+
+                        // Add the content to the PDF
+                        doc.text(10, 10, content);
+
+                        // Save the PDF
+                        doc.save('debit_note_details.pdf');
+                    } else {
+                        console.error('Failed to fetch DebitNote details.');
+                    }
+                },
+                error: function () {
+                    console.error('Error occurred while fetching DebitNote details.');
+                }
+            });
+        });
+    });
+</script>
 
 <script>
     function deleteDebitNoteItem(debitnoteId) {
@@ -1312,5 +1367,126 @@ window.onclick = function(event) {
   
   
 </script>
+
+
+
+
+<script>
+function downloadExcel() {
+    // Clone the table to preserve the original table
+    var clonedTable = document.getElementById('debitTable').cloneNode(true);
+
+    // Remove the ellipsis menu column
+    var ellipsisColumns = clonedTable.getElementsByClassName('ellipsis-menu-container');
+    while (ellipsisColumns.length > 0) {
+        ellipsisColumns[0].parentNode.removeChild(ellipsisColumns[0]);
+    }
+
+    // Remove the filter box sections by their class name
+    var filterBoxes = clonedTable.getElementsByClassName('filter-box');
+    while (filterBoxes.length > 0) {
+        filterBoxes[0].parentNode.removeChild(filterBoxes[0]);
+    }
+
+    // Remove the filter box sections for the Action and By columns
+    var actionFilterBox = clonedTable.getElementsByClassName('filter-box1');
+    while (actionFilterBox.length > 0) {
+        actionFilterBox[0].parentNode.removeChild(actionFilterBox[0]);
+    }
+    
+    var byFilterBox = clonedTable.getElementsByClassName('filter-box2');
+    while (byFilterBox.length > 0) {
+        byFilterBox[0].parentNode.removeChild(byFilterBox[0]);
+    }
+
+    // Generate workbook object from the cloned table
+    var wb = XLSX.utils.table_to_book(clonedTable, { sheet: "Sheet JS" });
+
+    // Convert the workbook to a binary string
+    var wbBinaryString = XLSX.write(wb, { bookType: 'xlsx', type: 'binary' });
+
+    // Convert the binary string to a blob
+    var wbBlob = new Blob([s2ab(wbBinaryString)], { type: 'application/octet-stream' });
+
+    // Create a URL for the blob
+    var url = URL.createObjectURL(wbBlob);
+
+    // Prompt the user to choose the download location
+    var fileName = 'debit_report.xlsx';
+    var a = document.createElement('a');
+    a.href = url;
+    a.download = fileName;
+    document.body.appendChild(a);
+    a.click();
+    window.URL.revokeObjectURL(url);
+    document.body.removeChild(a);
+
+    // Show a confirmation message
+    alert('Excel report downloaded successfully');
+}
+
+// Utility function to convert string to array buffer
+function s2ab(s) {
+    var buf = new ArrayBuffer(s.length);
+    var view = new Uint8Array(buf);
+    for (var i = 0; i < s.length; i++) {
+        view[i] = s.charCodeAt(i) & 0xFF;
+    }
+    return buf;
+}
+
+</script>
+
+<script>
+function viewPdfAction(debitId) {
+    // Send AJAX request to retrieve debit note details
+    $.ajax({
+        url: '/get_debit_note_details/view',
+        method: 'POST',
+        data: {
+            debit_id: debitId
+        },
+        success: function(response) {
+            // Handle successful response and generate PDF
+            generatePdf(response);
+        },
+        error: function(xhr, status, error) {
+            // Handle error
+            console.error(error);
+        }
+    });
+}
+
+function generatePdf(debitNoteDetails) {
+    // Construct HTML content for PDF
+    var content = `
+        <h2>Debit Note Details</h2>
+        <p>Debit ID: ${debitNoteDetails.id}</p>
+        <p>Party Name: ${debitNoteDetails.party_name}</p>
+        <p>Company Name: ${debitNoteDetails.company_name}</p>
+        <!-- Include other details as needed -->
+    `;
+
+    // Generate PDF configuration options
+    var options = {
+        margin: 1,
+        filename: `DebitNote_${debitNoteDetails.id}.pdf`,
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: { scale: 2 },
+        jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
+    };
+
+    // Generate the PDF and trigger the download
+    html2pdf().set(options).from(content).save();
+}
+</script>
+
+
+
+
+
+
+
+
 </div>
 {% endblock %}

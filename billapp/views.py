@@ -925,56 +925,25 @@ def get_debit_note_history(request, debitnote_id):
     # Return the history data as JSON response
     return JsonResponse(history_data_list, safe=False)
 
-
-def generate_pdf(request):
-    if request.method == 'POST':
-        user_id = request.POST.get('user_id')
+def get_debit_note_details_view(request):
+    if request.method == 'GET':
+        # Get the debit ID from the request parameters
+        debit_id = request.GET.get('debit_id')
 
         try:
-            
-            debit_note = DebitNote.objects.get(user_id=user_id)
-            debit_note_items = DebitNoteItem.objects.filter(debitnote=debit_note)
-
-        
-            company_name = debit_note.company.company_name  
-            party_name = debit_note.party.party_name
-            phone_number = debit_note.party.contact  
-            debit_note_number = debit_note.returnno
-            debit_note_date = debit_note.created_at.strftime('%Y-%m-%d')
-
-
-            table_data = [['#', 'Items', 'HSN', 'Price', 'Qty', 'Tax', 'Discount', 'Total']]
-            for index, item in enumerate(debit_note_items, start=1):
-                table_data.append([
-                    index,
-                    item.items.itm_name,
-                    item.items.itm_hsn,
-                    item.items.itm_sale_price,
-                    item.qty,
-                    item.items.itm_vat,
-                    item.discount,
-                    item.total
-                ])
-
-            subtotal = debit_note.subtotal
-            tax_amount = debit_note.taxamount
-            adjustment = debit_note.adjustment
-            grand_total = debit_note.grandtotal
-
-            
-            response = HttpResponse(content_type='application/pdf')
-            response['Content-Disposition'] = 'attachment; filename="debit_note.pdf"'
-            pdf = canvas.Canvas(response)
-            
-         
-            pdf.drawString(100, 800, "DEBIT NOTE")
-            
-
-            pdf.save()
-
-            return response
-
+            # Query the database to get debit note details based on the debit ID
+            debit_note = DebitNote.objects.get(id=debit_id)
+            debit_note_details = {
+                'id': debit_note.id,
+                'party_name': debit_note.party.party_name,
+                'company_name': debit_note.company.company_name,
+                # Add other debit note details as needed
+            }
+            return JsonResponse(debit_note_details)
         except DebitNote.DoesNotExist:
-            return JsonResponse({'error': 'Debit note does not exist'}, status=404)
+            return JsonResponse({'error': 'Debit note not found'}, status=404)
+    else:
+        return JsonResponse({'error': 'Method not allowed'}, status=405)
 
-    return JsonResponse({'error': 'Invalid request method'}, status=400)
+
+
