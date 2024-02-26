@@ -16,6 +16,7 @@ import logging
 from django.views.decorators.csrf import csrf_exempt
 from django.core.serializers import serialize
 from reportlab.pdfgen import canvas
+from django.template.loader import render_to_string
 import json
 
 
@@ -925,25 +926,28 @@ def get_debit_note_history(request, debitnote_id):
     # Return the history data as JSON response
     return JsonResponse(history_data_list, safe=False)
 
-def get_debit_note_details_view(request):
-    if request.method == 'GET':
-        # Get the debit ID from the request parameters
-        debit_id = request.GET.get('debit_id')
-
-        try:
-            # Query the database to get debit note details based on the debit ID
-            debit_note = DebitNote.objects.get(id=debit_id)
-            debit_note_details = {
-                'id': debit_note.id,
-                'party_name': debit_note.party.party_name,
-                'company_name': debit_note.company.company_name,
-                # Add other debit note details as needed
-            }
-            return JsonResponse(debit_note_details)
-        except DebitNote.DoesNotExist:
-            return JsonResponse({'error': 'Debit note not found'}, status=404)
-    else:
-        return JsonResponse({'error': 'Method not allowed'}, status=405)
 
 
 
+
+
+def generate_pdf(request, debit_note_id):
+    debit_note = DebitNote.objects.get(id=debit_note_id)
+    # Fetch related data
+    party = debit_note.party
+    debit_note_items = debit_note.debitnoteitem_set.all()  # Assuming you have related_name set for ForeignKey
+    # Render PDF template with fetched data
+    context = {
+        'debit_note': debit_note,
+        'party': party,
+        'debit_note_items': debit_note_items,
+    }
+    pdf_content = render_to_string('debit_note_pdf_template.html', context)
+
+    # Generate PDF using a library like WeasyPrint or ReportLab (not implemented here)
+    # For demonstration purposes, let's assume pdf_content contains the PDF data
+
+    # Return PDF as HttpResponse
+    response = HttpResponse(pdf_content, content_type='application/pdf')
+    response['Content-Disposition'] = 'attachment; filename="debit_note_report.pdf"'
+    return response

@@ -229,11 +229,33 @@
                         <div class="input-group">
                             <select name="party" id="party" class="form-control" style="width: 450px">
                                 <option value="">-- Select/Search Party --</option>
+                                
                                 {% for party in parties %}
+  
+    <option value="{{ party.id }}" {% if selected_party == party.id %} selected {% endif %}
+        data-contact="{{ party.contact }}" 
+        data-address="{{ party.address }}" 
+        data-openingbalance="{{ party.openingbalance }}"
+        {% for bill in bills %}
+        {% if party.id == bill.party_id %}
+
+            data-billno="{{ bill.billno }}"
+            data-billdate="{{ bill.billdate|date:'d/m/Y' }}"
+            {% endif %}
+            {% endfor %}
+ >
+
+        {{ party.party_name }}
+    </option>
+    {% endfor %}
+                                
+                                
+                                
+                                <!-- {% for party in parties %}
                                     <option value="{{ party.id }}" {% if selected_party == party.id %} selected {% endif %}>
                                         {{ party.party_name }}
                                     </option>
-                                {% endfor %}
+                                {% endfor %} -->
                             </select>
                             <div class="input-group-append">
                                 <button type="button" class="btn btn-outline-secondary" style="background-color: maroon;" data-toggle="modal" data-target="#createPartyModal">+</button>
@@ -243,24 +265,24 @@
                     <br>
                     <div class="form-group">
                         <label for="available_balance">Available Balance</label>
-                        <input type="text" class="form-control" value="{% if selected_party %}{{ selected_party.openingbalance }}{% endif %}" readonly id="available_balance">
+                        <input type="text" class="form-control" value="{{ debitnote.party.openingbalance }}" readonly id="available_balance">
                     </div>
                     <br>
                     <div class="form-group">
                         <label for="contact_number">Contact Number</label>
-                        <input type="text" class="form-control" value="{% if selected_party %}{{ selected_party.contact }}{% endif %}" readonly id="contact_number">
+                        <input type="text" class="form-control" id="contact_number" value="{{ debitnote.party.contact }}" readonly >
                     </div>
                     <br>
-                    <div class="form-group" id="addressSection" style="display: none;">
-                        <label for="address">Address</label>
-                        <textarea class="form-control" readonly id="address">{% if selected_party %}{{ selected_party.address }}{% endif %}</textarea>
+                    <div class="form-group">
+                        <label for="party_address">Party Address</label>
+                        <input type="text" class="form-control" id="party_address" value="{{ debitnote.party.address }}" readonly>
                     </div>
                 </div>
                 <div class="col-md-6">
                     <!-- Right side of the form -->
                     <div class="form-group">
                         <label for="return_no">Return No.</label>
-                        <input type="text" class="form-control" id="return_no" name="return_no" value="" >
+                        <input type="text" class="form-control" id="return_no" name="return_no" value="{{ debitnote.returnno }}" readonly >
                         <span id="return-no-message" style="color: red;"></span>
                     </div>
               
@@ -268,8 +290,7 @@
                     <br>
                     <div class="form-group">
                         <label for="date">Date</label>
-                        <input type="date" class="form-control" id="current-date" value="">
-                    </div>
+                      <input type="text" class="form-control" id="current_date" value="{{ debitnote.party.current_date|date:'d-m-Y' }}" readonly>
                     <br>
                     <!-- <div class="form-group">
                         <label for="bill">Select Bill:</label>
@@ -282,7 +303,7 @@
                     <div class="form-group">
                         <label for="bill">Select Bill</label>
                         <select id="bill" name="bill" class="form-control">
-                            <option value="" hidden selected>NIL</option>
+                            <option value="{{ bill.bill_no }}" hidden selected>NIL</option>
                         </select>
                     </div> 
                     
@@ -317,10 +338,15 @@
                             <td style="width: 990px;">
                                 <div style="display: flex; position: relative;">
                                     <select name="selected_item[]" onchange="fillItemDetails1(this)" style="width: 130px;" class="form-control select2" id="select1">
-                                        <option value="">-Select-</option>
-                                        {% for item in items %}
-                                            <option value="{{ item.id }}" data-hsn="{{ item.itm_hsn }}" data-price="{{ item.itm_purchase_price }}"  data-tax="VAT {{ item.itm_vat|floatformat:0 }}%" >{{ item.itm_name }}</option>
-                                        {% endfor %}
+                                   
+                                            {% for item in items %}
+                                                {% if item.id in selected_item %}
+                                                    <option value="{{ item.id }}" selected data-hsn="{{ item.itm_hsn }}" data-price="{{ item.itm_purchase_price }}" data-tax="VAT {{ item.itm_vat|floatformat:0 }}%">{{ item.itm_name }}</option>
+                                                {% else %}
+                                                    <option value="{{ item.id }}" data-hsn="{{ item.itm_hsn }}" data-price="{{ item.itm_purchase_price }}" data-tax="VAT {{ item.itm_vat|floatformat:0 }}%">{{ item.itm_name }}</option>
+                                                {% endif %}
+                                            {% endfor %}
+                                    
                                     </select>
                             
                         &nbsp;&nbsp; &nbsp;&nbsp;                        &nbsp;&nbsp; &nbsp;&nbsp;

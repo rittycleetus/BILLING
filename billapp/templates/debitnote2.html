@@ -485,7 +485,7 @@
                                     <div class="menu-option" onclick="historyAction('{{ debit.id }}')">
                                         <i class="fas fa-history" style="color: #e67e22;"></i> History
                                     </div>
-                                    <div class="menu-option" onclick="viewPdfAction('{{ debit.id }}')">
+                                    <div class="menu-option" >
                                         <i class="fas fa-file-pdf" style="color: #27ae60;"></i> View PDF
                                     </div>
                                     <div class="menu-option" onclick="deleteDebitNoteItem('{{ debit.id }}')">
@@ -1223,10 +1223,61 @@ function filterTable() {
    
 
 
+    // function editAction(debitnote_id) {
+    //     // Redirect to the edit debit note page with the debitnote_id as a parameter
+    //     window.location.href = `/edit_debit_note/${debitnote_id}`;
+    // }
+
+
+
+
+
+
     function editAction(debitnote_id) {
-        // Redirect to the edit debit note page with the debitnote_id as a parameter
-        window.location.href = `/edit_debit_note/${debitnote_id}`;
-    }
+    // Perform AJAX request to fetch debit note details
+    window.location.href = `/edit_debit_note/${debitnote_id}`;
+    $.ajax({
+        url: '/fetch_debit_note_details/' + debitId + '/', // Replace with your URL endpoint for fetching debit note details
+        type: 'GET',
+        success: function(response) {
+            // Populate party details
+            $('#party').val(response.party_id).trigger('change'); // Assuming you're using a library like select2, trigger change event to update select2 field
+            $('#available_balance').val(response.party.openingbalance);
+            $('#contact_number').val(response.party.contact);
+            $('#party_address').val(response.party.address);
+
+            // Populate other debit note details
+            $('#return_no').val(response.returnno);
+            $('#current_date').val(response.created_at);
+
+            // Populate debit note items
+            $('#selected_item').empty(); // Clear existing items
+            $.each(response.items, function(index, item) {
+                $('#selected_item').append($('<option>', {
+                    value: item.id,
+                    text: item.itm_name,
+                    'data-hsn': item.itm_hsn,
+                    'data-price': item.itm_purchase_price,
+                    'data-tax': 'VAT ' + item.itm_vat.toFixed(0) + '%'
+                }));
+            });
+
+            // Update other fields as needed
+            // ...
+        },
+        error: function(xhr, status, error) {
+            console.error(xhr.responseText);
+        }
+    });
+}
+
+
+
+
+
+
+
+
     function historyAction(debitId, returnNo) {
     fetch(`/get_debit_note_history/${debitId}/`)
         .then(response => {
@@ -1438,54 +1489,26 @@ function s2ab(s) {
 </script>
 
 <script>
-function viewPdfAction(debitId) {
-    // Send AJAX request to retrieve debit note details
-    $.ajax({
-        url: '/get_debit_note_details/view',
-        method: 'POST',
-        data: {
-            debit_id: debitId
-        },
-        success: function(response) {
-            // Handle successful response and generate PDF
-            generatePdf(response);
-        },
-        error: function(xhr, status, error) {
-            // Handle error
-            console.error(error);
-        }
+    $(document).ready(function() {
+    $('.menu-option').click(function() {
+        var debit_note_id = 1; // Replace with the actual debit note ID
+        $.ajax({
+            url: `/generate_pdf/${debit_note_id}/`,
+            type: 'GET',
+            success: function(response) {
+                // Create a blob URL for the PDF data
+                var blob = new Blob([response], { type: 'application/pdf' });
+                var url = URL.createObjectURL(blob);
+                // Open the PDF in a new tab
+                window.open(url);
+            },
+            error: function(xhr, status, error) {
+                console.error('Error:', error);
+            }
+        });
     });
-}
-
-function generatePdf(debitNoteDetails) {
-    // Construct HTML content for PDF
-    var content = `
-        <h2>Debit Note Details</h2>
-        <p>Debit ID: ${debitNoteDetails.id}</p>
-        <p>Party Name: ${debitNoteDetails.party_name}</p>
-        <p>Company Name: ${debitNoteDetails.company_name}</p>
-        <!-- Include other details as needed -->
-    `;
-
-    // Generate PDF configuration options
-    var options = {
-        margin: 1,
-        filename: `DebitNote_${debitNoteDetails.id}.pdf`,
-        image: { type: 'jpeg', quality: 0.98 },
-        html2canvas: { scale: 2 },
-        jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
-    };
-
-    // Generate the PDF and trigger the download
-    html2pdf().set(options).from(content).save();
-}
+});
 </script>
-
-
-
-
-
-
 
 
 </div>
