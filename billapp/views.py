@@ -886,14 +886,23 @@ def edit_debit_note(request, debit_id):
         return redirect('debitnote2')  # Redirect to debit note list page or any other desired page
 
     else:  # Handling GET request
-        parties = Party.objects.filter(company_id=company_id)  
-        items = Item.objects.filter(company_id=company_id)  
-        debits = DebitNote.objects.filter(user=request.user).prefetch_related('debitnotehistory_set')
+      parties = Party.objects.filter(company_id=company_id)  
+      items = Item.objects.filter(company_id=company_id)  
+      debits = DebitNote.objects.filter(user=request.user).prefetch_related('debitnotehistory_set')
 
-        selected_item = [{'id': item.items.id, 'itm_hsn': item.items.itm_hsn, 'purchaseprice': item.items.itm_purchase_price, 'vat': item.items.itm_vat} for item in debitnote.debitnoteitem_set.all()]
+    # Get selected items for the debit note
+    selected_item = [{
+        'id': item.items.id,
+        'itm_hsn': item.items.itm_hsn,
+        'purchaseprice': item.items.itm_purchase_price,
+        'vat': item.items.itm_vat,
+        'qty': item.qty,
+        'discount': item.discount,
+        'total_amount': item.total
+    } for item in debitnote.debitnoteitem_set.all()]
 
-        # Pass necessary data to the template context
-        context = {
+    associated_bill = PurchaseBill.objects.filter(party=debitnote.party).first()
+    context = {
             'debitnote': debitnote,
             'parties': parties,
             'items': items,
@@ -911,10 +920,12 @@ def edit_debit_note(request, debit_id):
             'selected_party_address': debitnote.party.address if debitnote.party else None,
             'selected_party_contact': debitnote.party.contact if debitnote.party else None,
             'selected_party_balance': debitnote.party.openingbalance if debitnote.party else None,
+            'billno': associated_bill.billno if associated_bill else None,
+            'billdate': associated_bill.billdate if associated_bill else None,
             'selected_item': selected_item,
         }
         
-        return render(request, 'editdebitnote.html', context)
+    return render(request, 'editdebitnote.html', context)
 
 
 def get_debit_note_history(request, debitnote_id):

@@ -303,13 +303,13 @@
                     <div class="form-group">
                         <label for="bill">Select Bill</label>
                         <select id="bill" name="bill" class="form-control">
-                            <option value="{{ bill.bill_no }}" hidden selected>NIL</option>
+                            <option value="{{ billno }}" hidden selected>{{ billno }}</option>
                         </select>
                     </div> 
                     
                     <div class="form-group">
                         <label for="billdate">Bill Date</label>
-                        <input type="text" class="form-control" id="bill_date" value="NIL" disabled style="background-color: white;">
+                        <input type="text" class="form-control" id="bill_date" value="{{ billdate|default:'NIL' }}" disabled style="background-color: white;">
                     </div>
                     
                     
@@ -354,25 +354,35 @@
                                  
                                 </div>
                             </td>
-                             <td><span id="hsn" class="form-control" style="height: 40px; width: 90px;">{{ item.itm_hsn }}</span></td>
-    <td><input type="number" name="item_quantity[]" style="width: 90px;" class="form-control" value="{{ item.quantity }}" required></td>
+                            {% for item in selected_item %}
+
+    <td><span id="hsn" class="form-control" style="height: 40px; width: 90px;">{{ item.itm_hsn }}</span></td>
+    
+    <td>
+        <input type="number" name="item_quantity[]" style="width: 90px;" class="form-control" value="{{ item.qty }}" required>
+    </td>
+
     <td><span id="purchasePrice" style="width: 90px; height: 40px;" class="form-control" name="purchaseprice[]">{{ item.purchaseprice }}</span></td>
     <td><span id="vat" style="width: 90px; height: 40px;" class="form-control">{{ item.vat }}</span></td>
     <td><input type="number" name="item_discount[]" class="form-control" style="width: 80px;" value="{{ item.discount }}"></td>
     <td><input type="number" name="item_total_amount[]" readonly class="form-control" style="width: 100px;" value="{{ item.total_amount }}"></td>
     <td><i class="fas fa-trash-alt fa-lg delete-row" style="margin-left: 10px;"></i></td>
+
+{% endfor %}
                      
                     </tbody>
-                    <ul>
+                    <!-- <ul>
                         {% for item in selected_item %}
                         <li>
                             <strong>ID:</strong> {{ item.id }} <br>
+                            <strong>quantity:</strong> {{ item.qty }} <br>
                             <strong>HSN:</strong> {{ item.itm_hsn }} <br>
                             <strong>Purchase Price:</strong> {{ item.purchaseprice }} <br>
                             <strong>VAT:</strong> {{ item.vat }} <br>
+                            <strong>Subtotal</strong> {{item.subtotal}}
                         </li>
                         {% endfor %}
-                    </ul>
+                    </ul> -->
                     </table>
                     <!-- + button to add a new row -->
                     <button type="button" onclick="addRow()" class="btn btn-outline-secondary" style="background-color: maroon; height: 40px; width: 45px; text-align: center; padding: 2px;font-size: 20px;"><b>+</b></button>
@@ -403,10 +413,12 @@
                     <div class="col-md-6" style="margin-left: 170px;"  class="form-control">
                         <div class="container-fluid border p-3">
                             <!-- Subtotal Input -->
+                            
+                            {% for item in selected_item %}
                             <div class="form-group row">
                                 <label for="subtotal" class="col-sm-4 col-form-label">Subtotal</label>
                                 <div class="col-sm-8">
-                                    <input type="text" id="subtotal" name="subtotal" class="form-control" readonly>
+                                    <input type="text" id="subtotal" name="subtotal" class="form-control"  value="{{subtotal}}">
                                 </div>
                             </div>
 <!--                     
@@ -414,14 +426,14 @@
                              <div class="form-group row">
                                 <label for="taxAmount" class="col-sm-4 col-form-label">Tax Amount</label>
                                 <div class="col-sm-8">
-                                    <input type="text" id="taxAmount" name="taxAmount" class="form-control" readonly>
+                                    <input type="text" id="taxAmount" name="taxAmount" class="form-control" value="{{taxAmount}}">
                                 </div>
                             </div> 
                     
                               <div class="form-group row">
                                 <label for="adjustment" class="col-sm-4 col-form-label">Adjustment</label>
                                 <div class="col-sm-8">
-                                    <input type="text" id="adjustment" name="adjustment" class="form-control" value="0.00">
+                                    <input type="text" id="adjustment" name="adjustment" class="form-control" value="{{adjustment}}">
                                 </div>
                             </div>  
                        
@@ -429,14 +441,16 @@
                              <div class="form-group row">
                              <label for="grandTotal" class="col-sm-4 col-form-label">Grand Total</label>
                              <div class="col-sm-8">
-                                 <input type="text" id="grandTotal" name="grandTotal" class="form-control" readonly>
+                                 <input type="text" id="grandTotal" name="grandTotal" class="form-control" value="{{grandTotal}}">
                         </div>
                     </div>
+                    {% endfor %}
                     </div>
                 </div>
  </div> 
+
  <!-- <a href="{% url 'debitnote2' %}">Submit</button> -->
-    <button type="submit" class="btn-primary">SUBMIT</button>
+    <button type="submit" class="btn-primary">EDIT</button>
 
         </form>
     </div>
