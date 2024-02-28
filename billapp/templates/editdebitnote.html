@@ -338,15 +338,9 @@
                             <td style="width: 990px;">
                                 <div style="display: flex; position: relative;">
                                     <select name="selected_item[]" onchange="fillItemDetails1(this)" style="width: 130px;" class="form-control select2" id="select1">
-                                   
-                                            {% for item in items %}
-                                                {% if item.id in selected_item %}
-                                                    <option value="{{ item.id }}" selected data-hsn="{{ item.itm_hsn }}" data-price="{{ item.itm_purchase_price }}" data-tax="VAT {{ item.itm_vat|floatformat:0 }}%">{{ item.itm_name }}</option>
-                                                {% else %}
-                                                    <option value="{{ item.id }}" data-hsn="{{ item.itm_hsn }}" data-price="{{ item.itm_purchase_price }}" data-tax="VAT {{ item.itm_vat|floatformat:0 }}%">{{ item.itm_name }}</option>
-                                                {% endif %}
-                                            {% endfor %}
-                                    
+                                        {% for item in selected_item %}
+                                        <option value="{{ item.id }}" data-hsn="{{ item.itm_hsn }}" data-price="{{ item.purchaseprice }}" data-tax="VAT {{ item.vat }}">{{ item.id }}</option>
+                                        {% endfor %}
                                     </select>
                             
                         &nbsp;&nbsp; &nbsp;&nbsp;                        &nbsp;&nbsp; &nbsp;&nbsp;
@@ -360,24 +354,32 @@
                                  
                                 </div>
                             </td>
-                            <td><span id="hsn" class="form-control" style="height: 40px; width: 90px;"></span></td>
-                            <td><input type="number" name="item_quantity[]" style="width: 90px;" class="form-control" value="0" oninput="updateTotalAmount1(this);updateTotals(this); updateTaxAmount(this);" required></td>
-                            <td><span id="purchasePrice" style="width: 90px; height: 40px;" class="form-control" name="purchaseprice[]"></span></td>
-                            <td><span id="vat" style="width: 90px; height: 40px;" class="form-control"></span></td>
-                            <td><input type="number" name="item_discount[]" class="form-control" style="width: 80px;" value="0" oninput="updateTotalAmount1(this);updateTotals(this); updateTaxAmount(this);
-                            "></td>
-                            <td><input type="number" name="item_total_amount[]" readonly class="form-control" style="width: 100px;" value="0"></td>
-                        <td><i class="fas fa-trash-alt fa-lg delete-row"  style="margin-left: 10px;"></i></td>
-                     
+                             <td><span id="hsn" class="form-control" style="height: 40px; width: 90px;">{{ item.itm_hsn }}</span></td>
+    <td><input type="number" name="item_quantity[]" style="width: 90px;" class="form-control" value="{{ item.quantity }}" required></td>
+    <td><span id="purchasePrice" style="width: 90px; height: 40px;" class="form-control" name="purchaseprice[]">{{ item.purchaseprice }}</span></td>
+    <td><span id="vat" style="width: 90px; height: 40px;" class="form-control">{{ item.vat }}</span></td>
+    <td><input type="number" name="item_discount[]" class="form-control" style="width: 80px;" value="{{ item.discount }}"></td>
+    <td><input type="number" name="item_total_amount[]" readonly class="form-control" style="width: 100px;" value="{{ item.total_amount }}"></td>
+    <td><i class="fas fa-trash-alt fa-lg delete-row" style="margin-left: 10px;"></i></td>
                      
                     </tbody>
+                    <ul>
+                        {% for item in selected_item %}
+                        <li>
+                            <strong>ID:</strong> {{ item.id }} <br>
+                            <strong>HSN:</strong> {{ item.itm_hsn }} <br>
+                            <strong>Purchase Price:</strong> {{ item.purchaseprice }} <br>
+                            <strong>VAT:</strong> {{ item.vat }} <br>
+                        </li>
+                        {% endfor %}
+                    </ul>
                     </table>
                     <!-- + button to add a new row -->
                     <button type="button" onclick="addRow()" class="btn btn-outline-secondary" style="background-color: maroon; height: 40px; width: 45px; text-align: center; padding: 2px;font-size: 20px;"><b>+</b></button>
                 </div>
             </div>
 
-
+          
 
 
 

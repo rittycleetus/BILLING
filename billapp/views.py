@@ -825,7 +825,6 @@ def delete_debit_note_item(request, debitnote_id):
 
 
 
-    
 def edit_debit_note(request, debit_id):
     company_id = request.session.get('company')
     user_id = request.session.get('user')
@@ -845,7 +844,7 @@ def edit_debit_note(request, debit_id):
 
         # Update debit note fields
         debitnote.party = selected_party
-        debitnote.party.openingbalance=selected_party.openingbalance
+        debitnote.party.openingbalance = selected_party.openingbalance
         debitnote.returnno = return_no
         debitnote.created_at = current_date
         debitnote.subtotal = subtotal
@@ -886,34 +885,36 @@ def edit_debit_note(request, debit_id):
 
         return redirect('debitnote2')  # Redirect to debit note list page or any other desired page
 
-    parties = Party.objects.filter(company_id=company_id)  
-    items = Item.objects.filter(company_id=company_id)  
-    debits = DebitNote.objects.filter(user=request.user).prefetch_related('debitnotehistory_set')
-    
-    # Pass necessary data to the template context
-    context = {
-        'debitnote': debitnote,
-        'parties': parties,
-        'items': items,
-        'debits': debits,
-        'company_id': company_id,
-        'user_id': user_id,
-        'usr': request.user,  
-        'selected_party': debitnote.party.id if debitnote.party else None,
-        'return_no': debitnote.returnno,
-        'current_date': debitnote.created_at.strftime('%Y-%m-%d') if debitnote.created_at else None,
-        'subtotal': debitnote.subtotal,
-        'taxAmount': debitnote.taxamount,
-        'adjustment': debitnote.adjustment,
-        'grandTotal': debitnote.grandtotal,
-        
-        # Fetch additional fields from selected_party
-        'selected_party_address': debitnote.party.address if debitnote.party else None,
-        'selected_party_contact': debitnote.party.contact if debitnote.party else None,
-        'selected_party_balance': debitnote.party.openingbalance if debitnote.party else None,
-    }
+    else:  # Handling GET request
+        parties = Party.objects.filter(company_id=company_id)  
+        items = Item.objects.filter(company_id=company_id)  
+        debits = DebitNote.objects.filter(user=request.user).prefetch_related('debitnotehistory_set')
 
-    return render(request, 'editdebitnote.html', context)
+        selected_item = [{'id': item.items.id, 'itm_hsn': item.items.itm_hsn, 'purchaseprice': item.items.itm_purchase_price, 'vat': item.items.itm_vat} for item in debitnote.debitnoteitem_set.all()]
+
+        # Pass necessary data to the template context
+        context = {
+            'debitnote': debitnote,
+            'parties': parties,
+            'items': items,
+            'debits': debits,
+            'company_id': company_id,
+            'user_id': user_id,
+            'usr': request.user,
+            'selected_party': debitnote.party.id if debitnote.party else None,
+            'return_no': debitnote.returnno,
+            'current_date': debitnote.created_at.strftime('%Y-%m-%d') if debitnote.created_at else None,
+            'subtotal': debitnote.subtotal,
+            'taxAmount': debitnote.taxamount,
+            'adjustment': debitnote.adjustment,
+            'grandTotal': debitnote.grandtotal,
+            'selected_party_address': debitnote.party.address if debitnote.party else None,
+            'selected_party_contact': debitnote.party.contact if debitnote.party else None,
+            'selected_party_balance': debitnote.party.openingbalance if debitnote.party else None,
+            'selected_item': selected_item,
+        }
+        
+        return render(request, 'editdebitnote.html', context)
 
 
 def get_debit_note_history(request, debitnote_id):

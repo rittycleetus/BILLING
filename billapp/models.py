@@ -48,6 +48,8 @@ class Item(models.Model):
     itm_stock_in_hand = models.IntegerField(default=0)
     itm_at_price = models.IntegerField(default=0)
     itm_date = models.DateField()
+    def __str__(self):
+        return self.itm_name
    
     
 class Party(models.Model):
@@ -166,7 +168,7 @@ class DebitNoteItem(models.Model):
     qty=models.IntegerField(default=0,null=True)
     discount=models.IntegerField(default=0,null=True)
     total=models.DecimalField(max_digits=10, decimal_places=2, default=0, null=True)
-
+    
 class DebitNoteHistory(models.Model):
     ACTION_CHOICES = [
         ('C', 'Created'),
