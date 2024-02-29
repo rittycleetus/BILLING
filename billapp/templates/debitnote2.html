@@ -5,9 +5,11 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
-     
-     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.3/jspdf.umd.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <!-- Include jsPDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
+    <!-- Include jsPDF AutoTable plugin -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.13/jspdf.plugin.autotable.min.js"></script>
      
      
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js:2:80625"></script>
@@ -17,6 +19,7 @@
       
 <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.0.1/js/toastr.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.3/html2pdf.bundle.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/0.4.1/html2canvas.min.js"></script>
      
 
 <style>
@@ -241,7 +244,7 @@
             <a href="#" class="btn-icon" onclick="downloadExcel()">
                 <i class="fas fa-file-excel" style="color: green; font-size: 24px; width: 50px;"></i><br>Excel
             </a>
-            <a href="#" class="btn-icon" onclick="printPage()">
+            <a href="#" class="btn-icon" onclick="printPDFWithTable()">
                 <i class="fas fa-print" style="color: red; font-size: 24px; width: 50px;"></i><br>Print
             </a>
            
@@ -494,7 +497,7 @@
                                     <div class="menu-option" onclick="shareAction()">
                                         <i class="fas fa-share" style="color: #9b59b6;"></i> Share
                                     </div>
-                                    <div class="menu-option" onclick="printAction()">
+                                    <div class="menu-option" onclick="printPDF()">
                                         <i class="fas fa-print" style="color: #34495e;"></i> Print
                                     </div>
                                 </div>
@@ -1510,6 +1513,59 @@ function s2ab(s) {
 });
 </script>
 
+<script>
+    // function printPDF() {
+    //     const doc = new jspdf.jsPDF(); // Corrected library name
+    //     const table = document.getElementById("debitTable");
+    //     const { width, height } = doc.internal.pageSize;
+    //     const options = {
+    //         startY: 20
+    //     };
+        
+    //     doc.text("Debit Note", width / 2, 10, { align: "center" });
+    //     doc.autoTable({ html: table, startY: 20 });
+        
+    //     // Save the PDF
+    //     doc.save("debit_note.pdf");
+    // }
+    function printPDFWithTable() {
+    const doc = new jspdf.jsPDF(); // Corrected library name
+    const table = document.getElementById("debitTable");
+    const { width, height } = doc.internal.pageSize;
+    const options = {
+        startY: 20
+    };
+    
+    doc.text("Debit Note", width / 2, 10, { align: "center" });
+    
+    // Clone the table content
+    var clonedTable = table.cloneNode(true);
 
+    // Remove the last column from the cloned table
+    var lastColumn = clonedTable.rows[0].cells.length - 1;
+    for (var i = 0; i < clonedTable.rows.length; i++) {
+        clonedTable.rows[i].deleteCell(lastColumn);
+    }
+
+    // Remove filter boxes and icons from the cloned table container
+    var filterBoxes = clonedTable.querySelectorAll('.filter-box, .fa-filter, .filter-box1, .filter-box2');
+    filterBoxes.forEach(function(box) {
+        box.parentNode.removeChild(box);
+    });
+
+    // Convert the cloned container to PDF
+    doc.autoTable({ html: clonedTable, startY: 20 });
+
+    // Save the PDF with a specific filename
+    doc.save("debit_note.pdf");
+}
+
+// Event listener for DOMContentLoaded
+document.addEventListener('DOMContentLoaded', function() {
+    // Inside this function, the DOM is fully loaded
+    // You can perform any additional setup here
+    console.log("DOM fully loaded.");
+});
+</script>
 </div>
 {% endblock %}
