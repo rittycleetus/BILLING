@@ -455,7 +455,7 @@
          
             <tbody id="searchResults" style="font-size: 10px;font-weight: 700;">
                 {% for debit in debits %}
-                <tr>
+                <tr onclick="handleRowClick('{{ debit.id }}')">
                     <td>{{ forloop.counter }}</td>
                     <td>{{ debit.created_at|date:'d-m-Y' }}</td>
                     <td>{{ debit.returnno }}</td> 
@@ -483,23 +483,18 @@
                                     <i class="fas fa-ellipsis-v"></i>
                                     <div class="menu-options" id="menuOptions{{ forloop.parentloop.counter }}">
                                         <div class="menu-option" onclick="editAction('{{ debit.id }}')">
-                                            <i class="fas fa-edit" style="color: #3498db;"></i> View/Edit
+                                            <i class="fas fa-edit" style="color: #3498db;"></i> Edit
                                         </div>
                                     <div class="menu-option" onclick="historyAction('{{ debit.id }}')">
                                         <i class="fas fa-history" style="color: #e67e22;"></i> History
                                     </div>
-                                    <div class="menu-option" >
-                                        <i class="fas fa-file-pdf" style="color: #27ae60;"></i> View PDF
+                                    <div class="menu-option" onclick="viewAction('{{debit.id}}')">
+                                        <i class="fas fa-file-pdf" style="color: #27ae60;"></i> View
                                     </div>
                                     <div class="menu-option" onclick="deleteDebitNoteItem('{{ debit.id }}')">
                                         <i class="fas fa-trash" style="color: #e74c3c;"></i> Delete
                                     </div>
-                                    <div class="menu-option" onclick="shareAction()">
-                                        <i class="fas fa-share" style="color: #9b59b6;"></i> Share
-                                    </div>
-                                    <div class="menu-option" onclick="printPDF()">
-                                        <i class="fas fa-print" style="color: #34495e;"></i> Print
-                                    </div>
+                                  
                                 </div>
                             </div>
                             </div>
@@ -1567,5 +1562,27 @@ document.addEventListener('DOMContentLoaded', function() {
     console.log("DOM fully loaded.");
 });
 </script>
-</div>
+
+<script>
+
+function handleRowClick(debitId) {
+    // Assuming you have a function to generate PDF based on debit ID
+    generatePDF(debitId);
+}
+
+function generatePDF(debitId) {
+    // Assuming you have a URL to fetch the PDF template
+    const pdfTemplateUrl = `/api/pdf/get_debit_note_details/${debitId}`;
+
+    // Open the PDF template in a new tab or window
+    window.open(pdfTemplateUrl, '_blank');
+}
+</script>
+<!-- <script>
+    function viewAction(debitId) {
+        var url = "/view_template/" + debitId + "/";
+        window.location.href = url;
+    }
+</script>
+</div> -->
 {% endblock %}

@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="body-wrapper">
+<div class="debitnote-details">
+  <div class="heading">
+    <h2>DEBIT NOTE DETAILS</h2>
+  </div>
+  <div class="icons">
+    <img src="{% static 'print_icon.png' %}" alt="Print">
+    <img src="{% static 'pdf_icon.png' %}" alt="PDF">
+    <img src="{% static 'share_icon.png' %}" alt="Share">
+  </div>
+</div>
+
+<div class="templates-section">
+  <div class="heading">
+    <h2>TEMPLATES</h2>
+  </div>
+  <!-- Other content for templates section goes here -->
+  <div class="menu-option" onclick="viewAction('{{ debit.id }}')">
+    <i class="fas fa-file-pdf" style="color: #27ae60;"></i> View
+  </div>
+</div>
+</div>
+<script>
+  function viewAction(debitId) {
+    var url = "/view_template/" + debitId + "/";
+    window.location.href = url;
+  }
+</script>
+{% endblock %}

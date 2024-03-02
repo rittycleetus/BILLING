@@ -1,6 +1,4 @@
-{% extends 'base.html' %}
-{% load static %}
-{% block content %}
+<!DOCTYPE html>
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -8,15 +6,26 @@
     <title>Debit Note Report</title>
 </head>
 <body>
-    <h1>Debit Note Report</h1>
-    <h2>Debit Note Information</h2>
+    <h1 style="text-align: center;">DEBIT NOTE REPORT</h1>
+   
     <p>Debit Note Number: {{ debit_note.returnno }}</p>
-    <!-- Add more debit note details as needed -->
+    <p>Date: {{debit_note.created_at|date:'d-m-Y' }}</p>
+ 
 
-    <h2>Party Information</h2>
-    <p>Party Name: {{ party.party_name }}</p>
-    <!-- Add more party details as needed -->
+    <div style="display: flex; justify-content: space-between;">
+        <div style="flex: 1;">
+            <h2>TO</h2>
+            <p>{{ company.company_name }},</p>
+           
+        </div>
+        <div style="flex: 0.2;text-align: right;">
+            <h2>FROM</h2>
+            <p>{{ party.party_name }},</p>
+            <p>{{ party.address }}</p>
+            <p>{{ party.contact }}</p>
 
+        </div>
+    </div>
     <h2>Items</h2>
     <table>
         <thead>
@@ -37,4 +46,4 @@
         </tbody>
     </table>
 </body>
-{% endblock %}
+</html>
