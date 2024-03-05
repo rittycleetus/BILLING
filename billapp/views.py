@@ -967,54 +967,44 @@ def generate_pdf(request, debit_note_id):
     return response
 
 def get_debit_note_details(request, debit_id):
-  try:
+    try:
+   
+        company_id = request.session.get('company')
+        user_id = request.session.get('user')
+
+        if not company_id or not user_id:
+            return HttpResponse("Company or User details not found in session.")
+
+        
+        if request.user.is_company:
+            company = request.user.company
+        else:
+            company = request.user.employee.company
+
         debit_note = DebitNote.objects.get(id=debit_id)
         debit_note_items = DebitNoteItem.objects.filter(debitnote=debit_note)
+
+       
+        parties = Party.objects.filter(company=company)
+        items = Item.objects.filter(company=company)
+
+       
         context = {
-            'debit_note': debit_note,
+            'debit_id': debit_id,
+            'company_id': company_id,
+            'user_id': user_id,
+            'usr': request.user, 
+            'company': company,
             'party': debit_note.party,
+            'debit_note': debit_note,
             'debit_note_items': debit_note_items,
+            'parties': parties,
+            'items': items,
         }
-        template = get_template('debit_note_pdf_template.html')
-        html = template.render(context)
-        response = HttpResponse(content_type='application/pdf')
-        response['Content-Disposition'] = f'filename="debit_note_{debit_id}.pdf"'
-        pisa_status = pisa.CreatePDF(html, dest=response)
-        if pisa_status.err:
-            return HttpResponse('We had some errors <pre>' + html + '</pre>')
-        return response
-  except DebitNote.DoesNotExist:
-        return JsonResponse({'error': 'DebitNote not found'}, status=404)
-  
-def view_template(request, debit_id):
-    # Retrieve company and user details from session
-    company_id = request.session.get('company')
-    user_id = request.session.get('user')
 
-    # Retrieve debit_id from GET parameters
-    debit_id = request.GET.get('debit_id', None)
-    
-    if not company_id or not user_id:
-        return HttpResponse("Company or User details not found in session.")
+     
+        return render(request, 'showtemplates.html', context)
 
-    # Retrieve company based on user type
-    if request.user.is_company:
-        company = request.user.company
-    else:
-        company = request.user.employee.company
-
-    # Retrieve parties and items associated with the company
-    parties = Party.objects.filter(company=company)
-    items = Item.objects.filter(company=company)
-
-    # Pass company details along with other data to the template
-    context = {
-        'debit_id': debit_id,
-        'company_id': company.id,  # Pass company ID
-        'user_id': user_id,
-        'user': request.user,
-        'parties': parties,
-        'items': items,
-    }
-
-    return render(request, 'showtemplates.html', context)
+    except (DebitNote.DoesNotExist, ValueError):
+        # Return a JSON response with an error message if the debit note does not exist or if there's a value error
+        return JsonResponse({'error': 'Invalid DebitNote ID'}, status=404)

@@ -455,7 +455,8 @@
          
             <tbody id="searchResults" style="font-size: 10px;font-weight: 700;">
                 {% for debit in debits %}
-                <tr onclick="handleRowClick('{{ debit.id }}')">
+                <!-- <tr onclick="handleRowClick('{{ debit.id }}')"> -->
+                    <tr>
                     <td>{{ forloop.counter }}</td>
                     <td>{{ debit.created_at|date:'d-m-Y' }}</td>
                     <td>{{ debit.returnno }}</td> 
@@ -1578,11 +1579,11 @@ function generatePDF(debitId) {
     window.open(pdfTemplateUrl, '_blank');
 }
 </script>
-<!-- <script>
+<script>
     function viewAction(debitId) {
-        var url = "/view_template/" + debitId + "/";
+        var url = "/get_debit_note_details/" + debitId + "/";
         window.location.href = url;
     }
 </script>
-</div> -->
+</div>
 {% endblock %}

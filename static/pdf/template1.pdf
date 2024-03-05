@@ -1,0 +1,79 @@
+<div class="debit-head-middle">
+    <div class="debit-head-middle-left text-start">
+        <p><span class="text-bold">Date:</span> {{cd.date}}</p>
+    </div>
+    <div class="debit-head-middle-right text-end">
+        <p><span class="text-bold">Debit Note No:</span> {{cd.returnno}}</p>
+    </div>
+</div>
+<div class="hr"></div>
+<div class="debit-head-bottom">
+    <div class="debit-head-bottom-left">
+        <ul>
+            <li class='text-bold'>From:</li>
+            <li>{{cd.company.company_name}}</li>
+            <li>{{cd.company.address}}</li>
+        </ul>
+    </div>
+    <div class="debit-head-bottom-right">
+        <ul class="text-end">
+            <li class='text-bold'>To:</li>
+            <li>{{cd.party_name}}</li>
+            <!-- Add any additional recipient information here if needed -->
+        </ul>
+    </div>
+</div>
+</div>
+<div class="overflow-view">
+<div class="debit-body">
+    <table id="debit-table" class="table">
+        <thead>
+            <tr>
+                <th class="text-bold">Item</th>
+                <th class="text-bold">HSN</th>
+                <th class="text-bold">Qty</th>
+                <th class="text-bold">Rate</th>
+                <th class="text-bold">Tax</th>
+                <th class="text-bold">Discount</th>
+                <th class="text-bold">Total</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for i in debititem %}
+            <tr>
+                <td>{{i.product}}</td>
+                <td>{{i.hsn}}</td>
+                <td>{{i.qty}}</td>
+                <td>{{i.price}}</td>
+                <td>{{i.tax}}</td>
+                <td>{{i.discount}}</td>
+                <td class="text-end">{{i.total}}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <div class="debit-body-bottom">
+        <div class="debit-body-info-item border-bottom">
+            <div class="info-item-td text-end text-bold">Sub Total:</div>
+            <div class="info-item-td text-end">{{cd.subtotal}}</div>
+        </div>
+        <div class="debit-body-info-item border-bottom">
+            <div class="info-item-td text-end text-bold">Tax:</div>
+            <div class="info-item-td text-end">{{cd.taxamount}}</div>
+        </div>
+        <div class="debit-body-info-item">
+            <div class="info-item-td text-end text-bold">Total:</div>
+            <div class="info-item-td text-end">{{cd.grandtotal}}</div>
+        </div>
+    </div>
+</div>
+</div>
+
+
+
+
+
+
+
+
+

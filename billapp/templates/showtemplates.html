@@ -2,32 +2,284 @@
 {% load static %}
 
 {% block content %}
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+<style>
+    /* Style for debit note report */
+    .debit-wrapper {
+        margin-top: 50px; /* Adjust the top margin as needed */
+    }
+
+    .debit-container {
+        background-color: #f9f9f9;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        padding: 20px;
+    }
+
+    .debit-head {
+        margin-bottom: 20px;
+    }
+
+    .debit-head h3 {
+        font-size: 24px;
+        margin-bottom: 10px;
+    }
+
+    .debit-head-top {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 10px;
+    }
+
+    .debit-head-middle,
+    .debit-head-bottom {
+        margin-bottom: 20px;
+    }
+
+    .debit-body {
+        overflow-x: auto;
+    }
+
+    /* Style for table */
+    body {
+            font-family: Arial, sans-serif;
+            background-color: #f2f2f2; /* Light gray background */
+            color: #333; /* Dark gray text color */
+        }
+        .debit-container {
+            background-color: #fff; /* White background for the container */
+            padding: 20px;
+            border-radius: 10px;
+            border: 1px solid #ccc; /* Gray border */
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Shadow effect */
+            margin: 20px auto;
+            max-width: 800px;
+        }
+        .text-bold {
+            font-weight: bold;
+        }
+        .debit-head-middle-left, .debit-head-bottom-left {
+            color: #007bff; /* Blue text color */
+        }
+        .debit-head-middle-right, .debit-head-bottom-right {
+            color: #007bff; /* Blue text color */
+        }
+        .debit-head-middle-left .text-bold, .debit-head-bottom-left .text-bold {
+            color: #007bff; /* Blue text color */
+        }
+        .debit-head-middle-right .text-bold, .debit-head-bottom-right .text-bold {
+            color: #dc3545; /* Red text color */
+        }
+        .debit-body table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        .debit-body th, .debit-body td {
+            border: 1px solid #ccc;
+            padding: 8px;
+            text-align: left;
+        }
+        .debit-body th {
+            background-color: #007bff; /* Blue background for table headers */
+            color: #fff; /* White text color */
+        }
+        .debit-body tr:nth-child(even) {
+            background-color: #f2f2f2; /* Light gray background for even rows */
+        }
+        .debit-body tr:hover {
+            background-color: #ddd; /* Darker gray background on hover */
+        }
+        .debit-body-bottom {
+            margin-top: 20px;
+            border-top: 1px solid #ccc; /* Gray border on top */
+            padding-top: 10px;
+        }
+        .debit-body-info-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+        .info-item-td {
+            flex: 1;
+            text-align: right;
+        }
+</style>
+
 <div class="body-wrapper">
-<div class="debitnote-details">
-  <div class="heading">
-    <h2>DEBIT NOTE DETAILS</h2>
-  </div>
-  <div class="icons">
-    <img src="{% static 'print_icon.png' %}" alt="Print">
-    <img src="{% static 'pdf_icon.png' %}" alt="PDF">
-    <img src="{% static 'share_icon.png' %}" alt="Share">
-  </div>
+    <div class="row ps-3 pe-3 m-0" id="whatToPrint1">
+        <div class="col-sm-12 ps-2 pe-3" style="margin-left: 7vw;">
+            <div class="row pt-5 m-0">
+                <div class="card p-0 bg-light bs col-md-15">
+                    <br>
+                    <div class="row">
+                        <div class="container">
+                            <div class="row">
+                                <div class="col-md-3" style="margin-left: 3vh; margin-top: 7vh;">
+                                    <div class="form-group">
+                                        <h3 style="font-size: 22px;"><b>DEBIT NOTE DETAILS</b></h3>
+                                    </div>  
+                                </div>
+                                <div class="container">
+                                    <div class="row justify-content-end">
+                                        <div class="col-md-4 text-right">
+                                            <div class="btn-group" role="group" aria-label="Button group">
+                                                <button class="btn mt-3" type="button">
+                                                    <i class="fas fa-print" style="color: blue;"></i>
+                                                    <br><span style="color: black; font-size: small; font-weight: bold;">Print</span>
+                                                </button>
+                                                <button class="btn mt-3" type="button" id="download-pdf">
+                                                    <i class="fas fa-file-pdf" style="color: red;"></i>
+                                                    <br><span style="color: black; font-size: small; font-weight: bold;">PDF</span>
+                                                </button>
+                                                <div class="dropdown">
+                                                    <button class="btn mt-3 dropdown-toggle" type="button" id="shareDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                                        <i class="fas fa-share" style="color: green;"></i>
+                                                        <br>
+                                                        <span style="color: black; font-size: small; font-weight: bold;">Share</span>
+                                                    </button>
+                                                    <div class="dropdown-menu" aria-labelledby="shareDropdown">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                </div>
+            </div>
+            <div class="debit-wrapper">
+                <div class="debit col-15 mr-0" id="print-area">
+                    <h3>TEMPLATES</h3>
+                    <div class="debit-container" id="slipdiv">
+                        <div class="debit-head">
+                            <div class="debit-head-top">
+                                <div class="debit-head-top-left text-start">
+                    </div>
+                    
+                </div>
+                <div class="hr"></div>
+                <div class="debit-head-middle">
+                    <div class="debit-head-middle-left text-start">
+                        <p><span class="text-bold">Date:</span> {{ debit_note.created_at|date:'d-m-Y' }}</p>
+                    </div>
+                    <div class="debit-head-middle-right text-end">
+                        <p><span class="text-bold">Debit Note No:</span> {{ debit_note.returnno }}</p>
+                    </div>
+                </div>
+                <div class="hr"></div>
+                <div class="debit-head-bottom">
+                    <div class="debit-head-bottom-left">
+                        <ul>
+                            <li class='text-bold'>From:</li>
+                            <li>{{ company.company_name }}</li>
+                            <li>{{ company.address }}</li>
+                        </ul>
+                    </div>
+                    <div class="debit-head-bottom-right">
+                        <ul class="text-end">
+                            <li class='text-bold'>To:</li>
+                            <li>{{ party.party_name }}</li>
+                            <!-- Add any additional recipient information here if needed -->
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="overflow-view">
+                <div class="debit-body">
+                    <table id="debit-table">
+                        <thead>
+                            <tr>
+                                <th class="text-bold">Item Name</th>
+                                <th class="text-bold">HSN</th>
+                                <th class="text-bold">Quantity</th>
+                                <th class="text-bold">Rate</th>
+                                <th class="text-bold">Tax</th>
+                                <th class="text-bold">Discount</th>
+                                <th class="text-bold">Total</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for debit_note_item in debit_note_items %}
+                            <tr>
+                                <td>{{ debit_note_item.items.itm_name }}</td>
+                                <td>{{ debit_note_item.items.itm_hsn }}</td>
+                                <td>{{ debit_note_item.qty }}</td>
+                                <td>{{ debit_note_item.items.itm_purchase_price}}</td>
+                                <td>VAT {{ debit_note_item.items.itm_vat|floatformat:0 }}%</td>
+                                <td>{{ debit_note_item.discount }}</td>
+                                <td>{{ debit_note_item.total }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                    <br>
+                    <br><br>
+                    <br><br>
+                    <br>
+
+                    <div class="debit-body-bottom">
+                        <div class="debit-body-info-item border-bottom">
+                            <div class="info-item-td text-end text-bold">Sub Total:</div>
+                            <div class="info-item-td text-end">{{ debit_note.subtotal }}</div>
+                        </div>
+                        <div class="debit-body-info-item border-bottom">
+                            <div class="info-item-td text-end text-bold">Tax:</div>
+                            <div class="info-item-td text-end">{{ debit_note.taxamount }}</div>
+                        </div>
+                        <div class="debit-body-info-item">
+                            <div class="info-item-td text-end text-bold">Total:</div>
+                            <div class="info-item-td text-end">{{ debit_note.grandtotal }}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 
-<div class="templates-section">
-  <div class="heading">
-    <h2>TEMPLATES</h2>
-  </div>
-  <!-- Other content for templates section goes here -->
-  <div class="menu-option" onclick="viewAction('{{ debit.id }}')">
-    <i class="fas fa-file-pdf" style="color: #27ae60;"></i> View
-  </div>
+<div class="debit text-center">
+    <button onclick="previousTemplate()"><<</button>
+    <span id="currentTemplateIndex" style="font-size: 20px;"><b>1</b></span>
+    <button onclick="nextTemplate()">>></button>
 </div>
-</div>
-<script>
-  function viewAction(debitId) {
-    var url = "/view_template/" + debitId + "/";
-    window.location.href = url;
-  }
-</script>
-{% endblock %}
+
+
+
+
+            <script>
+                var currentTemplateIndex = 1;
+                var maxTemplateIndex = document.querySelectorAll("#pdfTemplates > *").length;
+                        
+                function updateTemplateDisplay() {
+                    // Hide all templates except the current one
+                    var templates = document.querySelectorAll("#pdfTemplates > *");
+                    for (var i = 0; i < templates.length; i++) {
+                        templates[i].style.display = "none";
+                    }
+                    document.getElementById("pdfTemplate" + currentTemplateIndex).style.display = "block";
+                    document.getElementById("currentTemplateIndex").textContent = currentTemplateIndex;
+                }
+                        
+                function previousTemplate() {
+    if (currentTemplateIndex > 1) {
+        currentTemplateIndex--;
+        console.log("Previous template selected. Current index: " + currentTemplateIndex);
+        updateTemplateDisplay();
+    }
+}
+
+function nextTemplate() {
+    if (currentTemplateIndex < maxTemplateIndex) {
+        currentTemplateIndex++;
+        console.log("Next template selected. Current index: " + currentTemplateIndex);
+        updateTemplateDisplay();
+    }
+}
+            </script>
+            {% endblock %}
