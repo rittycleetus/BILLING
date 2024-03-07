@@ -229,7 +229,7 @@
                     <div class="form-group">
                         <label for="party">Party</label>
                         <div class="input-group">
-                            <select name="party" id="party" class="form-control" style="width: 450px" onchange="handlePartySelection()">
+                        <select name="party" id="party" class="form-control" style="width: 450px" onchange="handlePartySelection()">
                          <option value="">-- Select/Search Party --</option>
     {% for party in parties %}
   
@@ -278,7 +278,7 @@
                     <!-- Right side of the form -->
                     <div class="form-group">
                         <label for="return_no">Return No.</label>
-                        <input type="text" class="form-control" id="return_no" name="return_no" value="" >
+                        <input type="text" class="form-control" id="return_no" name="return_no" value="{{ debitnote.created_at|date:'d/m/Y' }}" >
                         <span id="return-no-message" style="color: red;"></span>
                     </div>
               

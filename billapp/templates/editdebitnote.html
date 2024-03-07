@@ -221,45 +221,33 @@
                 {% endfor %}
             </div>
         {% endif %}
-            <div class="row">
-
-                <div class="col-md-6">
-                    <div class="form-group">
-                        <label for="party">Party</label>
-                        <div class="input-group">
-                            <select name="party" id="party" class="form-control" style="width: 450px">
-                                <option value="">-- Select/Search Party --</option>
-                                
-                                {% for party in parties %}
-  
-    <option value="{{ party.id }}" {% if selected_party == party.id %} selected {% endif %}
-        data-contact="{{ party.contact }}" 
-        data-address="{{ party.address }}" 
-        data-openingbalance="{{ party.openingbalance }}"
-        {% for bill in bills %}
-        {% if party.id == bill.party_id %}
-
-            data-billno="{{ bill.billno }}"
-            data-billdate="{{ bill.billdate|date:'d/m/Y' }}"
-            {% endif %}
-            {% endfor %}
- >
-
-        {{ party.party_name }}
-    </option>
-    {% endfor %}
-                                
-                                
-                                
-                                <!-- {% for party in parties %}
-                                    <option value="{{ party.id }}" {% if selected_party == party.id %} selected {% endif %}>
-                                        {{ party.party_name }}
-                                    </option>
-                                {% endfor %} -->
-                            </select>
-                            <div class="input-group-append">
+        <div class="row">
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label for="party">Party</label>
+                    <div class="input-group">
+                        <select name="party" id="party" class="form-control" style="width: 450px" onchange="handlePartySelection()">
+                            
+                            {% for party in parties %}
+                            <option value="{{ party.id }}" 
+                                    data-contact="{{ party.contact }}" 
+                                    data-address="{{ party.address }}" 
+                                    data-openingbalance="{{ party.openingbalance }}"
+                                    {% for bill in bills %}
+                                    {% if party.id == bill.party_id %}
+                            
+                                        data-billno="{{ bill.billno }}"
+                                        data-billdate="{{ bill.billdate|date:'d/m/Y' }}"
+                                        {% endif %}
+                                        {% endfor %}
+                            >
+                                {{ party.party_name }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                            <!-- <div class="input-group-append">
                                 <button type="button" class="btn btn-outline-secondary" style="background-color: maroon;" data-toggle="modal" data-target="#createPartyModal">+</button>
-                            </div>
+                            </div> -->
                         </div>
                     </div>
                     <br>
@@ -273,7 +261,7 @@
                         <input type="text" class="form-control" id="contact_number" value="{{ debitnote.party.contact }}" readonly >
                     </div>
                     <br>
-                    <div class="form-group">
+                    <div class="form-group" id="partyAddressGroup">
                         <label for="party_address">Party Address</label>
                         <input type="text" class="form-control" id="party_address" value="{{ debitnote.party.address }}" readonly>
                     </div>
@@ -290,28 +278,21 @@
                     <br>
                     <div class="form-group">
                         <label for="date">Date</label>
-                      <input type="text" class="form-control" id="current_date" value="{{ debitnote.party.current_date|date:'d-m-Y' }}" readonly>
+                        <input type="date" class="form-control" id="current-date" value="{{ debitnote.created_at|date:'Y-m-d' }}">
+                    </div>
                     <br>
-                    <!-- <div class="form-group">
-                        <label for="bill">Select Bill:</label>
-                        <select id="bill" name="bill">
-                            {% for bill in bills %}
-                                <option value="{{ bill.id }}">{{ bill.bill_no }} - {{ bill.billdate }}</option>
-                            {% endfor %}
-                        </select>
-                    </div> -->
+                  
                     <div class="form-group">
                         <label for="bill">Select Bill</label>
                         <select id="bill" name="bill" class="form-control">
-                            <option value="{{ billno }}" hidden selected>{{ billno }}</option>
+                            <option value="{{ billno }}" hidden selected></option>
                         </select>
                     </div> 
                     
                     <div class="form-group">
                         <label for="billdate">Bill Date</label>
-                        <input type="text" class="form-control" id="bill_date" value="{{ billdate|default:'NIL' }}" disabled style="background-color: white;">
+                        <input type="text" class="form-control" id="bill_date" value="{{ billdate }}" disabled style="background-color: white;">
                     </div>
-                    
                     
                 </div>
                 </div>
@@ -342,6 +323,7 @@
                                         <option value="{{ item.id }}" data-hsn="{{ item.itm_hsn }}" data-price="{{ item.purchaseprice }}" data-tax="VAT {{ item.vat }}">{{ item.id }}</option>
                                         {% endfor %}
                                     </select>
+                            
                             
                         &nbsp;&nbsp; &nbsp;&nbsp;                        &nbsp;&nbsp; &nbsp;&nbsp;
                                     <!-- "+" button -->
@@ -450,7 +432,7 @@
  </div> 
 
  <!-- <a href="{% url 'debitnote2' %}">Submit</button> -->
-    <button type="submit" class="btn-primary">EDITw</button>
+    <button type="submit" class="btn-primary">EDIT</button>
 
         </form>
     </div>
@@ -643,6 +625,18 @@
        </div>
    </div>
    </div>
+
+
+   <script>
+    window.addEventListener('DOMContentLoaded', (event) => {
+        var partyAddress = document.getElementById('party_address').value.trim();
+        var partyAddressGroup = document.getElementById('partyAddressGroup');
+        
+        if (partyAddress === '') {
+            partyAddressGroup.style.display = 'none'; // Hide the entire form group
+        }
+    });
+</script>
    <!-- <script>
     $(document).ready(function () {
         $('#item_tax_1').on('click', function () {
@@ -1326,89 +1320,55 @@
 // }
 //     }
 // </script> -->
-<!-- <script>
+<script>
 $(document).ready(function () {
-    // Check if the page has been loaded before
-    var isFirstLoad = sessionStorage.getItem('isFirstLoad');
-
-    // If it's the first load or the page is being reloaded, set the default values
-    if (!isFirstLoad) {
-        // Set default values for the input fields
-        $('#contact_number').val('');
-        $('#address').val('');
-        $('#available_balance').val('');
-        $('#bill').val('');
-        $('#bill_date').val('');
-
-        // Indicate that the page has been loaded
-        sessionStorage.setItem('isFirstLoad', true);
-    }
-
-    // Handle change event when a party is selected
     $('#party').change(function () {
-        // Get the selected party option
         var selectedOption = $(this).find(':selected');
-
-        // Update the input fields with the data attributes of the selected party
         $('#contact_number').val(selectedOption.data('contact'));
-        $('#address').val(selectedOption.data('address'));
         $('#available_balance').val(selectedOption.data('openingbalance'));
-
-        // Update the bill dropdown and date input based on selected party
         handlePartySelection(selectedOption);
     });
 
-    // Trigger handlePartySelection on page load to handle default selection
-    // handlePartySelection($('#party').find(':selected'));
+    // Function to handle party selection
+    function handlePartySelection(selectedOption) {
+        var billDropdown = $("#bill");
+        var billDateInput = $("#bill_date");
+        var addressSection = $("#addressSection");
+
+        // Update the "Select Bill" dropdown options
+        billDropdown.empty();
+        if (selectedOption.data('billno') !== undefined) {
+            billDropdown.append($('<option>', {
+                value: selectedOption.data('billno'),
+                text: selectedOption.data('billno')
+            }));
+        } else {
+            billDropdown.append($('<option>', {
+                value: "",
+                text: "No bills available for the selected party."
+            }));
+        }
+
+        // Set the value of the "Bill Date" input field
+        if (selectedOption.data('billdate') !== undefined) {
+            billDateInput.val(selectedOption.data('billdate'));
+        } else {
+            billDateInput.val("NIL");
+        }
+
+        // Update the address section based on whether there is an address available
+        var address = selectedOption.data("address");
+        if (address && address !== "none") {
+            // Display the address section
+            addressSection.show();
+        } else {
+            // Hide the address section
+            addressSection.hide();
+        }
+    }
 });
-
-function handlePartySelection(selectedOption) {
-    var billDropdown = $("#bill");
-    var billDateInput = $("#bill_date");
-    var addressSection = $("#addressSection");
-
-    // Update the "Select Bill" dropdown options
-    billDropdown.empty();
-
-    // Check if the selected party has associated bills
-    if (selectedOption.data('billno') !== undefined) {
-        billDropdown.append($('<option>', {
-            value: selectedOption.data('billno'),
-            text: selectedOption.data('billno')
-        }));
-    } else {
-        billDropdown.append($('<option>', {
-            value: "",
-            text: "No bills available for the selected party."
-        }));
-    }
-
-    // Set the value of the "Bill Date" input field
-    if (selectedOption.data('billdate') !== undefined) {
-        billDateInput.val(selectedOption.data('billdate'));
-    } else {
-        billDateInput.val("NIL");
-    }
-
-    // Update the address section based on whether there is an address available
-    var address = selectedOption.data("address");
-    if (address && address !== "none") {
-        // Display the address section
-        addressSection.show();
-    } else {
-        // Hide the address section
-        addressSection.hide();
-    }
-}
-window.onload = function () {
-    // Clear all fields on page load
-    clearFieldsOnLoad();
-    
-    // Trigger handlePartySelection with an empty selectedOption
-    // handlePartySelection($()); // Passing an empty jQuery object
-};
 </script>
-<script>
+<!-- <script>
     function fillItemDetails1(selectElement) {
         // Get the selected option
         var selectedOption = selectElement.options[selectElement.selectedIndex];
@@ -1461,8 +1421,8 @@ document.getElementById('adjustment').addEventListener('input', function () {
 
 
 
-</script>
-<script>
+</script> -->
+<!-- <script>
     // Initialize select2 after the page loads
     $(document).ready(function() {
         $('#select1').select2({
@@ -1474,7 +1434,7 @@ document.getElementById('adjustment').addEventListener('input', function () {
 
 
     });
-</script> -->
+</script> --> -->
 <!-- <script>
     function addRow() {
         // Get the table body
@@ -1731,5 +1691,5 @@ function updateTaxAmount() {
 
 </script>
    </body> -->
-            
+
 {% endblock %}
