@@ -285,13 +285,15 @@
                     <div class="form-group">
                         <label for="bill">Select Bill</label>
                         <select id="bill" name="bill" class="form-control">
-                            <option value="{{ billno }}" hidden selected></option>
+                           
+                                <option value="{{ billno }}">{{ billno }}</option>
+                           
                         </select>
-                    </div> 
+                    </div>
                     
                     <div class="form-group">
                         <label for="billdate">Bill Date</label>
-                        <input type="text" class="form-control" id="bill_date" value="{{ billdate }}" disabled style="background-color: white;">
+                        <input type="text" class="form-control" id="bill_date" value="{{ billdate|date:'d / m / Y' }}" disabled style="background-color: white;">
                     </div>
                     
                 </div>
@@ -318,16 +320,20 @@
                             <td style="color: black;">1</td>
                             <td style="width: 990px;">
                                 <div style="display: flex; position: relative;">
-                                    <select name="selected_item[]" onchange="fillItemDetails1(this)" style="width: 130px;" class="form-control select2" id="select1">
+                                    <select name="selected_item[]" style="width: 130px;" class="form-control select2" id="select1" onchange="fillItemDetails1(this)">
                                         {% for item in selected_item %}
-                                        <option value="{{ item.id }}" data-hsn="{{ item.itm_hsn }}" data-price="{{ item.purchaseprice }}" data-tax="VAT {{ item.vat }}">{{ item.id }}</option>
+                                        <option value="{{ item.id }}" data-hsn="{{ selected_item.itm_hsn }}" data-price="{{ selected_item.purchaseprice }}" data-tax="VAT {{ selected_item.vat }}">{{ item.name }}</option>
+                                        {% endfor %}
+                                        {% for item in items %}
+                                            {% if item.id != selected_item.id %}
+                                                <option value="{{ item.id }}" data-hsn="{{ item.itm_hsn }}" data-price="{{ item.itm_purchase_price }}" data-tax="VAT {{ item.itm_vat|floatformat:0 }}%" >{{ item.itm_name }}</option>
+                                            {% endif %}
                                         {% endfor %}
                                     </select>
                             
-                            
-                        &nbsp;&nbsp; &nbsp;&nbsp;                        &nbsp;&nbsp; &nbsp;&nbsp;
-                                    <!-- "+" button -->
-                                 <a href="#" class="btn btn-outline-secondary" style="background-color: maroon; height: 40px; width: 30px; text-align: center; padding: 2px; position: absolute; right: 0; font-size: 20px; margin-left: 280px;" data-toggle="modal" data-target="#itemCreateModal"><b>+</b></a>
+                        <!-- &nbsp;&nbsp; &nbsp;&nbsp;                        &nbsp;&nbsp; &nbsp;&nbsp;
+                                    "+" button
+                                 <a href="#" class="btn btn-outline-secondary" style="background-color: maroon; height: 40px; width: 30px; text-align: center; padding: 2px; position: absolute; right: 0; font-size: 20px; margin-left: 280px;" data-toggle="modal" data-target="#itemCreateModal"><b>+</b></a> -->
 
 
 
@@ -340,12 +346,11 @@
 
     <td><span id="hsn" class="form-control" style="height: 40px; width: 90px;">{{ item.itm_hsn }}</span></td>
     
-    <td>
-        <input type="number" name="item_quantity[]" style="width: 90px;" class="form-control" value="{{ item.qty }}" required>
-    </td>
+    <td><input type="number" name="item_quantity[]" id="item_quantity[]" style="width: 90px;" class="form-control" value="{{ item.qty }}" required></td>
+    
 
     <td><span id="purchasePrice" style="width: 90px; height: 40px;" class="form-control" name="purchaseprice[]">{{ item.purchaseprice }}</span></td>
-    <td><span id="vat" style="width: 90px; height: 40px;" class="form-control">{{ item.vat }}</span></td>
+    <td><span id="vat" style="width: 90px; height: 40px;" class="form-control">VAT {{ item.vat|floatformat:0 }}%</span></td>
     <td><input type="number" name="item_discount[]" class="form-control" style="width: 80px;" value="{{ item.discount }}"></td>
     <td><input type="number" name="item_total_amount[]" readonly class="form-control" style="width: 100px;" value="{{ item.total_amount }}"></td>
     <td><i class="fas fa-trash-alt fa-lg delete-row" style="margin-left: 10px;"></i></td>
@@ -382,13 +387,13 @@
                 <div class="row">
             
                     <div class="col-md-4">
-                        <label for="paymentType">Payment Type</label>
+                        <!-- <label for="paymentType">Payment Type</label>
                         <select id="paymentType" name="paymentType" class="form-control" required>
                             <option value="">Select Payment Type</option>
                             <option value="cash">Cash</option>
                             <option value="cheque">Cheque</option>
                             <option value="upi">UPI</option>
-                        </select>
+                        </select> -->
                     </div>
             
                     
@@ -1368,60 +1373,73 @@ $(document).ready(function () {
     }
 });
 </script>
-<!-- <script>
-    function fillItemDetails1(selectElement) {
-        // Get the selected option
-        var selectedOption = selectElement.options[selectElement.selectedIndex];
 
-        // Get the associated details
-        var hsn = selectedOption.getAttribute("data-hsn") || "";
-        var purchasePrice = selectedOption.getAttribute("data-price") || "";
-        var vat = selectedOption.getAttribute("data-tax") || "";
-        var vatRate = parseFloat(vat.match(/\d+/)) || 0;
-        
 
-        // Update the elements in the current row with the details
-        var row = selectElement.closest('tr');
-        row.querySelector('span[id="hsn"]').textContent = hsn;
-        row.querySelector('span[id="purchasePrice"]').textContent = purchasePrice;
-        row.querySelector('span[id="vat"]').textContent = vat;
-        updateTaxAmount();
+ <script>
+function fillItemDetails1(selectElement) {
+    // Get the selected option
+    var selectedOption = selectElement.options[selectElement.selectedIndex];
 
-      
+    // Get the associated details
+    var hsn = selectedOption.getAttribute("data-hsn") || "";
+    var purchasePrice = selectedOption.getAttribute("data-price") || "";
+    var vat = selectedOption.getAttribute("data-tax") || "";
+    var vatRate = parseFloat(vat.match(/\d+/)) || 0;
 
-    }
-    function updateTotalAmount1(inputElement) {
+    // Update the elements in the current row with the details
+    var row = selectElement.closest('tr');
+    row.querySelector('span[id="hsn"]').textContent = hsn;
+    row.querySelector('span[id="purchasePrice"]').textContent = purchasePrice;
+    row.querySelector('span[id="vat"]').textContent = vat;
+
+ 
+    row.querySelector('[name="item_quantity[]"]').value = 0; 
+    row.querySelector('[name="item_discount[]"]').value = 0;
+    row.querySelector('[name="item_total_amount[]"]').value = 0;
+    document.getElementById('subtotal').value = '0.00';
+    document.getElementById('taxAmount').value = '0.00';
+    document.getElementById('adjustment').value = '0.00';
+    document.getElementById('grandTotal').value = '0.00';
+
+    // Update the total amount
+    updateTotalAmount1(row.querySelector('[name="item_quantity[]"]'));
+}
+function updateTotalAmount1(inputElement) {
     // Get the parent row
     var row = inputElement.closest('tr');
 
     // Get the quantity, price, and discount values
     var quantity = parseFloat(row.querySelector('[name="item_quantity[]"]').value) || 0;
-    var price = parseFloat(row.querySelector('#purchasePrice').innerText) || 0;
+    var price = parseFloat(row.querySelector('#purchasePrice').textContent) || 0; // Changed to textContent
     var discount = parseFloat(row.querySelector('[name="item_discount[]"]').value) || 0;
     
     var totalAmount = (quantity * price) - discount;
 
-    
-
-
     // Update the total amount input field
     row.querySelector('[name="item_total_amount[]"]').value = totalAmount.toFixed(2);
-
-  
 }
 
 // Add event listener to Adjustment input for dynamic updating
 document.getElementById('adjustment').addEventListener('input', function () {
     updateTotals(); // Call the function to update Grand Total and Tax Amount
-    
     updateTaxAmount();
+});
 
-    
+// Add event listener to item select for dynamic updating
+document.getElementById('yourSelectElementId').addEventListener('change', function () {
+    fillItemDetails1(this); // Call the function to fill item details
+});
+
+// Add event listeners to quantity and discount inputs for dynamic updating
+document.querySelectorAll('[name="item_quantity[]"], [name="item_discount[]"]').forEach(function(element) {
+    element.addEventListener('input', function () {
+        updateTotalAmount1(this); // Call the function to update total amount
+    });
 });
 
 
 
-</script> -->
+</script>
 <!-- <script>
     // Initialize select2 after the page loads
     $(document).ready(function() {
@@ -1434,8 +1452,8 @@ document.getElementById('adjustment').addEventListener('input', function () {
 
 
     });
-</script> --> -->
-<!-- <script>
+</script> 
+ <script>
     function addRow() {
         // Get the table body
         var tableBody = document.querySelector('.table tbody');
@@ -1600,7 +1618,10 @@ function updateRowNumbers() {
     rows.forEach(function (row, index) {
         row.cells[0].innerText = index + 1;
     });
-}
+ }
+</script>
+
+<script>
 function updateTotals() {
     // Get all total amount input fields
     var totalAmountFields = document.querySelectorAll('[name="item_total_amount[]"]');
@@ -1660,6 +1681,8 @@ function updateTotals() {
 
     console.log("Page Loaded");
 });
+</script>
+<script>
 function updateTaxAmount() {
  
     var rows = document.querySelectorAll('.table tbody tr');
@@ -1690,6 +1713,6 @@ function updateTaxAmount() {
 }
 
 </script>
-   </body> -->
+   </body> 
 
 {% endblock %}

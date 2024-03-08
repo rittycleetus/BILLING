@@ -895,6 +895,7 @@ def edit_debit_note(request, debit_id):
     # Get selected items for the debit note
     selected_item = [{
         'id': item.items.id,
+        'name':item.items.itm_name,
         'itm_hsn': item.items.itm_hsn,
         'purchaseprice': item.items.itm_purchase_price,
         'vat': item.items.itm_vat,
