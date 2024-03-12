@@ -278,7 +278,7 @@
                     <br>
                     <div class="form-group">
                         <label for="date">Date</label>
-                        <input type="date" class="form-control" id="current-date" value="{{ debitnote.created_at|date:'Y-m-d' }}">
+                        <input type="date" class="form-control" id="current-date" name="current-date" value="{{ current_date }}">
                     </div>
                     <br>
                   
@@ -346,12 +346,12 @@
 
     <td><span id="hsn" class="form-control" style="height: 40px; width: 90px;">{{ item.itm_hsn }}</span></td>
     
-    <td><input type="number" name="item_quantity[]" id="item_quantity[]" style="width: 90px;" class="form-control" value="{{ item.qty }}" oninput ="updateTotalAmount1(this);updateTotals(this);updateTaxAmount(this, document.querySelector('[name=item_discount[]]'));" required></td>
+    <td><input type="number" name="item_quantity[]" id="item_quantity[]" style="width: 90px;" class="form-control" value="{{ item.qty }}" oninput ="updateTotalAmount1(this);updateTotals(this);updateTaxAmount(this);" required></td>
     
 
     <td><span id="purchasePrice" style="width: 90px; height: 40px;" class="form-control" name="purchaseprice[]">{{ item.purchaseprice }}</span></td>
     <td><span id="vat" style="width: 90px; height: 40px;" class="form-control">VAT {{ item.vat|floatformat:0 }}%</span></td>
-    <td><input type="number" name="item_discount[]" class="form-control" style="width: 80px;" value="{{ item.discount }}" oninput ="updateTotalAmount1(this);updateTotals(this);updateTaxAmount(this, document.querySelector('[name=item_discount[]]'));"></td>
+    <td><input type="number" name="item_discount[]" class="form-control" style="width: 80px;" value="{{ item.discount }}" oninput ="updateTotalAmount1(this);updateTotals(this);updateTaxAmount(this);"></td>
     <td><input type="number" name="item_total_amount[]" readonly class="form-control" style="width: 100px;" value="{{ item.total_amount }}"></td>
     <td><i class="fas fa-trash-alt fa-lg delete-row" style="margin-left: 10px;"></i></td>
 
@@ -1326,6 +1326,14 @@
 //     }
 // </script> -->
 <script>
+    // Get current date in the format YYYY-MM-DD
+    var currentDate = new Date().toISOString().split('T')[0];
+    
+    // Set the value of the input field to the current date
+    document.getElementById("current-date").value = currentDate;
+</script>
+
+<script>
 $(document).ready(function () {
     $('#party').change(function () {
         var selectedOption = $(this).find(':selected');
@@ -1415,7 +1423,13 @@ function updateTotalAmount1(inputElement) {
     updateTaxAmount();
     updateTotals();
 }
+document.getElementById('adjustment').addEventListener('input', function () {
+    updateTotals(); // Call the function to update Grand Total and Tax Amount
+    
+    updateTaxAmount();
 
+    
+});
 // Function to update totals including subtotal, tax amount, and grand total
 function updateTotals() {
     var totalAmountFields = document.querySelectorAll('[name="item_total_amount[]"]');
@@ -1450,10 +1464,11 @@ $(document).ready(function() {
 
 // Call the function to calculate totals when the page loads
 document.addEventListener('DOMContentLoaded', function () {
-    updateTotals();
-});
+    // Add event listener to Adjustment input for dynamic updating
+    document.getElementById('adjustment').addEventListener('input', function () {
+        updateTotals(); // Call the function to update Grand Total and Tax Amount
+    });
 
-document.addEventListener('DOMContentLoaded', function () {
     // Make an AJAX request to fetch the subtotal, tax amount, and grand total from the backend
     var xhr = new XMLHttpRequest();
     xhr.open('GET', '/your-backend-endpoint', true); // Replace '/your-backend-endpoint' with the actual endpoint URL
@@ -1483,45 +1498,36 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Add event listeners to quantity and discount inputs for dynamic updating
     document.querySelectorAll('[name="item_quantity[]"], [name="item_discount[]"]').forEach(function(element) {
-    element.addEventListener('input', function () {
-        console.log("Quantity or discount changed");
-        updateTotalAmount1(this);
-        updateTaxAmount(this);
-        updateTotals();
+        element.addEventListener('input', function () {
+            console.log("Quantity or discount changed");
+            updateTotalAmount1(this);
+            updateTaxAmount();
+            updateTotals();
+        });
     });
 });
-});
+
+
 </script>
-
-
-
-
 <script>
-function updateTaxAmount(quantityElement, discountElement) {
+function updateTaxAmount() {
     var rows = document.querySelectorAll('.table tbody tr');
     var taxAmount = 0;
 
     rows.forEach(function (row) {
-        var quantity = parseFloat(row.querySelector('[name="item_quantity[]"]').value) || 0;
-        var discount = parseFloat(row.querySelector('[name="item_discount[]"]').value) || 0;
-        
-        // Use the provided quantity and discount elements if available
-        if (quantityElement && discountElement && row.contains(quantityElement) && row.contains(discountElement)) {
-            quantity = parseFloat(quantityElement.value) || 0;
-            discount = parseFloat(discountElement.value) || 0;
-        }
-        
-        var itmVat =(row.querySelector('select[name="selected_item[]"]').selectedOptions[0].getAttribute('data-tax')).replace(/[^\d.]/g, '') || 0;
-        var price = parseFloat(row.querySelector('select[name="selected_item[]"]').selectedOptions[0].getAttribute('data-price')) || 0;
-        console.log(itmVat);
+        var quantity = parseFloat(row.querySelector('[name="item_quantity[]"]').value);
+        var discount = parseFloat(row.querySelector('[name="item_discount[]"]').value);
+        var itmVat = parseFloat(row.querySelector('select[name="selected_item[]"] option:checked').getAttribute('data-tax')) || 0;
+        var price = parseFloat(row.querySelector('select[name="selected_item[]"] option:checked').getAttribute('data-price')) || 0;
+
         var rowTaxAmount = (quantity * price - discount) * (itmVat / 100);
         taxAmount += rowTaxAmount;
-        
     });
 
     document.getElementById('taxAmount').value = taxAmount.toFixed(2);
-    updateTotals(); // Update other totals if needed
+    updateTotals();
 }
+
 </script>
  <script>
     // Initialize select2 after the page loads
@@ -1568,7 +1574,7 @@ function updateTaxAmount(quantityElement, discountElement) {
 
         // Cell 4: Quantity
         var cell4 = newRow.insertCell(3);
-        cell4.innerHTML = '<input type="number" name="item_quantity[]" required style="width: 90px;" class="form-control" value="0" oninput="updateTotalAmount(this); updateTotals(this); updateTaxAmount(this, document.querySelector(\'[name=item_discount[]]\'));">';
+        cell4.innerHTML = '<input type="number" name="item_quantity[]" required style="width: 90px;" class="form-control" value="0" oninput="updateTotalAmount(this); updateTotals(this); updateTaxAmount(this);">';
 
         // Cell 5: Purchase Price
         var cell5 = newRow.insertCell(4);
@@ -1580,7 +1586,7 @@ function updateTaxAmount(quantityElement, discountElement) {
 
         // Cell 7: Discount
         var cell7 = newRow.insertCell(6);
-        cell7.innerHTML = '<input type="number" name="item_discount[]" class="form-control" style="width: 80px;" value="0" oninput="updateTotalAmount(this); updateTotals(this); updateTaxAmount(this, document.querySelector(\'[name=item_discount[]]\'));">';
+        cell7.innerHTML = '<input type="number" name="item_discount[]" class="form-control" style="width: 80px;" value="0" oninput="updateTotalAmount(this); updateTotals(this); updateTaxAmount(this);">';
 
         // Cell 8: Total Amount
         var cell8 = newRow.insertCell(7);
@@ -1600,6 +1606,7 @@ function updateTaxAmount(quantityElement, discountElement) {
         updateTotalAmount1(newDiscountInput);
         updateTotals();
         updateTaxAmount();
+       
       
     });
 

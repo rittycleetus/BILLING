@@ -26,6 +26,9 @@
     .created {
         color: red;
     }
+    .edited{
+        color: red;
+    }
     .modal {
     display: none; /* Hidden by default */
     position: fixed; /* Stay in place */
@@ -145,6 +148,7 @@
   th{
     width: 100px;
   }
+  
 
   tbody:hover td:not(:last-child){
     border-right: 1px solid #68020F;
@@ -455,55 +459,59 @@
          
             <tbody id="searchResults" style="font-size: 10px;font-weight: 700;">
                 {% for debit in debits %}
-                <!-- <tr onclick="handleRowClick('{{ debit.id }}')"> -->
                     <tr>
-                    <td>{{ forloop.counter }}</td>
-                    <td>{{ debit.created_at|date:'d-m-Y' }}</td>
-                    <td>{{ debit.returnno }}</td> 
-                    <td class="party-name">{{ debit.party.party_name }}</td> {# Assuming 'party' is the related field in DebitNote #}
-                    <!-- <td>{{ debit.category_name }}</td>  -->
-                    <td>Debit Note</td> 
-                    <td>{{ debit.grandtotal }}</td> 
-                    <!-- <td>{{ debit.received_paid }}</td> 
-                    <td>{{ debit.balance }}</td> -->
-                    {% for history in debit.debitnotehistory_set.all %}
-                    <td class="{% if history.action == 'C' %}created{% endif %}">
-                        {% if history.action == 'C' %}
-                            CREATED
-                        {% elif history.action == 'E' %}
-                            EDITED
-                        {% else %}
-                            Unknown
-                        {% endif %}
-                    </td>
-                        <td>{{ history.company.company_name }}</td>
-         
+                        <td>{{ forloop.counter }}</td>
+                        <td>{{ debit.created_at|date:'d-m-Y' }}</td>
+                        <td>{{ debit.returnno }}</td> 
+                        <td class="party-name">{{ debit.party.party_name }}</td>
+                        <td>Debit Note</td> 
+                        <td>{{ debit.grandtotal }}</td> 
+                        <td>
+                            {% with debit.debitnotehistory_set.last as latest_history %}
+                                {% if latest_history %}
+                                    {% if latest_history.action == 'C' %}
+                                    <span style="color: red;">CREATED</span>
+                                    {% else %}
+                                        <span style="color: red;">EDITED</span>
+                                    {% endif %}
+                                {% else %}
+                                    Unknown
+                                {% endif %}
+                            {% endwith %}
+                        </td>
+                        
+                            <td>
+                                {% if debit.debitnotehistory_set.exists %}
+                                    {{ debit.debitnotehistory_set.last.company.company_name }}
+                                {% else %}
+                                    Unknown
+                                {% endif %}
+                            </td>
+                        
                         <td>
                             <div class="ellipsis-menu-container">
-                                <div class="ellipsis-menu" id="ellipsisMenu{{ forloop.parentloop.counter }}" onclick="toggleMenu(event, 'menuOptions{{ forloop.parentloop.counter }}')">
+                                <div class="ellipsis-menu" id="ellipsisMenu{{ forloop.counter }}" onclick="toggleMenu(event, 'menuOptions{{ forloop.counter }}')">
                                     <i class="fas fa-ellipsis-v"></i>
-                                    <div class="menu-options" id="menuOptions{{ forloop.parentloop.counter }}">
+                                    <div class="menu-options" id="menuOptions{{ forloop.counter }}">
                                         <div class="menu-option" onclick="editAction('{{ debit.id }}')">
                                             <i class="fas fa-edit" style="color: #3498db;"></i> Edit
                                         </div>
-                                    <div class="menu-option" onclick="historyAction('{{ debit.id }}')">
-                                        <i class="fas fa-history" style="color: #e67e22;"></i> History
+                                        <div class="menu-option" onclick="historyAction('{{ debit.id }}')">
+                                            <i class="fas fa-history" style="color: #e67e22;"></i> History
+                                        </div>
+                                        <div class="menu-option" onclick="viewAction('{{debit.id}}')">
+                                            <i class="fas fa-file-pdf" style="color: #27ae60;"></i> View
+                                        </div>
+                                        <div class="menu-option" onclick="deleteDebitNoteItem('{{ debit.id }}')">
+                                            <i class="fas fa-trash" style="color: #e74c3c;"></i> Delete
+                                        </div>
                                     </div>
-                                    <div class="menu-option" onclick="viewAction('{{debit.id}}')">
-                                        <i class="fas fa-file-pdf" style="color: #27ae60;"></i> View
-                                    </div>
-                                    <div class="menu-option" onclick="deleteDebitNoteItem('{{ debit.id }}')">
-                                        <i class="fas fa-trash" style="color: #e74c3c;"></i> Delete
-                                    </div>
-                                  
                                 </div>
                             </div>
-                            </div>
                         </td>
-                        {% endfor %}
                     </tr>
-                    {% endfor %}
-                </tbody>
+                {% endfor %}
+            </tbody>
                     
         </table>
         </div>
@@ -1320,7 +1328,7 @@ function populateHistoryModal(historyData, returnNo) {
         row += "<td>" + fullName + "</td>";
 
         // Convert action abbreviation to full form
-        var actionString = entry.action === 'C' ? 'CREATED' : (entry.action === 'E' ? 'EDITED' : entry.action);
+        var actionString = entry.action === 'C' ? 'CREATED' : (entry.action === 'U' ? 'EDITED' : entry.action);
         row += "<td>" + actionString + "</td>";
 
         row += "</tr>";

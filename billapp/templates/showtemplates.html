@@ -10,7 +10,7 @@
         margin-top: 50px; /* Adjust the top margin as needed */
     
    
-            display: none;
+        
     }
     .debit-head {
         margin-bottom: 20px;
@@ -166,7 +166,7 @@
 
 
 
-            <div class="debit-wrapper">
+            <div class="debit-wrapper"  id="template1">
                 <div class="debit col-15 mr-0" id="print-area">
                     <h3>TEMPLATES</h3>
                     <div class="debit-container" id="slipdiv">
@@ -259,7 +259,7 @@
 
 
 
-         <div class="debit-wrapper">
+         <div class="debit-wrapper"  id="template2" style="display: none;">
     <div class="debit col-15 mr-0" id="print-area">
         <h3>TEMPLATES</h3>
         <div class="debit-container" id="slipdiv">
@@ -348,100 +348,8 @@
 </div>
 
 
-<div class="debit-wrapper">
-    <div class="debit col-15 mr-0" id="print-area">
-        <h3>TEMPLATES</h3>
-        <div class="debit-container" id="slipdiv">
-            <div class="debit-head">
-                <div class="debit-head-top">
-                    <div class="debit-head-top-left text-start">
-                        <ul style="text-align: center;">
-                            <li>{{ company.company_name }}</li>
-                            <li>{{ company.address }}</li>
-                            <li>{{ company.contact }}</li>
 
-                        </ul>
-                    </div>
-                </div>
-                <div class="hr"></div>
-                <div class="debit-head-middle" style="background-color: rgb(181, 167, 233);">
-                    <h1 style="text-align: center; background-color: rgb(181, 167, 233);">DEBIT NOTE</h1>
-               
-                </div>
-                    <div style="display: flex;">
-                        <div class="debit-head-middle-left text-start" style="flex: 1;">
-                            <ul>
-                                <li class='text-bold' style="color: red;">Return to,</li>
-                                <li><b>{{ party.party_name }}</b></li>
-                                <li>{{ party.address }}</li>
-                                <li>{{ party.contact }}</li>
-                            </ul>
-                        </div>
-                        <div class="debit-head-bottom-right" style="flex: 1; text-align: left;margin-left: 390px;">
-                            <p><span class="text-bold" style="color: red;">Debit No:</span> {{ debit_note.returnno }}</p>
-                            <p><span class="text-bold" style="color: red;">Debit Date:</span> {{ debit_note.created_at|date:'d-m-Y' }}</p>
-                            
-                        </div>
-                    </div>
-            <div class="overflow-view">
-                <div class="debit-body">
-                    <table id="debit-table">
-                        <thead>
-                            <tr>
-                                <th class="text-bold">Item Name</th>
-                                <th class="text-bold">HSN</th>
-                                <th class="text-bold">Quantity</th>
-                                <th class="text-bold">Rate</th>
-                                <th class="text-bold">Tax</th>
-                                <th class="text-bold">Discount</th>
-                                <th class="text-bold">Total</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for debit_note_item in debit_note_items %}
-                            <tr>
-                                <td>{{ debit_note_item.items.itm_name }}</td>
-                                <td>{{ debit_note_item.items.itm_hsn }}</td>
-                                <td>{{ debit_note_item.qty }}</td>
-                                <td>{{ debit_note_item.items.itm_purchase_price}}</td>
-                                <td>VAT {{ debit_note_item.items.itm_vat|floatformat:0 }}%</td>
-                                <td>{{ debit_note_item.discount }}</td>
-                                <td>{{ debit_note_item.total }}</td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                    <br>
-                    <br><br>
-                    <div class="debit-body-bottom">
-                        <div class="debit-body-info-item border-bottom">
-                            <div class="info-item-td text-end text-bold">Sub Total:</div>
-                            <div class="info-item-td text-end">{{ debit_note.subtotal }}</div>
-                        </div>
-                        <div class="debit-body-info-item border-bottom">
-                            <div class="info-item-td text-end text-bold">Tax:</div>
-                            <div class="info-item-td text-end">{{ debit_note.taxamount }}</div>
-                        </div>
-                        <div class="debit-body-info-item">
-                            <div class="info-item-td text-end text-bold">Adjustment:</div>
-                            <div class="info-item-td text-end">{{ debit_note.adjustment }}</div>
-                        </div>
-                        <div class="debit-body-info-item">
-                            <div class="info-item-td text-end text-bold">Grand Total:</div>
-                            <div class="info-item-td text-end">{{ debit_note.grandtotal }}</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-
-
-
-
-<div class="debit-wrapper">
+<div class="debit-wrapper" id="template3" style="display: none;">
     <div class="debit col-15 mr-0" id="print-area">
         <h3>TEMPLATES</h3>
         <div class="debit-container" id="slipdiv">
@@ -456,8 +364,8 @@
                     </div>
                 
                 <div class="hr"></div>
-                <div class="debit-head-middle" style="background-color: rgb(181, 167, 233);">
-                    <h1 style="text-align: center; background-color: rgb(181, 167, 233);">DEBIT NOTE</h1>
+                <div class="debit-head-middle" style="background-color: rgb(67, 95, 30);">
+                    <h1 style="text-align: center; background-color: rgb(155, 224, 65);">DEBIT NOTE</h1>
                 </div>
                 <div style="display: flex;">
                     <div class="debit-head-middle-left text-start" style="flex: 1;">
@@ -545,15 +453,17 @@
 </div>
 
 <script>
-     function showTemplate(templateIndex) {
-        var templates = document.querySelectorAll(".debit-wrapper");
-        for (var i = 0; i < templates.length; i++) {
-            templates[i].style.display = "none"; 
-        }
-        console.log(templates.length);
-        console.log(templateIndex);
-        document.querySelectorAll(".debit-wrapper")[templateIndex - 1].style.display = "block";
+ function showTemplate(templateIndex) {
+    var templates = document.querySelectorAll(".debit-wrapper");
+    for (var i = 0; i < templates.length; i++) {
+        templates[i].style.display = "none";
+     
     }
+    document.querySelectorAll(".debit-wrapper")[templateIndex - 1].style.display = "block";
+    console.log("Switching to template",templateIndex);
+        console.log(templates.length);
+        
+}
 
     
     showTemplate(1);
