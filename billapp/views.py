@@ -19,6 +19,8 @@ from reportlab.lib.pagesizes import letter
 from reportlab.pdfgen import canvas
 from django.template.loader import render_to_string
 import json
+import base64
+from django.core.mail import EmailMessage
 
 
 
@@ -947,6 +949,7 @@ def get_debit_note_history(request, debitnote_id):
 
 
 
+
 def generate_pdf(request, debit_note_id):
     debit_note = DebitNote.objects.get(id=debit_note_id)
     # Fetch related data
@@ -967,6 +970,8 @@ def generate_pdf(request, debit_note_id):
     response = HttpResponse(pdf_content, content_type='application/pdf')
     response['Content-Disposition'] = 'attachment; filename="debit_note_report.pdf"'
     return response
+
+
 
 def get_debit_note_details(request, debit_id):
     try:
@@ -1010,3 +1015,35 @@ def get_debit_note_details(request, debit_id):
     except (DebitNote.DoesNotExist, ValueError):
         # Return a JSON response with an error message if the debit note does not exist or if there's a value error
         return JsonResponse({'error': 'Invalid DebitNote ID'}, status=404)
+    
+
+def share_debit_note_via_email(request):
+    if request.method == 'POST':
+        email = request.POST.get('email')
+        message = request.POST.get('message')
+        pdfData = request.POST.get('attachment')
+
+        # Decode the base64 attachment data
+        try:
+            pdfData_decoded = base64.b64decode(pdfData.split(',')[1])
+        except Exception as e:
+            return JsonResponse({'status': 'error', 'message': 'Failed to decode attachment data'})
+
+        # Email configuration
+        subject = "Debit Note"
+        from_email = settings.EMAIL_HOST_USER
+        email_message = EmailMessage(
+            subject, 
+            message, 
+            from_email=from_email, 
+            to=[email]
+        )
+        email_message.attach("debit_note.pdf", pdfData_decoded)
+
+        try:
+            email_message.send(fail_silently=False)
+            return JsonResponse({'status': 'success'})
+        except Exception as e:
+            return JsonResponse({'status': 'error', 'message': str(e)}, status=500)
+
+    return JsonResponse({'status': 'error', 'message': 'Method not allowed'}, status=405)

@@ -4,8 +4,17 @@
 {% block content %}
 <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.3/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.3/html2pdf.bundle.min.js"></script>
+
+
+
 <style>
     /* Style for debit note report */
+    .body-wrapper {
+    overflow: hidden;
+
+}
     .debit-wrapper {
         margin-top: 50px; /* Adjust the top margin as needed */
     
@@ -41,13 +50,41 @@
         background-color: #f9f9f9;
         border: 1px solid #ddd;
         border-radius: 5px;
-        padding: 20px;
+        padding: 80px;
     }
 
      .debit-head-bottom {
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
+}
+.template-button {
+    background-color: #007bff; /* Blue background */
+    color: white; /* White text color */
+    border: none; /* No border */
+    padding: 10px 20px; /* Padding */
+    margin: 5px; /* Margin */
+    border-radius: 5px; /* Rounded corners */
+    cursor: pointer; /* Cursor style */
+    transition: background-color 0.3s ease; /* Smooth transition */
+}
+
+.template-button:hover {
+    background-color: #0056b3; /* Darker blue on hover */
+}
+.template-button.small {
+    padding: 8px 16px; /* Decrease padding */
+    font-size: 14px; /* Decrease font size */
+}
+
+@media (max-width: 576px) {
+    .template-button.small {
+        font-size: 12px; /* Further decrease font size for smaller screens */
+    }
+    .body-wrapper {
+        overflow-x: auto;
+    }
+
 }
     /* Style for table */
     body {
@@ -112,13 +149,111 @@
         .info-item-td {
             flex: 1;
             text-align: right;
+        } 
+        .popup-container {
+            position: relative;
+            display: inline-block; /* Ensures the container size fits its content */
+            
+        }
+
+        /* Styles for the popup */
+        .popup {
+            display: none;
+            position: absolute;
+            top: calc(100% + 5px);
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
+            z-index: 9999;
+            width: 200px;
+        }
+
+        .popup p {
+            margin: 10px 0;
+        }
+
+        .popup a {
+            display: inline-block;
+            color: #333; /* Text color */
+            text-decoration: none;
+            margin-right: 10px; 
+            font-size: 12px;
+            
+
+        }
+
+        .popup a:hover {
+            color: #555; /* Text color on hover */
+        }
+
+        .popup a i {
+            margin-right: 5px; /* Add some space between icon and text */
+            color: #007bff; /* Icon color */
+        }
+        .popup a.gmail i {
+            color: red; /* Gmail icon color */
+        }
+
+        .popup a.whatsapp i {
+            color: green; /* WhatsApp icon color */
+        }
+        .modal {
+    display: none;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: #fff;
+    padding: 10px; /* Decrease the padding */
+    border-radius: 10px;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
+    z-index: 9999;
+    background-color: #007bff; /* Full blue color */
+    
+    width: 700px;
+    text-align: center;
+}
+
+.modal h2 {
+    margin-top: 0; /* Adjust spacing if needed */
+}
+
+.modal input[type="text"],
+.modal textarea,
+.modal button {
+    width: calc(100% - 20px); /* Adjust width */
+    padding: 10px;
+    margin: 10px 0;
+    box-sizing: border-box;
+    
+}
+
+        .modal button {
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            background-color: red;
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            cursor: pointer;
+            color: #888;
         }
 </style>
 
 <div class="body-wrapper">
     <div class="row ps-3 pe-3 m-0" id="whatToPrint1">
-        <div class="col-sm-12 ps-2 pe-3" style="margin-left: 7vw;">
-            <div class="row pt-5 m-0">
+        <div class="col-sm-10 ps-2 pe-3">
+            <div class="row pt-4 m-15">
                 <div class="card p-0 bg-light bs col-md-15">
                     <br>
                     <div class="row">
@@ -126,31 +261,54 @@
                             <div class="row">
                                 <div class="col-md-3" style="margin-left: 3vh; margin-top: 7vh;">
                                     <div class="form-group">
-                                        <h3 style="font-size: 22px;"><b>DEBIT NOTE DETAILS</b></h3>
+                                        <h3 style="font-size: 17px;"><b>DEBIT NOTE DETAILS</b></h3>
                                     </div>  
                                 </div>
                                 <div class="container">
                                     <div class="row justify-content-end">
                                         <div class="col-md-4 text-right">
                                             <div class="btn-group" role="group" aria-label="Button group">
-                                                <button class="btn mt-3" type="button">
+                                                <button class="btn mt-3" type="button" onclick="printPDF()">
                                                     <i class="fas fa-print" style="color: blue;"></i>
                                                     <br><span style="color: black; font-size: small; font-weight: bold;">Print</span>
                                                 </button>
-                                                <button class="btn mt-3" type="button" id="download-pdf">
+                                                <button class="btn mt-3" type="button" id="download-pdf" onclick="downloadPDF()">
                                                     <i class="fas fa-file-pdf" style="color: red;"></i>
                                                     <br><span style="color: black; font-size: small; font-weight: bold;">PDF</span>
                                                 </button>
-                                                <div class="dropdown">
-                                                    <button class="btn mt-3 dropdown-toggle" type="button" id="shareDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                                        <i class="fas fa-share" style="color: green;"></i>
-                                                        <br>
+                                                <div class="popup-container">
+                                                    <button class="btn mt-3" type="button" onclick="toggleSharePopup()">
+                                                        <i class="fas fa-share" style="color: rgb(5, 139, 0);"></i><br>
                                                         <span style="color: black; font-size: small; font-weight: bold;">Share</span>
                                                     </button>
-                                                    <div class="dropdown-menu" aria-labelledby="shareDropdown">
+                                                <!-- Share Popup Modal -->
+                                                
+                                            
+                                            <div id="sharePopup" class="popup">
+                                                <p><a class="gmail" href="#" onclick="openGmailModal()"><i class="far fa-envelope"></i> <b>Gmail</b></a>
+                                                    <a class="whatsapp" href="https://web.whatsapp.com/send?text=Check%20this%20out:%20[URL]"><i class="fab fa-whatsapp"></i> <b>WhatsApp</b></a></p>
+                                                    </div>
+
+
+
+                                                    <div id="gmailModal" class="modal">
+                                                        <span class="modal-close" onclick="closeGmailModal()">&times;</span>
+                                                        <h2>Share Debit Note Via Email</h2>
+                                                        <form id="gmailForm">
+                                                            <label for="email" style="display: block; text-align: left; margin-bottom: 5px;"><b>Email ID:</b></label>
+                                                            <input type="text" id="email" name="email" placeholder="Multiple emails can be added by separating with a comma!" required><br>
+                                                            <label for="message" style="display: block; text-align: left; margin-top: 10px;"><b>Message (Optional):</b></label>
+                                                            <textarea id="message" name="message" placeholder="This message will be sent along with the debit note details" rows="4"></textarea><br>
+                                                            <button type="submit" onclick="generatePDFAndSendEmail()">Send Email</button>
+                                                        </form>
+                                                    </div>
+
+                                                        </div>
                                                     </div>
                                                 </div>
-                                            </div>
+                                              
+                                                <!-- Overlay to cover the background when the popup is open -->
+                                                <div class="overlay" id="overlay"></div>
                                         </div>
                                     </div>
                                 </div>
@@ -163,12 +321,11 @@
 
 
 
-
-
+            <h3>TEMPLATES</h3>
 
             <div class="debit-wrapper"  id="template1">
                 <div class="debit col-15 mr-0" id="print-area">
-                    <h3>TEMPLATES</h3>
+                 
                     <div class="debit-container" id="slipdiv">
                         <div class="debit-head">
                             <div class="debit-head-top">
@@ -259,9 +416,9 @@
 
 
 
-         <div class="debit-wrapper"  id="template2" style="display: none;">
+    <div class="debit-wrapper"  id="template2" style="display: none;">
     <div class="debit col-15 mr-0" id="print-area">
-        <h3>TEMPLATES</h3>
+       
         <div class="debit-container" id="slipdiv">
             <div class="debit-head">
                 <div class="debit-head-top">
@@ -346,94 +503,101 @@
         </div>
     </div>
 </div>
+</div>
+</div>
 
 
 
-<div class="debit-wrapper" id="template3" style="display: none;">
+
+
+
+
+<div class="debit-wrapper" id="template3" style="display: none;">  
     <div class="debit col-15 mr-0" id="print-area">
-        <h3>TEMPLATES</h3>
+  
+
         <div class="debit-container" id="slipdiv">
             <div class="debit-head">
                 <div class="debit-head-top">
                     <div class="debit-head-top-left text-start">
-                        <ul style="text-align: center;">
-                            <li>{{ company.company_name }}</li>
+                        <ul>
+                            <li><b>{{ company.company_name }}</b></li>
                             <li>{{ company.address }}</li>
                             <li>{{ company.contact }}</li>
                         </ul>
                     </div>
-                
-                <div class="hr"></div>
-                <div class="debit-head-middle" style="background-color: rgb(67, 95, 30);">
-                    <h1 style="text-align: center; background-color: rgb(155, 224, 65);">DEBIT NOTE</h1>
                 </div>
-                <div style="display: flex;">
-                    <div class="debit-head-middle-left text-start" style="flex: 1;">
+                <hr style="color: black; border-width: 2px;border-style: solid;">
+                <div class="debit-head-middle" >
+                    <h1 style="text-align: center;">DEBIT NOTE</h1>
+                </div>
+                <div class="debit-head-bottom">
+                    <div class="debit-head-bottom-left">
                         <ul>
-                            <li class='text-bold' style="color: red;">Return to,</li>
-                            <li><b>{{ party.party_name }}</b></li>
+                            <li class="text-bold" style="color: red;">Return to:</li>
+                            <li>{{ party.party_name }}</li>
                             <li>{{ party.address }}</li>
                             <li>{{ party.contact }}</li>
                         </ul>
                     </div>
-                    <div class="debit-head-bottom-right" style="flex: 1; text-align: left;margin-left: 390px;">
+                    <div class="debit-head-bottom-right">
                         <p><span class="text-bold" style="color: red;">Debit No:</span> {{ debit_note.returnno }}</p>
                         <p><span class="text-bold" style="color: red;">Debit Date:</span> {{ debit_note.created_at|date:'d-m-Y' }}</p>
                     </div>
                 </div>
-                <div class="overflow-view">
-                    <div class="debit-body">
-                        <table id="debit-table">
-                            <thead>
-                                <tr>
-                                    <th class="text-bold">Item Name</th>
-                                    <th class="text-bold">HSN</th>
-                                    <th class="text-bold">Quantity</th>
-                                    <th class="text-bold">Rate</th>
-                                    <th class="text-bold">Tax</th>
-                                    <th class="text-bold">Discount</th>
-                                    <th class="text-bold">Total</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for debit_note_item in debit_note_items %}
-                                <tr>
-                                    <td>{{ debit_note_item.items.itm_name }}</td>
-                                    <td>{{ debit_note_item.items.itm_hsn }}</td>
-                                    <td>{{ debit_note_item.qty }}</td>
-                                    <td>{{ debit_note_item.items.itm_purchase_price}}</td>
-                                    <td>VAT {{ debit_note_item.items.itm_vat|floatformat:0 }}%</td>
-                                    <td>{{ debit_note_item.discount }}</td>
-                                    <td>{{ debit_note_item.total }}</td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                        <br>
-                        <br><br>
-                        <div class="debit-body-bottom">
-                            <div class="debit-body-info-item border-bottom">
-                                <div class="info-item-td text-end text-bold">Sub Total:</div>
-                                <div class="info-item-td text-end">{{ debit_note.subtotal }}</div>
-                            </div>
-                            <div class="debit-body-info-item border-bottom">
-                                <div class="info-item-td text-end text-bold">Tax:</div>
-                                <div class="info-item-td text-end">{{ debit_note.taxamount }}</div>
-                            </div>
-                            <div class="debit-body-info-item">
-                                <div class="info-item-td text-end text-bold">Adjustment:</div>
-                                <div class="info-item-td text-end">{{ debit_note.adjustment }}</div>
-                            </div>
-                            <div class="debit-body-info-item">
-                                <div class="info-item-td text-end text-bold">Grand Total:</div>
-                                <div class="info-item-td text-end">{{ debit_note.grandtotal }}</div>
-                            </div>
-                        </div>
+            </div>
+            <div class="debit-body">
+                <table id="debit-table">
+                    <thead>
+                        <tr>
+                            <th class="text-bold">Item Name</th>
+                            <th class="text-bold">HSN</th>
+                            <th class="text-bold">Quantity</th>
+                            <th class="text-bold">Rate</th>
+                            <th class="text-bold">Tax</th>
+                            <th class="text-bold">Discount</th>
+                            <th class="text-bold">Total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for debit_note_item in debit_note_items %}
+                        <tr>
+                            <td>{{ debit_note_item.items.itm_name }}</td>
+                            <td>{{ debit_note_item.items.itm_hsn }}</td>
+                            <td>{{ debit_note_item.qty }}</td>
+                            <td>{{ debit_note_item.items.itm_purchase_price}}</td>
+                            <td>VAT {{ debit_note_item.items.itm_vat|floatformat:0 }}%</td>
+                            <td>{{ debit_note_item.discount }}</td>
+                            <td>{{ debit_note_item.total }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                <br>
+                <div class="debit-body-info">
+                    <div class="debit-body-info-item">
+                        <div class="info-item-td text-end text-bold">Sub Total:</div>
+                        <div class="info-item-td text-end">{{ debit_note.subtotal }}</div>
+                    </div>
+                    <div class="debit-body-info-item">
+                        <div class="info-item-td text-end text-bold">Tax:</div>
+                        <div class="info-item-td text-end">{{ debit_note.taxamount }}</div>
+                    </div>
+                    <div class="debit-body-info-item border-bottom">
+                        <div class="info-item-td text-end text-bold">Adjustment:</div>
+                        <div class="info-item-td text-end">{{ debit_note.adjustment }}</div>
+                    </div>
+                    <div class="debit-body-info-item">
+                        <div class="info-item-td text-end text-bold">Grand Total:</div>
+                        <div class="info-item-td text-end"><b>{{ debit_note.grandtotal }}</b></div>
                     </div>
                 </div>
             </div>
         </div>
-
+    </div>
+</div>
+</div>
+</div>
 
 
 </div>
@@ -446,20 +610,21 @@
           </div>
            
 
-<div class="debit text-center">
-    <button onclick="showTemplate(1)">1</button>
-    <button onclick="showTemplate(2)">2</button>
-    <button onclick="showTemplate(3)">3</button>
-</div>
+          <div class="debit text-center" style="bottom: 20px; width: 100%; margin-left: 100px;">
+            <button class="template-button small" onclick="showTemplate(1);">1</button>
+            <button class="template-button small" onclick="showTemplate(2);">2</button>
+            <button class="template-button small" onclick="showTemplate(3);">3</button>
+        </div>
 
 <script>
  function showTemplate(templateIndex) {
     var templates = document.querySelectorAll(".debit-wrapper");
+    console.log(templates);
     for (var i = 0; i < templates.length; i++) {
         templates[i].style.display = "none";
      
     }
-    document.querySelectorAll(".debit-wrapper")[templateIndex - 1].style.display = "block";
+    document.querySelectorAll(".debit-wrapper")[templateIndex-1].style.display = "block";
     console.log("Switching to template",templateIndex);
         console.log(templates.length);
         
@@ -467,5 +632,611 @@
 
     
     showTemplate(1);
+    </script>
+
+
+<script>
+
+function printPDF() {
+    // Get the ID of the currently displayed template
+    var displayedTemplateId = document.querySelector(".debit-wrapper[style='display: block;']").id;
+
+    // Get the HTML content of the currently displayed template
+    var templateContent = document.getElementById(displayedTemplateId).outerHTML;
+
+    // Create a new window for print preview
+    var printWindow = window.open('', '_blank');
+
+    // Inject the template content and CSS styles into the new window
+    printWindow.document.write('<html><head><title>Print Preview</title>');
+    printWindow.document.write('<style>');
+    printWindow.document.write('ul { list-style: none; }');
+    // Include your CSS styles here
+    printWindow.document.write(`
+    .body-wrapper {
+    overflow: hidden;
+
+}
+    .debit-wrapper {
+        margin-top: 50px; /* Adjust the top margin as needed */
+    
+   
+        
+    }
+    .debit-head {
+        margin-bottom: 20px;
+    }
+
+    .debit-head h3 {
+        font-size: 24px;
+        margin-bottom: 10px;
+    }
+
+    .debit-head-top {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 10px;
+    }
+
+    .debit-head-middle,
+    .debit-head-bottom {
+        margin-bottom: 20px;
+    }
+
+    .debit-body {
+        overflow-x: auto;
+    }
+
+    .debit-container {
+        background-color: #f9f9f9;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        padding: 80px;
+    }
+
+     .debit-head-bottom {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+}
+.template-button {
+    background-color: #007bff; /* Blue background */
+    color: white; /* White text color */
+    border: none; /* No border */
+    padding: 10px 20px; /* Padding */
+    margin: 5px; /* Margin */
+    border-radius: 5px; /* Rounded corners */
+    cursor: pointer; /* Cursor style */
+    transition: background-color 0.3s ease; /* Smooth transition */
+}
+
+.template-button:hover {
+    background-color: #0056b3; /* Darker blue on hover */
+}
+.template-button.small {
+    padding: 8px 16px; /* Decrease padding */
+    font-size: 14px; /* Decrease font size */
+}
+
+@media (max-width: 576px) {
+    .template-button.small {
+        font-size: 12px; /* Further decrease font size for smaller screens */
+    }
+    .body-wrapper {
+        overflow-x: auto;
+    }
+
+}
+    /* Style for table */
+    body {
+            font-family: Arial, sans-serif;
+            background-color: #f2f2f2; /* Light gray background */
+            color: #333; /* Dark gray text color */
+        }
+        .debit-container {
+            background-color: #fff; /* White background for the container */
+            padding: 20px;
+            border-radius: 10px;
+            border: 1px solid #ccc; /* Gray border */
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Shadow effect */
+            margin: 20px auto;
+            max-width: 800px;
+        }
+        .text-bold {
+            font-weight: bold;
+        }
+        .debit-head-middle-left, .debit-head-bottom-left {
+            color: #007bff; /* Blue text color */
+        }
+        .debit-head-middle-right, .debit-head-bottom-right {
+            color: #007bff; /* Blue text color */
+        }
+        .debit-head-middle-left .text-bold, .debit-head-bottom-left .text-bold {
+            color: #007bff; /* Blue text color */
+        }
+        .debit-head-middle-right .text-bold, .debit-head-bottom-right .text-bold {
+            color: #dc3545; /* Red text color */
+        }
+        .debit-body table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        .debit-body th, .debit-body td {
+            border: 1px solid black;
+            padding: 8px;
+            text-align: left;
+        }
+        .debit-body th {
+            background-color: #007bff; /* Blue background for table headers */
+            color: #fff; /* White text color */
+        }
+        .debit-body tr:nth-child(even) {
+            background-color: #f2f2f2; /* Light gray background for even rows */
+        }
+        .debit-body tr:hover {
+            background-color: #ddd; /* Darker gray background on hover */
+        }
+        .debit-body-bottom {
+            margin-top: 20px;
+            border-top: 1px solid #ccc; /* Gray border on top */
+            padding-top: 10px;
+        }
+        .debit-body-info-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+        .info-item-td {
+            flex: 1;
+            text-align: right;
+        }
+
+
+    `);
+    printWindow.document.write('</style></head><body>');
+    printWindow.document.write(templateContent);
+    printWindow.document.write('</body></html>');
+
+    // Print the content in the new window
+    printWindow.document.close(); // Necessary for IE <= 10
+    printWindow.print();
+}
 </script>
+
+<script>
+
+function downloadPDF() {
+    var templateId = getCurrentTemplateId();
+    var templateContent = document.getElementById("template" + templateId).innerHTML;
+
+    var printWindow = window.open('', '_blank');
+
+    printWindow.document.write('<html><head><title>Template PDF</title></head><body>');
+    printWindow.document.write('<style>');
+    printWindow.document.write('ul { list-style: none; }');
+    // Include your CSS styles here
+        printWindow.document.write(`
+    .body-wrapper {
+    overflow: hidden;
+
+}
+    .debit-wrapper {
+        margin-top: 50px; /* Adjust the top margin as needed */
+    
+   
+        
+    }
+    .debit-head {
+        margin-bottom: 20px;
+    }
+
+    .debit-head h3 {
+        font-size: 24px;
+        margin-bottom: 10px;
+    }
+
+    .debit-head-top {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 10px;
+    }
+
+    .debit-head-middle,
+    .debit-head-bottom {
+        margin-bottom: 20px;
+    }
+
+    .debit-body {
+        overflow-x: auto;
+    }
+
+    .debit-container {
+        background-color: #f9f9f9;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        padding: 80px;
+    }
+
+     .debit-head-bottom {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+}
+.template-button {
+    background-color: #007bff; /* Blue background */
+    color: white; /* White text color */
+    border: none; /* No border */
+    padding: 10px 20px; /* Padding */
+    margin: 5px; /* Margin */
+    border-radius: 5px; /* Rounded corners */
+    cursor: pointer; /* Cursor style */
+    transition: background-color 0.3s ease; /* Smooth transition */
+}
+
+.template-button:hover {
+    background-color: #0056b3; /* Darker blue on hover */
+}
+.template-button.small {
+    padding: 8px 16px; /* Decrease padding */
+    font-size: 14px; /* Decrease font size */
+}
+
+@media (max-width: 576px) {
+    .template-button.small {
+        font-size: 12px; /* Further decrease font size for smaller screens */
+    }
+    .body-wrapper {
+        overflow-x: auto;
+    }
+
+}
+    /* Style for table */
+    body {
+            font-family: Arial, sans-serif;
+            background-color: #f2f2f2; /* Light gray background */
+            color: #333; /* Dark gray text color */
+        }
+        .debit-container {
+            background-color: #fff; /* White background for the container */
+            padding: 20px;
+            border-radius: 10px;
+            border: 1px solid #ccc; /* Gray border */
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Shadow effect */
+            margin: 20px auto;
+            max-width: 800px;
+        }
+        .text-bold {
+            font-weight: bold;
+        }
+        .debit-head-middle-left, .debit-head-bottom-left {
+            color: #007bff; /* Blue text color */
+        }
+        .debit-head-middle-right, .debit-head-bottom-right {
+            color: #007bff; /* Blue text color */
+        }
+        .debit-head-middle-left .text-bold, .debit-head-bottom-left .text-bold {
+            color: #007bff; /* Blue text color */
+        }
+        .debit-head-middle-right .text-bold, .debit-head-bottom-right .text-bold {
+            color: #dc3545; /* Red text color */
+        }
+        .debit-body table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        .debit-body th, .debit-body td {
+            border: 1px solid black;
+            padding: 8px;
+            text-align: left;
+        }
+        .debit-body th {
+            background-color: #007bff; /* Blue background for table headers */
+            color: #fff; /* White text color */
+        }
+        .debit-body tr:nth-child(even) {
+            background-color: #f2f2f2; /* Light gray background for even rows */
+        }
+        .debit-body tr:hover {
+            background-color: #ddd; /* Darker gray background on hover */
+        }
+        .debit-body-bottom {
+            margin-top: 20px;
+            border-top: 1px solid #ccc; /* Gray border on top */
+            padding-top: 10px;
+        }
+        .debit-body-info-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+        .info-item-td {
+            flex: 1;
+            text-align: right;
+        }
+
+
+    `); printWindow.document.write('</style></head><body>');
+    printWindow.document.write('</style></head><body>');
+    printWindow.document.write(templateContent);
+    printWindow.document.write('</body></html>');
+
+    // Close the document for proper rendering
+    printWindow.document.close();
+
+    printWindow.document.addEventListener('DOMContentLoaded', function () {
+        // Generate PDF after content is fully loaded
+        var element = printWindow.document.body;
+        var opt = {
+            margin: 1,
+            filename: 'Template_PDF.pdf', // Set your desired filename here
+            image: { type: 'jpeg', quality: 0.98 },
+            html2canvas: { scale: 2 },
+            jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
+        };
+        html2pdf().set(opt).from(element).save();
+    });
+}
+
+function getCurrentTemplateId() {
+    var displayedTemplateId = document.querySelector(".debit-wrapper[style='display: block;']").id;
+    var templateId = displayedTemplateId.replace("template", "");
+    return templateId;
+}
+</script>
+
+<script>
+    function toggleSharePopup() {
+        var popup = document.getElementById('sharePopup');
+        if (popup.style.display === 'none') {
+            popup.style.display = 'block';
+        } else {
+            popup.style.display = 'none';
+        }
+    }
+    function openGmailModal() {
+            var modal = document.getElementById('gmailModal');
+            modal.style.display = 'block';
+        }
+
+        function closeGmailModal() {
+            var modal = document.getElementById('gmailModal');
+            modal.style.display = 'none';
+        }
+
+     // Handle form submission
+    
+function generatePDFAndSendEmail(event) {
+        // Prevent the default form submission behavior
+       
+        // Retrieve email and message values from form fields
+        var email = document.getElementById('email').value;
+        var message = document.getElementById('message').value;
+
+        // Your existing code for generating PDF and sending email goes here
+        // Remember to replace the function parameters with 'email' and 'message'
+        var templateId = getCurrentTemplateId();
+        var templateContent = document.getElementById("template" + templateId).innerHTML;
+
+        var printWindow = window.open('', '_blank');
+
+        printWindow.document.write('<html><head><title>Template PDF</title></head><body>');
+    printWindow.document.write('<style>');
+    printWindow.document.write('ul { list-style: none; }');
+    // Include your CSS styles here
+        printWindow.document.write(`
+    .body-wrapper {
+    overflow: hidden;
+
+}
+    .debit-wrapper {
+        margin-top: 50px; /* Adjust the top margin as needed */
+    
+   
+        
+    }
+    .debit-head {
+        margin-bottom: 20px;
+    }
+
+    .debit-head h3 {
+        font-size: 24px;
+        margin-bottom: 10px;
+    }
+
+    .debit-head-top {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 10px;
+    }
+
+    .debit-head-middle,
+    .debit-head-bottom {
+        margin-bottom: 20px;
+    }
+
+    .debit-body {
+        overflow-x: auto;
+    }
+
+    .debit-container {
+        background-color: #f9f9f9;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        padding: 80px;
+    }
+
+     .debit-head-bottom {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+}
+.template-button {
+    background-color: #007bff; /* Blue background */
+    color: white; /* White text color */
+    border: none; /* No border */
+    padding: 10px 20px; /* Padding */
+    margin: 5px; /* Margin */
+    border-radius: 5px; /* Rounded corners */
+    cursor: pointer; /* Cursor style */
+    transition: background-color 0.3s ease; /* Smooth transition */
+}
+
+.template-button:hover {
+    background-color: #0056b3; /* Darker blue on hover */
+}
+.template-button.small {
+    padding: 8px 16px; /* Decrease padding */
+    font-size: 14px; /* Decrease font size */
+}
+
+@media (max-width: 576px) {
+    .template-button.small {
+        font-size: 12px; /* Further decrease font size for smaller screens */
+    }
+    .body-wrapper {
+        overflow-x: auto;
+    }
+
+}
+    /* Style for table */
+    body {
+            font-family: Arial, sans-serif;
+            background-color: #f2f2f2; /* Light gray background */
+            color: #333; /* Dark gray text color */
+        }
+        .debit-container {
+            background-color: #fff; /* White background for the container */
+            padding: 20px;
+            border-radius: 10px;
+            border: 1px solid #ccc; /* Gray border */
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Shadow effect */
+            margin: 20px auto;
+            max-width: 800px;
+        }
+        .text-bold {
+            font-weight: bold;
+        }
+        .debit-head-middle-left, .debit-head-bottom-left {
+            color: #007bff; /* Blue text color */
+        }
+        .debit-head-middle-right, .debit-head-bottom-right {
+            color: #007bff; /* Blue text color */
+        }
+        .debit-head-middle-left .text-bold, .debit-head-bottom-left .text-bold {
+            color: #007bff; /* Blue text color */
+        }
+        .debit-head-middle-right .text-bold, .debit-head-bottom-right .text-bold {
+            color: #dc3545; /* Red text color */
+        }
+        .debit-body table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        .debit-body th, .debit-body td {
+            border: 1px solid black;
+            padding: 8px;
+            text-align: left;
+        }
+        .debit-body th {
+            background-color: #007bff; /* Blue background for table headers */
+            color: #fff; /* White text color */
+        }
+        .debit-body tr:nth-child(even) {
+            background-color: #f2f2f2; /* Light gray background for even rows */
+        }
+        .debit-body tr:hover {
+            background-color: #ddd; /* Darker gray background on hover */
+        }
+        .debit-body-bottom {
+            margin-top: 20px;
+            border-top: 1px solid #ccc; /* Gray border on top */
+            padding-top: 10px;
+        }
+        .debit-body-info-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+        .info-item-td {
+            flex: 1;
+            text-align: right;
+        }
+
+
+    `); printWindow.document.write('</style></head><body>');
+    printWindow.document.write('</style></head><body>');
+    printWindow.document.write(templateContent);
+    printWindow.document.write('</body></html>');
+        // Close the document for proper rendering
+        printWindow.document.close();
+
+        // Wait for the content to be fully loaded
+        printWindow.document.addEventListener('DOMContentLoaded', function () {
+            // Generate PDF after content is fully loaded
+            var element = printWindow.document.body;
+            var opt = {
+                margin: 1,
+                filename: 'Template_PDF.pdf', // Set your desired filename here
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 2 },
+                jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
+            };
+            html2pdf().set(opt).from(element).output('blob').then(function (pdfData) {
+                // Send the email with the PDF attachment
+                sendEmailWithAttachment(email, message, pdfData);
+            });
+        });
+    }
+
+    // Function to send email with attachment
+    function sendEmailWithAttachment(email, message, pdfData) {
+    var xhr = new XMLHttpRequest();
+    xhr.open('POST', '/share-debit-note-via-email'); // Update the endpoint URL
+    xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+    xhr.onload = function() {
+        if (xhr.status === 200) {
+            console.log('Email sent successfully');
+            // Optionally, close the modal or show a success message
+            showSuccessMessage(); // Call a function to display a success message
+        } else {
+            console.error('Failed to send email:', xhr.statusText);
+            // Optionally, handle errors and show an error message
+            showErrorMessage(xhr.statusText); // Call a function to display an error message
+        }
+    };
+    xhr.onerror = function() {
+        console.error('Network error occurred');
+        // Optionally, handle network errors and show an error message
+        showErrorMessage('Network error occurred');
+    };
+    var formData = new FormData();
+    formData.append('email', email);
+    formData.append('message', message);
+    formData.append('attachment', pdfData);
+    xhr.send(formData);
+}
+
+function showSuccessMessage() {
+    // Implement code to show a success message
+    // For example, display an alert or update the UI
+    alert('Email sent successfully');
+    console.log('S');
+}
+
+function showErrorMessage(errorMessage) {
+    // Implement code to show an error message
+    // For example, display an alert with the provided error message or update the UI
+    alert('Failed to send email: ' + errorMessage);
+    console.log('F');
+
+}
+</script>
+
+</body>
             {% endblock %}
