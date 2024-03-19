@@ -21,6 +21,7 @@ from django.template.loader import render_to_string
 import json
 import base64
 from django.core.mail import EmailMessage
+from io import BytesIO
 
 
 
@@ -1023,7 +1024,7 @@ def share_debit_note_via_email(request):
         message = request.POST.get('message')
         pdfData = request.POST.get('attachment')
 
-        # Decode the base64 attachment data
+        
         try:
             pdfData_decoded = base64.b64decode(pdfData.split(',')[1])
         except Exception as e:
