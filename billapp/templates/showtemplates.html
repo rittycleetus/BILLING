@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 {% load static %}
-
+{% load social_share %}
 {% block content %}
 <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
@@ -296,16 +296,26 @@
                                                     <div id="gmailModal" class="modal">
                                                         <span class="modal-close" onclick="closeGmailModal()">&times;</span>
                                                         <h2>Share Debit Note Via Email</h2>
-                                                        <form id="gmailForm">
+                                                        <form id="share_to_email_form" action="{% url 'share_debit_note_via_email' debit_note.id %}" method="post" class="needs-validation">
+                                                            {% csrf_token %}
                                                             <label for="email" style="display: block; text-align: left; margin-bottom: 5px;"><b>Email ID:</b></label>
-                                                            <input type="text" id="email" name="email" placeholder="Multiple emails can be added by separating with a comma!" required><br>
+                                                            <textarea class="form-control text-dark" name="email_ids" id="recipientEmail" rows="3" style="height: 100px;border-color: #eee;" placeholder="Multiple emails can be added by separating with a comma(,)." required></textarea>
                                                             <label for="message" style="display: block; text-align: left; margin-top: 10px;"><b>Message (Optional):</b></label>
-                                                            <textarea id="message" name="message" placeholder="This message will be sent along with the debit note details" rows="4"></textarea><br>
-                                                            <button type="submit" onclick="generatePDFAndSendEmail(event)">Send Email</button>
+                                                            <textarea name="email_message" id="optionalMessage" class="form-control text-dark" cols="" rows="4" style="height: 100px;border-color: #eee;" placeholder="This message will be sent along with Debitnote details."></textarea>
+                                                            <input type="hidden" name="attachment" id="attachment" value="base64_encoded_pdf_data_here"> 
+                                                            <button type="submit"id="sendEmailBtn" class="sendEmailBtn btn btn-outline-warning w-50 text-uppercase">SEND MAIL</button>
                                                         </form>
                                                     </div>
-
-                                                        </div>
+                                                    {% for message in messages %}
+                                                      {% if message.tags == 'error' %}
+                                                      <script>
+                                                          alert("Error: {{ message }}");</script>
+                                                      {% elif message.tags == 'success' %}
+                                                          <script>
+                                                          alert("Success: {{ message }}");</script>
+                                                      {% endif %}
+                                                  {% endfor %}   
+                                                  </div>
                                                     </div>
                                                 </div>
                                               
@@ -1009,270 +1019,89 @@ function getCurrentTemplateId() {
             modal.style.display = 'none';
         }
 
-        
-$(document).ready(function(){
-    $('#share_with_email').on('click', function(){
-        var emailsInput = document.getElementById('emailIds');
+        $(document).ready(function(){
+    $('#share_to_email_form').on('submit', function(event) {
+        event.preventDefault(); // Prevent the default form submission
+
+        var email = $('#recipientEmail').val().trim();
+        var message = $('#optionalMessage').val().trim();
+       // Make sure to set the value of this input field with the base64-encoded PDF data
+
+        console.log('Email:', email);
+        console.log('Message:', message);
+   
+        // Validate email format
+        var emailRegex = /^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$/;
+        if (!emailRegex.test(email)) {
+            alert('Please enter a valid email address.');
+            return;
+        }
+
+        // Check if all required fields are filled
+        if (email === '' || attachment === '') {
+            alert('Please fill in all required fields.');
+            return;
+        }
+
+        // Submit the form via AJAX
+        $.ajax({
+            type: 'POST',
+            url: $(this).attr('action'), // Get the form action URL
+            data: {
+                email: email,
+                message: message,
+           
+            },
+            dataType: 'json',
+            success: function(response) {
+                console.log('Response:', response);
+                if (response.status === 'success') {
+                    alert('Email sent successfully.');
+                } else {
+                    alert('Failed to send email: ' + response.message);
+                }
+            },
+            error: function(xhr, status, error) {
+                console.error('Error:', error);
+                alert('An error occurred while sending the email.');
+                console.error(xhr.responseText);
+            }
+        });
+    });
+
+    $('#share_with_email').on('click', function() {
+        var emailsInput = document.getElementById('recipientEmail');
         var emailsString = emailsInput.value.trim();
 
         var emails = emailsString.split(',').map(function(email) {
             return email.trim();
         });
 
+        console.log('Emails:', emails);
+
         var emailRegex = /^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$/;
 
-        var invalidEmails = []
-        if(emailsString == ""){
-            alert('Enter valid email addresses..')
+        var invalidEmails = [];
+        if (emailsString == "") {
+            alert('Enter valid email addresses.');
         } else {
             for (var i = 0; i < emails.length; i++) {
                 var currentEmail = emails[i];
 
-                if (currentEmail!="" && !emailRegex.test(currentEmail)) {
+                if (currentEmail != "" && !emailRegex.test(currentEmail)) {
                     console.log(currentEmail + ' is invalid!');
-                    invalidEmails.push(currentEmail)
+                    invalidEmails.push(currentEmail);
                 }
             }
 
-            if(invalidEmails.length > 0){
-                alert('Invalid emails..Please check!\n'+invalidEmails)
-                // alert(invalidEmails)
+            if (invalidEmails.length > 0) {
+                alert('Invalid emails. Please check:\n' + invalidEmails.join('\n'));
             } else {
-                generatePDFAndSendEmail();
+                $('#share_to_email_form').submit();
             }
         }
     });
 });
-
-async function generatePDFAndSendEmail() {
-    // Retrieve email and message values from form fields
-    const email = document.getElementById('email').value;
-    const message = document.getElementById('message').value;
-    console.log('hai');
-
-    // Retrieve the template content
-    const templateId = getCurrentTemplateId();
-    const templateContent = document.getElementById(`template${templateId}`).innerHTML;
-
-    // Open a new window to write the PDF content
-    const printWindow = window.open('', '_blank');
-
-        printWindow.document.write('<html><head><title>Template PDF</title></head><body>');
-    printWindow.document.write('<style>');
-    printWindow.document.write('ul { list-style: none; }');
-    // Include your CSS styles here
-        printWindow.document.write(`
-    .body-wrapper {
-    overflow: hidden;
-
-}
-    .debit-wrapper {
-        margin-top: 50px; /* Adjust the top margin as needed */
-    
-   
-        
-    }
-    .debit-head {
-        margin-bottom: 20px;
-    }
-
-    .debit-head h3 {
-        font-size: 24px;
-        margin-bottom: 10px;
-    }
-
-    .debit-head-top {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 10px;
-    }
-
-    .debit-head-middle,
-    .debit-head-bottom {
-        margin-bottom: 20px;
-    }
-
-    .debit-body {
-        overflow-x: auto;
-    }
-
-    .debit-container {
-        background-color: #f9f9f9;
-        border: 1px solid #ddd;
-        border-radius: 5px;
-        padding: 80px;
-    }
-
-     .debit-head-bottom {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-}
-.template-button {
-    background-color: #007bff; /* Blue background */
-    color: white; /* White text color */
-    border: none; /* No border */
-    padding: 10px 20px; /* Padding */
-    margin: 5px; /* Margin */
-    border-radius: 5px; /* Rounded corners */
-    cursor: pointer; /* Cursor style */
-    transition: background-color 0.3s ease; /* Smooth transition */
-}
-
-.template-button:hover {
-    background-color: #0056b3; /* Darker blue on hover */
-}
-.template-button.small {
-    padding: 8px 16px; /* Decrease padding */
-    font-size: 14px; /* Decrease font size */
-}
-
-@media (max-width: 576px) {
-    .template-button.small {
-        font-size: 12px; /* Further decrease font size for smaller screens */
-    }
-    .body-wrapper {
-        overflow-x: auto;
-    }
-
-}
-    /* Style for table */
-    body {
-            font-family: Arial, sans-serif;
-            background-color: #f2f2f2; /* Light gray background */
-            color: #333; /* Dark gray text color */
-        }
-        .debit-container {
-            background-color: #fff; /* White background for the container */
-            padding: 20px;
-            border-radius: 10px;
-            border: 1px solid #ccc; /* Gray border */
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Shadow effect */
-            margin: 20px auto;
-            max-width: 800px;
-        }
-        .text-bold {
-            font-weight: bold;
-        }
-        .debit-head-middle-left, .debit-head-bottom-left {
-            color: #007bff; /* Blue text color */
-        }
-        .debit-head-middle-right, .debit-head-bottom-right {
-            color: #007bff; /* Blue text color */
-        }
-        .debit-head-middle-left .text-bold, .debit-head-bottom-left .text-bold {
-            color: #007bff; /* Blue text color */
-        }
-        .debit-head-middle-right .text-bold, .debit-head-bottom-right .text-bold {
-            color: #dc3545; /* Red text color */
-        }
-        .debit-body table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 20px;
-        }
-        .debit-body th, .debit-body td {
-            border: 1px solid black;
-            padding: 8px;
-            text-align: left;
-        }
-        .debit-body th {
-            background-color: #007bff; /* Blue background for table headers */
-            color: #fff; /* White text color */
-        }
-        .debit-body tr:nth-child(even) {
-            background-color: #f2f2f2; /* Light gray background for even rows */
-        }
-        .debit-body tr:hover {
-            background-color: #ddd; /* Darker gray background on hover */
-        }
-        .debit-body-bottom {
-            margin-top: 20px;
-            border-top: 1px solid #ccc; /* Gray border on top */
-            padding-top: 10px;
-        }
-        .debit-body-info-item {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 10px;
-        }
-        .info-item-td {
-            flex: 1;
-            text-align: right;
-        }
-
-
-    `); printWindow.document.write('</style></head><body>');
-    printWindow.document.write('</style></head><body>');
-    printWindow.document.write(templateContent);
-    printWindow.document.write('</body></html>');
-        // Close the document for proper rendering
-        printWindow.document.close();
-
-        // Wait for the content to be fully loaded
-        await new Promise(resolve => printWindow.onload = resolve);
-
-// Generate PDF after content is fully loaded
-const element = printWindow.document.body;
-const opt = {
-    margin: 1,
-    filename: 'Template_PDF.pdf',
-    image: { type: 'jpeg', quality: 0.98 },
-    html2canvas: { scale: 2 },
-    jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
-};
-
-// Convert HTML to PDF
-html2pdf().set(opt).from(element).output('blob').then(pdfData => {
-    // Send email with attachment
-    sendEmailWithAttachment(email, message, pdfData);
-});
-}
-
-// Function to send email with attachment
-function sendEmailWithAttachment(email, message, pdfData) {
-    const formData = new FormData();
-    formData.append('email_ids', email); // Change 'email' to 'email_ids'
-    formData.append('email_message', message); // Change 'message' to 'email_message'
-    formData.append('attachment', pdfData);
-
-    // Send POST request to Django backend
-    fetch(`/share-debit-note-via-email/${debit_note_id}/`, { // Replace `debit_note_id` with the actual ID
-        method: 'POST',
-        body: formData
-    })
-    .then(response => {
-        if (response.ok) {
-            showSuccessMessage();
-        } else {
-            // Log the response text for debugging
-            console.log('Error response:', response.statusText);
-            return response.json().then(data => {
-                throw new Error(data.message || 'Failed to send email');
-            });
-        }
-    })
-    .catch(error => {
-        // Log the fetch error to the console
-        console.error('Fetch error:', error);
-        showErrorMessage(error.message || 'An error occurred while sending the email');
-    });
-}
-</script>
-<script>
-    function sendWhatsAppMessage() {
-    const pdfUrl = 'https://example.com/path/to/your/pdf'; // Replace with the actual URL of your PDF attachment
-    const message = 'Check out this PDF: ' + pdfUrl;
-    const encodedMessage = encodeURIComponent(message);
-    
-    // Replace '1234567890' with the phone number of the recipient
-    const phoneNumber = '1234567890'; // Add the phone number here
-
-    const whatsappUrl = 'https://wa.me/' + phoneNumber + '?text=' + encodedMessage;
-
-    window.location.href = whatsappUrl; // Redirect to WhatsApp with pre-filled message
-}
 </script>
 </body>
             {% endblock %}

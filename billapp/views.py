@@ -22,6 +22,8 @@ import json
 import base64
 from django.core.mail import EmailMessage
 from io import BytesIO
+from django.views.decorators.csrf import csrf_exempt
+
 
 
 
@@ -1017,33 +1019,97 @@ def get_debit_note_details(request, debit_id):
         # Return a JSON response with an error message if the debit note does not exist or if there's a value error
         return JsonResponse({'error': 'Invalid DebitNote ID'}, status=404)
     
+# def share_debit_note_via_email(request, debit_note_id):
+    # if request.method == 'POST':
+    #     try:
+            # Retrieve data from the POST request
+            # email = request.POST.get('email')
+            # message = request.POST.get('message')
+            # pdf_data = request.POST.get('attachment')
 
-def share_debit_note_via_email(request):
+            # Check if all required data is provided
+            # if not all([email, message, pdf_data]):
+            #     return JsonResponse({'status': 'error', 'message': 'Missing required data'}, status=400)
+
+            # Decode the attachment data if needed
+            # pdf_data_decoded = base64.b64decode(pdf_data.split(',')[1])
+
+            # Retrieve the debit note object
+            # debit_note = DebitNote.objects.get(id=debit_note_id)
+            # company = debit_note.company
+
+            # Render HTML template for the debit note
+            # context = {
+            #     'debit_note': debit_note,
+            #     'company': company,
+            #     'message': message,
+            # }
+            # html_content = render_to_string('debit_note_template.html', context)
+
+            # # Create EmailMessage object
+            # subject = "Debit Note"
+            # from_email = settings.EMAIL_HOST_USER
+            # email_message = EmailMessage(
+            #     subject,
+            #     message,
+            #     from_email=from_email,
+            #     to=[email]
+            # )
+            # Attach the PDF file
+            # email_message.attach("debit_note.pdf", pdf_data_decoded, 'application/pdf')
+
+            # Send the email
+    #         email_message.send(fail_silently=False)
+
+    #         return JsonResponse({'status': 'success', 'message': 'Email sent successfully'})
+    #     except DebitNote.DoesNotExist:
+    #         return JsonResponse({'status': 'error', 'message': 'Debit note does not exist'}, status=404)
+    #     except Exception as e:
+    #         return JsonResponse({'status': 'error', 'message': str(e)}, status=500)
+
+    # return JsonResponse({'status': 'error', 'message': 'Method not allowed'}, status=405)
+def share_debit_note_via_email(request, debit_note_id):
     if request.method == 'POST':
-        email = request.POST.get('email')
-        message = request.POST.get('message')
-        pdfData = request.POST.get('attachment')
-
-        
         try:
-            pdfData_decoded = base64.b64decode(pdfData.split(',')[1])
-        except Exception as e:
-            return JsonResponse({'status': 'error', 'message': 'Failed to decode attachment data'})
+            # Retrieve data from the POST request
+            email = request.POST.get('email')
+            message = request.POST.get('message')
 
-        # Email configuration
-        subject = "Debit Note"
-        from_email = settings.EMAIL_HOST_USER
-        email_message = EmailMessage(
-            subject, 
-            message, 
-            from_email=from_email, 
-            to=[email]
-        )
-        email_message.attach("debit_note.pdf", pdfData_decoded)
+            # Check if all required data is provided
+            if not all([email, message]):
+                return JsonResponse({'status': 'error', 'message': 'Missing required data'}, status=400)
 
-        try:
+            # Retrieve the debit note object
+            debit_note = DebitNote.objects.get(id=debit_note_id)
+            company = debit_note.company
+
+            # Render HTML template for the debit note
+            context = {
+                'debit_note': debit_note,
+                'company': company,
+                'message': message,
+            }
+            html_content = render_to_string('debit_note_template.html', context)
+
+            # Create EmailMessage object
+            subject = "Debit Note"
+            from_email = settings.EMAIL_HOST_USER
+            email_message = EmailMessage(
+                subject,
+                message,
+                from_email=from_email,
+                to=[email]
+            )
+
+            # Attach HTML content as alternative content (no PDF attachment)
+            email_message.attach_alternative(html_content, 'text/html')
+
+            # Send the email
             email_message.send(fail_silently=False)
-            return JsonResponse({'status': 'success'})
+
+            return JsonResponse({'status': 'success', 'message': 'Email sent successfully'})
+        except DebitNote.DoesNotExist:
+            return JsonResponse({'status': 'error', 'message': 'Debit note does not exist'}, status=404)
         except Exception as e:
             return JsonResponse({'status': 'error', 'message': str(e)}, status=500)
 

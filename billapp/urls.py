@@ -48,7 +48,8 @@ urlpatterns = [
     path('generate_pdf/<int:debit_note_id>/', views.generate_pdf, name='generate_pdf'),
    
     path('get_debit_note_details/<int:debit_id>/', views.get_debit_note_details, name='get_debit_note_details'),
-    path('share-debit-note-via-email', views.share_debit_note_via_email, name='share_debit_note_via_email'),
+    path('share-debit-note-via-email/<int:debit_note_id>/', views.share_debit_note_via_email, name='share_debit_note_via_email'),
+    
 ]
 
     
