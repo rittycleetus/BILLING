@@ -6,17 +6,19 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.3/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.3/html2pdf.bundle.min.js"></script>
-
+<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+<script type="text/javascript" src="https://unpkg.com/xlsx@0.15.1/dist/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.2/html2pdf.bundle.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.2/html2pdf.bundle.min.js"></script>
 
 
 <style>
     /* Style for debit note report */
-    .body-wrapper {
-    overflow: hidden;
-
-}
+  
     .debit-wrapper {
-        margin-top: 50px; /* Adjust the top margin as needed */
+        margin-top: 20px; /* Adjust the top margin as needed */
     
    
         
@@ -42,10 +44,7 @@
         margin-bottom: 20px;
     }
 
-    .debit-body {
-        overflow-x: auto;
-    }
-
+   
     .debit-container {
         background-color: #f9f9f9;
         border: 1px solid #ddd;
@@ -161,7 +160,7 @@
             display: none;
             position: absolute;
             top: calc(100% + 5px);
-            left: 50%;
+            left: 1%;
             transform: translateX(-50%);
             background-color: #fff;
             padding: 20px;
@@ -250,16 +249,18 @@
         }
 </style>
 
-<div class="body-wrapper">
-    <div class="row ps-3 pe-3 m-0" id="whatToPrint1">
-        <div class="col-sm-10 ps-2 pe-3">
-            <div class="row pt-4 m-15">
-                <div class="card p-0 bg-light bs col-md-15">
+
+
+    <div class="body-wrapper">
+        <br><br><br><br><br><br>
+        <div class="row ps-3 pe-3 m-0">
+            <div class="col-sm-12 col-lg-12  ps-2 pe-3 pb-2">
+                <div class="card bg-light bs"style="height:100%;">
                     <br>
                     <div class="row">
                         <div class="container">
                             <div class="row">
-                                <div class="col-md-3" style="margin-left: 3vh; margin-top: 7vh;">
+                                <div class="col-md-3" style="margin-left: 3vh; margin-top: 10px;">
                                     <div class="form-group">
                                         <h3 style="font-size: 17px;"><b>DEBIT NOTE DETAILS</b></h3>
                                     </div>  
@@ -286,7 +287,7 @@
                                             
                                             <div id="sharePopup" class="popup">
                                                 <p><a class="gmail" href="#" onclick="openGmailModal()"><i class="far fa-envelope"></i> <b>Gmail</b></a>
-                                                    <a class="whatsapp" href="#" onclick="sendWhatsAppMessage()"> <!-- Use onclick event -->
+                                                    <a class="whatsapp" href="#" onclick="shareOnWhatsApp()">
                                                         <i class="fab fa-whatsapp"></i> <b>WhatsApp</b>
                                                     </a>
                                                     </div>
@@ -302,7 +303,7 @@
                                                             <textarea class="form-control text-dark" name="email_ids" id="recipientEmail" rows="3" style="height: 100px;border-color: #eee;" placeholder="Multiple emails can be added by separating with a comma(,)." required></textarea>
                                                             <label for="message" style="display: block; text-align: left; margin-top: 10px;"><b>Message (Optional):</b></label>
                                                             <textarea name="email_message" id="optionalMessage" class="form-control text-dark" cols="" rows="4" style="height: 100px;border-color: #eee;" placeholder="This message will be sent along with Debitnote details."></textarea>
-                                                            <input type="hidden" name="attachment" id="attachment" value="base64_encoded_pdf_data_here"> 
+                                                            <input type="hidden" id="template_format" name="template_format">
                                                             <button type="submit"id="sendEmailBtn" class="sendEmailBtn btn btn-outline-warning w-50 text-uppercase">SEND MAIL</button>
                                                         </form>
                                                     </div>
@@ -639,6 +640,7 @@
     document.querySelectorAll(".debit-wrapper")[templateIndex-1].style.display = "block";
     console.log("Switching to template",templateIndex);
         console.log(templates.length);
+        
         
 }
 
@@ -1025,11 +1027,158 @@ function getCurrentTemplateId() {
 
         var email = $('#recipientEmail').val().trim();
         var message = $('#optionalMessage').val().trim();
-       // Make sure to set the value of this input field with the base64-encoded PDF data
+        var templateId = getCurrentTemplateId(); // Dynamically get the template ID
+        var templateContent = document.getElementById("template" + templateId).innerHTML;
 
         console.log('Email:', email);
         console.log('Message:', message);
+        console.log('Template ID:', templateId);
+        console.log('Template Content:', templateContent);
+        var styles =  `<style>
+    .body-wrapper {
+    overflow: hidden;
+
+}
+    .debit-wrapper {
+        margin-top: 50px; /* Adjust the top margin as needed */
+    
    
+        
+    }
+    .debit-head {
+        margin-bottom: 20px;
+    }
+
+    .debit-head h3 {
+        font-size: 24px;
+        margin-bottom: 10px;
+    }
+
+    .debit-head-top {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 10px;
+    }
+
+    .debit-head-middle,
+    .debit-head-bottom {
+        margin-bottom: 20px;
+    }
+
+    .debit-body {
+        overflow-x: auto;
+    }
+
+    .debit-container {
+        background-color: #f9f9f9;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        padding: 80px;
+    }
+
+     .debit-head-bottom {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+}
+.template-button {
+    background-color: #007bff; /* Blue background */
+    color: white; /* White text color */
+    border: none; /* No border */
+    padding: 10px 20px; /* Padding */
+    margin: 5px; /* Margin */
+    border-radius: 5px; /* Rounded corners */
+    cursor: pointer; /* Cursor style */
+    transition: background-color 0.3s ease; /* Smooth transition */
+}
+
+.template-button:hover {
+    background-color: #0056b3; /* Darker blue on hover */
+}
+.template-button.small {
+    padding: 8px 16px; /* Decrease padding */
+    font-size: 14px; /* Decrease font size */
+}
+
+@media (max-width: 576px) {
+    .template-button.small {
+        font-size: 12px; /* Further decrease font size for smaller screens */
+    }
+    .body-wrapper {
+        overflow-x: auto;
+    }
+
+}
+    /* Style for table */
+    body {
+            font-family: Arial, sans-serif;
+            background-color: #f2f2f2; /* Light gray background */
+            color: #333; /* Dark gray text color */
+        }
+        .debit-container {
+            background-color: #fff; /* White background for the container */
+            padding: 20px;
+            border-radius: 10px;
+            border: 1px solid #ccc; /* Gray border */
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Shadow effect */
+            margin: 20px auto;
+            max-width: 800px;
+        }
+        .text-bold {
+            font-weight: bold;
+        }
+        .debit-head-middle-left, .debit-head-bottom-left {
+            color: #007bff; /* Blue text color */
+        }
+        .debit-head-middle-right, .debit-head-bottom-right {
+            color: #007bff; /* Blue text color */
+        }
+        .debit-head-middle-left .text-bold, .debit-head-bottom-left .text-bold {
+            color: #007bff; /* Blue text color */
+        }
+        .debit-head-middle-right .text-bold, .debit-head-bottom-right .text-bold {
+            color: #dc3545; /* Red text color */
+        }
+        .debit-body table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        .debit-body th, .debit-body td {
+            border: 1px solid black;
+            padding: 8px;
+            text-align: left;
+        }
+        .debit-body th {
+            background-color: #007bff; /* Blue background for table headers */
+            color: #fff; /* White text color */
+        }
+        .debit-body tr:nth-child(even) {
+            background-color: #f2f2f2; /* Light gray background for even rows */
+        }
+        .debit-body tr:hover {
+            background-color: #ddd; /* Darker gray background on hover */
+        }
+        .debit-body-bottom {
+            margin-top: 20px;
+            border-top: 1px solid #ccc; /* Gray border on top */
+            padding-top: 10px;
+        }
+        .debit-body-info-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+        .info-item-td {
+            flex: 1;
+            text-align: right;
+        } 
+        </style>
+        `;
+
+        templateContent = styles + templateContent;
+
         // Validate email format
         var emailRegex = /^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$/;
         if (!emailRegex.test(email)) {
@@ -1038,25 +1187,31 @@ function getCurrentTemplateId() {
         }
 
         // Check if all required fields are filled
-        if (email === '' || attachment === '') {
+        if (email === '') {
             alert('Please fill in all required fields.');
             return;
         }
 
         // Submit the form via AJAX
+        var url = $(this).attr('action');
+        console.log('URL:', url);
+
+        // Submit the form via AJAX
         $.ajax({
             type: 'POST',
-            url: $(this).attr('action'), // Get the form action URL
+            url: url,
             data: {
                 email: email,
                 message: message,
-           
+                template_content: templateContent  
             },
             dataType: 'json',
             success: function(response) {
                 console.log('Response:', response);
                 if (response.status === 'success') {
                     alert('Email sent successfully.');
+                    $('#recipientEmail').val('');
+        $('#optionalMessage').val('');
                 } else {
                     alert('Failed to send email: ' + response.message);
                 }
@@ -1102,6 +1257,206 @@ function getCurrentTemplateId() {
         }
     });
 });
+
+</script>
+
+<script>
+
+
+function shareOnWhatsApp() {
+    
+    var templateId = getCurrentTemplateId(); // Dynamically get the template ID
+    var templateContent = document.getElementById("template" + templateId).innerHTML;
+
+    // Define styles
+    var styles = `<style>
+        .body-wrapper {
+            overflow: hidden;
+        }
+        .debit-wrapper {
+            margin-top: 50px; /* Adjust the top margin as needed */
+        }
+        .debit-head {
+            margin-bottom: 20px;
+        }
+        .debit-head h3 {
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+        .debit-head-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        .debit-head-middle,
+        .debit-head-bottom {
+            margin-bottom: 20px;
+        }
+        .debit-body {
+            overflow-x: auto;
+        }
+        .debit-container {
+            background-color: #f9f9f9;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 80px;
+        }
+        .debit-head-bottom {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+        .template-button {
+            background-color: #007bff; /* Blue background */
+            color: white; /* White text color */
+            border: none; /* No border */
+            padding: 10px 20px; /* Padding */
+            margin: 5px; /* Margin */
+            border-radius: 5px; /* Rounded corners */
+            cursor: pointer; /* Cursor style */
+            transition: background-color 0.3s ease; /* Smooth transition */
+        }
+        .template-button:hover {
+            background-color: #0056b3; /* Darker blue on hover */
+        }
+        .template-button.small {
+            padding: 8px 16px; /* Decrease padding */
+            font-size: 14px; /* Decrease font size */
+        }
+        @media (max-width: 576px) {
+            .template-button.small {
+                font-size: 12px; /* Further decrease font size for smaller screens */
+            }
+            .body-wrapper {
+                overflow-x: auto;
+            }
+        }
+        /* Style for table */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f2f2f2; /* Light gray background */
+            color: #333; /* Dark gray text color */
+        }
+        .debit-container {
+            background-color: #fff; /* White background for the container */
+            padding: 20px;
+            border-radius: 10px;
+            border: 1px solid #ccc; /* Gray border */
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Shadow effect */
+            margin: 20px auto;
+            max-width: 800px;
+        }
+        .text-bold {
+            font-weight: bold;
+        }
+        .debit-head-middle-left,
+        .debit-head-bottom-left {
+            color: #007bff; /* Blue text color */
+        }
+        .debit-head-middle-right,
+        .debit-head-bottom-right {
+            color: #007bff; /* Blue text color */
+        }
+        .debit-head-middle-left .text-bold,
+        .debit-head-bottom-left .text-bold {
+            color: #007bff; /* Blue text color */
+        }
+        .debit-head-middle-right .text-bold,
+        .debit-head-bottom-right .text-bold {
+            color: #dc3545; /* Red text color */
+        }
+        .debit-body table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        .debit-body th,
+        .debit-body td {
+            border: 1px solid black;
+            padding: 8px;
+            text-align: left;
+        }
+        .debit-body th {
+            background-color: #007bff; /* Blue background for table headers */
+            color: #fff; /* White text color */
+        }
+        .debit-body tr:nth-child(even) {
+            background-color: #f2f2f2; /* Light gray background for even rows */
+        }
+        .debit-body tr:hover {
+            background-color: #ddd; /* Darker gray background on hover */
+        }
+        .debit-body-bottom {
+            margin-top: 20px;
+            border-top: 1px solid #ccc; /* Gray border on top */
+            padding-top: 10px;
+        }
+        .debit-body-info-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+        .info-item-td {
+            flex: 1;
+            text-align: right;
+        } 
+    </style>`;
+
+    // Combine styles and content
+    var contentWithStyles = styles + templateContent;
+
+
+var pdfUrl = window.location.href;
+
+
+var message = "HI!\nCheck out your DEBIT NOTE REPORT:\n" + pdfUrl;
+
+
+var encodedMessage = encodeURIComponent(message);
+
+// Construct the WhatsApp URL with the encoded message
+var whatsappUrl = "whatsapp://send?text=" + encodedMessage;
+
+// Create a link element
+var linkElement = document.createElement("a");
+
+// Set the href attribute to the WhatsApp URL
+linkElement.href = whatsappUrl;
+
+// Set the text content of the link
+linkElement.textContent = "Share on WhatsApp";
+
+// Append the link to the document body or any desired container
+document.body.appendChild(linkElement);
+
+
+if (isMobile()) {
+   
+    window.location.href = whatsappUrl;
+} else {
+   
+    openWhatsAppWeb(message);
+}
+}
+
+function isMobile() {
+return /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+}
+
+// Function to open WhatsApp Web on desktop
+function openWhatsAppWeb(message) {
+
+var encodedMessage = encodeURIComponent(message);
+
+
+var whatsappWebUrl = "https://web.whatsapp.com/send?text=" + encodedMessage;
+
+
+window.open(whatsappWebUrl, "_blank");
+}
+
+
 </script>
 </body>
             {% endblock %}

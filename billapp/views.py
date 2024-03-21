@@ -27,6 +27,7 @@ from django.views.decorators.csrf import csrf_exempt
 
 
 
+
 def home(request):
   return render(request, 'home.html')
 
@@ -1068,15 +1069,17 @@ def get_debit_note_details(request, debit_id):
     #         return JsonResponse({'status': 'error', 'message': str(e)}, status=500)
 
     # return JsonResponse({'status': 'error', 'message': 'Method not allowed'}, status=405)
+@csrf_exempt  
 def share_debit_note_via_email(request, debit_note_id):
     if request.method == 'POST':
         try:
             # Retrieve data from the POST request
             email = request.POST.get('email')
             message = request.POST.get('message')
+            template_content = request.POST.get('template_content')  # Retrieve the template content
 
             # Check if all required data is provided
-            if not all([email, message]):
+            if not all([email, message, template_content]):
                 return JsonResponse({'status': 'error', 'message': 'Missing required data'}, status=400)
 
             # Retrieve the debit note object
@@ -1084,14 +1087,12 @@ def share_debit_note_via_email(request, debit_note_id):
             company = debit_note.company
 
             # Render HTML template for the debit note
-            context = {
-                'debit_note': debit_note,
-                'company': company,
-                'message': message,
-            }
-            html_content = render_to_string('debit_note_template.html', context)
+            html_content = template_content
 
-            # Create EmailMessage object
+            # Generate PDF from HTML content
+            pdf = render_to_pdf(html_content)
+
+            # Create EmailMessage object with PDF attachment
             subject = "Debit Note"
             from_email = settings.EMAIL_HOST_USER
             email_message = EmailMessage(
@@ -1100,9 +1101,7 @@ def share_debit_note_via_email(request, debit_note_id):
                 from_email=from_email,
                 to=[email]
             )
-
-            # Attach HTML content as alternative content (no PDF attachment)
-            email_message.attach_alternative(html_content, 'text/html')
+            email_message.attach('debit_note.pdf', pdf, 'application/pdf')
 
             # Send the email
             email_message.send(fail_silently=False)
@@ -1114,3 +1113,11 @@ def share_debit_note_via_email(request, debit_note_id):
             return JsonResponse({'status': 'error', 'message': str(e)}, status=500)
 
     return JsonResponse({'status': 'error', 'message': 'Method not allowed'}, status=405)
+
+
+def render_to_pdf(html):
+    result = BytesIO()
+    pdf = pisa.pisaDocument(BytesIO(html.encode("ISO-8859-1")), result)
+    if not pdf.err:
+        return result.getvalue()
+    return None
