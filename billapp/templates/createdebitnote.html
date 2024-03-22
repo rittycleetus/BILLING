@@ -278,7 +278,9 @@
                     <!-- Right side of the form -->
                     <div class="form-group">
                         <label for="return_no">Return No.</label>
-                        <input type="text" class="form-control" id="return_no" name="return_no" value="{{ debitnote.created_at|date:'d/m/Y' }}" >
+                        <input type="text" class="form-control" id="return_no" name="return_no" value="{{count}}" >
+<!-- 
+                        {{ debitnote.created_at|date:'d/m/Y' }} -->
                         <span id="return-no-message" style="color: red;"></span>
                     </div>
               
@@ -1208,6 +1210,9 @@
    </div>
 
 </script>
+
+
+
 <script>
     $('#select1').on('change', function () {
         // Your code here
@@ -1215,73 +1220,74 @@
         console.log('Selected item:', selectedItem);
     });
 </script>
-<script>
-    $(document).ready(function () {
-        // Get the initial pattern
-        var initialPattern = /^JK\d+$/i;
-
-        // Listen for changes in the "Return No." field
-        $('#return_no').change(function () {
-            // Get the entered return number
-            var returnNo = $(this).val();
-
-            // Check if the pattern is followed (e.g., JK1, JK2, JK3, ...)
-            if (!initialPattern.test(returnNo)) {
-                // Display a confirmation message
-                var confirmed = confirm('Changing the pattern will reset the return number. Are you sure you want to change the pattern?');
-
-                if (!confirmed) {
-                    // Revert to the previous value
-                    $(this).val('');
-                    return;
-                }
-
-                // Update the initial pattern if confirmed
-                initialPattern = new RegExp("^" + returnNo + "$", "i");
-            }
-
-            // Check if the pattern is followed (e.g., JK1, JK2, JK3, ...)
-            if (!initialPattern.test(returnNo)) {
-                // Display an error message
-                $('#return-no-message').text('Return No. should follow the pattern JK1, JK2, JK3, ...');
-            } else {
-                // Clear the error message
-                $('#return-no-message').text('');
-
-                // You can perform additional logic if needed
-            }
-        });
-
-        // Automatically generate and set the initial return number on form load
-        var lastReturnNo = getLastReturnNo(); // You need to implement this function
-        var newReturnNo = generateNextReturnNo(lastReturnNo);
-        $('#return_no').val(newReturnNo);
-    });
-
-    // Function to get the last return number from the database or any other source
-    function getLastReturnNo() {
-        // Implement logic to get the last return number
-        // For now, let's assume it returns the last stored return number
-        return "JK2";
-    }
-
-    // Function to generate the next return number based on the last return number
-    function generateNextReturnNo(lastReturnNo) {
-        var match = lastReturnNo.match(/(\D+)(\d+)/);
-        var prefix = match[1];
-        var number = parseInt(match[2]);
-        return prefix + (number + 1);
-    }
-</script>
 
 <script>
-    $(document).ready(function() {
-        $('#party').select2({
-            width: '450px',
-            placeholder: '-- Select/Search Party --',
-            allowClear: true // Adds a clear button to the dropdown
-        });
-    });
+$(document).ready(function () {
+    // Get the initial pattern
+    // Get the initial pattern
+    var initialPattern = /^\d+$/;
+
+    // Function to handle the confirmation message
+    function handleConfirmation() {
+        // Get the entered return number
+        var returnNo = $('#return_no').val();
+
+        // Check if the pattern is followed (e.g., 1, 2, 3, ...)
+        if (!initialPattern.test(returnNo)) {
+            // Display a confirmation message
+            var confirmed = confirm('Changing the pattern will reset the return number. Are you sure you want to change the pattern?');
+
+            if (!confirmed) {
+                // Revert to the previous value
+                $('#return_no').val('');
+                return;
+            }
+
+            // Update the initial pattern if confirmed
+            initialPattern = new RegExp("^" + returnNo + "$");
+
+            // Show a message indicating the return number has changed
+            $('#return-no-message').text('Return number has changed');
+        }
+
+        // Check if the pattern is followed (e.g., 1, 2, 3, ...)
+        if (!initialPattern.test(returnNo)) {
+            // Display an error message
+            $('#return-no-message').text('Return No. should be a numeric value');
+        } else {
+            // Clear the error message
+            $('#return-no-message').text('');
+        }
+    }
+
+    // Listen for changes in the "Return No." field
+    $('#return_no').on('change keyup', handleConfirmation); // Also trigger on keyup event
+
+    // Automatically generate and set the initial return number on form load
+    var lastReturnNo = getLastReturnNo();
+    var newReturnNo = generateNextReturnNo(lastReturnNo);
+    $('#return_no').val(newReturnNo);
+
+    // Trigger the confirmation message handling function
+    handleConfirmation();
+});
+function getLastReturnNo() {
+    // Implement logic to fetch the last return number from your data source
+    // For now, let's assume it returns the last stored return number
+    // If there's no previous return number, return an empty string
+    var lastReturnNo = "";  // Example last return number fetched from the data source
+    return lastReturnNo;
+}
+
+// Function to generate the next return number based on the last return number
+function generateNextReturnNo(lastReturnNo) {
+    if (lastReturnNo === "") {
+        return "1"; // If no previous return number, start from 1
+    } else {
+        var number = parseInt(lastReturnNo);
+        return (number + 1).toString();
+    }
+}
 </script>
 // <!-- <script>
 // function closeAndOpenUnitModal() {

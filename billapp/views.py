@@ -23,7 +23,7 @@ import base64
 from django.core.mail import EmailMessage
 from io import BytesIO
 from django.views.decorators.csrf import csrf_exempt
-
+from django.db.models import Max
 
 
 
@@ -462,9 +462,10 @@ def debit_note_redirect(request):
     else:
         # No debit notes exist, redirect to the page for creating the first debit note
         return redirect('firstdebitnote') 
-    
+
+
+        
 def createdebitnote(request):
-    
     # Fetch the company based on the user's role
     if request.user.is_company:
         cmp = request.user.company
@@ -504,8 +505,25 @@ def createdebitnote(request):
             # Assuming Party has a ForeignKey to PurchaseBill
             selected_item = selected_party.purchasebill_set.first().item  # Adjust this line based on your model structure
 
-            # Create a DebitNote instance
-            debit_note = DebitNote.objects.create(party=selected_party, bill=selected_bill, user=request.user, company=cmp)
+            # Determine the next return number
+            last_debit_note = DebitNote.objects.filter(company=cmp).order_by('-return_no').first()
+
+            if last_debit_note:
+                next_return_no = int(last_debit_note.return_no) + 1
+            else:
+                next_return_no = 1
+            
+            # Include next_return_no in the context
+            context['count'] = next_return_no
+
+            # Create a DebitNote instance with the next return number
+            debit_note = DebitNote.objects.create(
+                party=selected_party, 
+                bill=selected_bill, 
+                user=request.user, 
+                company=cmp,
+                return_no=next_return_no  # Set the return number here
+            )
 
             # Retrieve the created DebitNote instance based on its ID
             debit_note_instance = get_object_or_404(DebitNote, id=debit_note.id)
@@ -524,6 +542,7 @@ def createdebitnote(request):
                 'company_id': cmp.id,
                 'debit_note_instance': debit_note_instance,
                 'taxRate': taxRate,
+                'count': next_return_no,  # Include next_return_no in the context
             })
 
         except Exception as e:
