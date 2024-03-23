@@ -464,7 +464,6 @@ def debit_note_redirect(request):
         return redirect('firstdebitnote') 
 
 
-        
 def createdebitnote(request):
     # Fetch the company based on the user's role
     if request.user.is_company:
@@ -475,8 +474,14 @@ def createdebitnote(request):
     parties = Party.objects.filter(company=cmp)
     bills = PurchaseBill.objects.filter(company=cmp)
     unit = Unit.objects.filter(company=cmp)
-
     items = Item.objects.filter(company=cmp)
+
+    # Determine the next return number
+    last_debit_note = DebitNote.objects.filter(company=cmp).order_by('-returnno').first()
+    if last_debit_note:
+        next_return_no = int(last_debit_note.returnno) + 1
+    else:
+        next_return_no = 1
 
     context = {
         'usr': request.user,
@@ -485,6 +490,7 @@ def createdebitnote(request):
         'items': items,
         'units': unit,
         'company_id': cmp.id,  # Pass company_id to the template
+        'count': next_return_no,  # Pass the next return number to the template
     }
 
     if request.method == 'POST':
@@ -496,33 +502,41 @@ def createdebitnote(request):
         try:
             party_id = request.POST.get('party')
             bill_id = request.POST.get('bill')
-            
+
             # Assuming that a Party has a ForeignKey to PurchaseBill
             selected_party = get_object_or_404(Party, id=party_id)
             selected_bill = get_object_or_404(PurchaseBill, id=bill_id)
-            
+
             # Assuming that PurchaseBill has a ForeignKey to Item
             # Assuming Party has a ForeignKey to PurchaseBill
             selected_item = selected_party.purchasebill_set.first().item  # Adjust this line based on your model structure
 
             # Determine the next return number
-            last_debit_note = DebitNote.objects.filter(company=cmp).order_by('-return_no').first()
+            last_debit_note = DebitNote.objects.filter(company=cmp).order_by('-returnno').first()
 
-            if last_debit_note:
-                next_return_no = int(last_debit_note.return_no) + 1
-            else:
-                next_return_no = 1
-            
+            try:
+                return_no = request.POST.get('return_no')
+
+                # Check if return_no is not an empty string before converting to an integer
+                if return_no and return_no.strip():
+                    next_return_no = int(return_no) + 1
+                else:
+                    # Handle the case where return_no is empty or contains only whitespace
+                    next_return_no = 1
+            except ValueError:
+                # Handle the case where the value cannot be converted to an integer
+                next_return_no = 1  # Set a default value or handle the error accordingly
+
             # Include next_return_no in the context
             context['count'] = next_return_no
 
             # Create a DebitNote instance with the next return number
             debit_note = DebitNote.objects.create(
-                party=selected_party, 
-                bill=selected_bill, 
-                user=request.user, 
+                party=selected_party,
+                bill=selected_bill,
+                user=request.user,
                 company=cmp,
-                return_no=next_return_no  # Set the return number here
+                returnno=next_return_no  # Set the return number here
             )
 
             # Retrieve the created DebitNote instance based on its ID
@@ -553,6 +567,7 @@ def createdebitnote(request):
             return JsonResponse({'status': 'error', 'message': 'An error occurred while processing the request'})
 
     return render(request, 'createdebitnote.html', context)
+
 
 @csrf_exempt
 def create_party(request):
@@ -698,14 +713,13 @@ def create_unit(request):
     # Handle other HTTP methods if needed
     return JsonResponse({'success': False, 'message': 'Invalid request method'})
 
-
 def save_debit_note(request):
     company_id = request.session.get('company')
     user_id = request.session.get('user')
 
     if request.method == 'POST':
         party_id = request.POST.get('party')
-        return_no = request.POST.get('return_no')
+        return_no = request.POST.get('return_no')  # Retrieve return_no from the form
         current_date = request.POST.get('current-date1') 
         subtotal = request.POST.get('subtotal')
         tax_amount = request.POST.get('taxAmount')
@@ -714,11 +728,12 @@ def save_debit_note(request):
 
         selected_party = Party.objects.get(id=party_id)
 
+        # Create the debit note with the return number from the form
         debit_note = DebitNote.objects.create(
             user=request.user,
             company_id=company_id, 
             party=selected_party,
-            returnno=return_no,
+            returnno=return_no,  # Use the return number from the form
             created_at=current_date
         )
 
@@ -770,8 +785,6 @@ def save_debit_note(request):
         'usr': request.user  # Pass the user object to the template
     }
     return render(request, 'debitnote2.html', context)
-
-
 
 def debitnote2(request):
     company_id = request.session.get('company')
@@ -963,6 +976,7 @@ def get_debit_note_history(request, debitnote_id):
 
     # Convert queryset to list of dictionaries
     history_data_list = list(history_data)
+    print("History data:", list(history_data))
 
     # Return the history data as JSON response
     return JsonResponse(history_data_list, safe=False)
@@ -973,26 +987,26 @@ def get_debit_note_history(request, debitnote_id):
 
 
 
-def generate_pdf(request, debit_note_id):
-    debit_note = DebitNote.objects.get(id=debit_note_id)
-    # Fetch related data
-    party = debit_note.party
-    debit_note_items = debit_note.debitnoteitem_set.all()  # Assuming you have related_name set for ForeignKey
-    # Render PDF template with fetched data
-    context = {
-        'debit_note': debit_note,
-        'party': party,
-        'debit_note_items': debit_note_items,
-    }
-    pdf_content = render_to_string('debit_note_pdf_template.html', context)
+# def generate_pdf(request, debit_note_id):
+#     debit_note = DebitNote.objects.get(id=debit_note_id)
+#     # Fetch related data
+#     party = debit_note.party
+#     debit_note_items = debit_note.debitnoteitem_set.all()  # Assuming you have related_name set for ForeignKey
+#     # Render PDF template with fetched data
+#     context = {
+#         'debit_note': debit_note,
+#         'party': party,
+#         'debit_note_items': debit_note_items,
+#     }
+#     pdf_content = render_to_string('debit_note_pdf_template.html', context)
 
-    # Generate PDF using a library like WeasyPrint or ReportLab (not implemented here)
-    # For demonstration purposes, let's assume pdf_content contains the PDF data
+#     # Generate PDF using a library like WeasyPrint or ReportLab (not implemented here)
+#     # For demonstration purposes, let's assume pdf_content contains the PDF data
 
-    # Return PDF as HttpResponse
-    response = HttpResponse(pdf_content, content_type='application/pdf')
-    response['Content-Disposition'] = 'attachment; filename="debit_note_report.pdf"'
-    return response
+#     # Return PDF as HttpResponse
+#     response = HttpResponse(pdf_content, content_type='application/pdf')
+#     response['Content-Disposition'] = 'attachment; filename="debit_note_report.pdf"'
+#     return response
 
 
 

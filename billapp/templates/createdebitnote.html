@@ -278,10 +278,9 @@
                     <!-- Right side of the form -->
                     <div class="form-group">
                         <label for="return_no">Return No.</label>
-                        <input type="text" class="form-control" id="return_no" name="return_no" value="{{count}}" >
-<!-- 
-                        {{ debitnote.created_at|date:'d/m/Y' }} -->
-                        <span id="return-no-message" style="color: red;"></span>
+                        <input type="text" class="form-control" id="return_no" name="return_no" value="{{count}}">
+                     
+
                     </div>
               
                 
@@ -961,7 +960,8 @@
        }
    }
        
-//    $.ajax({
+
+   $.ajax({
 //     url: "{% url 'create_party' %}",
 //     type: 'POST',
 //     data: data,
@@ -1222,92 +1222,56 @@
 </script>
 
 <script>
-$(document).ready(function () {
-    // Get the initial pattern
-    // Get the initial pattern
-    var initialPattern = /^\d+$/;
+    window.onload = function() {
+        // Get the value of count dynamically
+        var countValue = "{{ count }}";
 
-    // Function to handle the confirmation message
-    function handleConfirmation() {
-        // Get the entered return number
-        var returnNo = $('#return_no').val();
+        // Function to handle confirmation and pattern validation
+        function handleConfirmation() {
+            var returnNoInput = document.getElementById('return_no');
+            var returnNo = returnNoInput.value.trim();
 
-        // Check if the pattern is followed (e.g., 1, 2, 3, ...)
-        if (!initialPattern.test(returnNo)) {
-            // Display a confirmation message
-            var confirmed = confirm('Changing the pattern will reset the return number. Are you sure you want to change the pattern?');
+            // Define the initial pattern (e.g., numeric values only)
+            var initialPattern = /^\d+$/;
 
-            if (!confirmed) {
-                // Revert to the previous value
-                $('#return_no').val('');
-                return;
+            // Check if the pattern is followed (e.g., 1, 2, 3, ...)
+            if (!initialPattern.test(returnNo)) {
+                // Display a confirmation message
+                var confirmed = confirm('Changing the pattern will reset the return number. Are you sure you want to change the pattern?');
+
+                if (!confirmed) {
+                    // Revert to the previous value
+                    returnNoInput.value = '';
+                    return;
+                }
+
+                // Update the initial pattern if confirmed
+                initialPattern = new RegExp("^" + returnNo + "$");
+
+                // Show a message indicating the return number has changed
+                document.getElementById('return-no-message').textContent = 'Return number has changed';
             }
 
-            // Update the initial pattern if confirmed
-            initialPattern = new RegExp("^" + returnNo + "$");
-
-            // Show a message indicating the return number has changed
-            $('#return-no-message').text('Return number has changed');
+            // Check if the pattern is followed (e.g., 1, 2, 3, ...)
+            if (!initialPattern.test(returnNo)) {
+                // Display an error message
+                document.getElementById('return-no-message').textContent = 'Return No. should be a numeric value';
+            } else {
+                // Clear the error message
+                document.getElementById('return-no-message').textContent = '';
+            }
         }
 
-        // Check if the pattern is followed (e.g., 1, 2, 3, ...)
-        if (!initialPattern.test(returnNo)) {
-            // Display an error message
-            $('#return-no-message').text('Return No. should be a numeric value');
-        } else {
-            // Clear the error message
-            $('#return-no-message').text('');
-        }
-    }
+        // Listen for changes in the "Return No." field
+        var returnNoInput = document.getElementById('return_no');
+        returnNoInput.addEventListener('change', handleConfirmation);
+        returnNoInput.addEventListener('keyup', handleConfirmation); // Also trigger on keyup event
 
-    // Listen for changes in the "Return No." field
-    $('#return_no').on('change keyup', handleConfirmation); // Also trigger on keyup event
-
-    // Automatically generate and set the initial return number on form load
-    var lastReturnNo = getLastReturnNo();
-    var newReturnNo = generateNextReturnNo(lastReturnNo);
-    $('#return_no').val(newReturnNo);
-
-    // Trigger the confirmation message handling function
-    handleConfirmation();
-});
-function getLastReturnNo() {
-    // Implement logic to fetch the last return number from your data source
-    // For now, let's assume it returns the last stored return number
-    // If there's no previous return number, return an empty string
-    var lastReturnNo = "";  // Example last return number fetched from the data source
-    return lastReturnNo;
-}
-
-// Function to generate the next return number based on the last return number
-function generateNextReturnNo(lastReturnNo) {
-    if (lastReturnNo === "") {
-        return "1"; // If no previous return number, start from 1
-    } else {
-        var number = parseInt(lastReturnNo);
-        return (number + 1).toString();
-    }
-}
+        // Set the value of the input field
+        returnNoInput.value = countValue;
+    };
 </script>
-// <!-- <script>
-// function closeAndOpenUnitModal() {
-//     // Close the first modal
-//     $('#itemCreateModal').modal('hide');
 
-//     // Open the second modal
-//     $('#unitmodal').modal('show');
-    
-//     // Attach an event handler to unitmodal's hidden.bs.modal event
-//     $('#unitmodal').on('hidden.bs.modal', function () {
-//         // Show the first modal when the second modal is hidden
-//         $('#itemCreateModal').modal('show');
-
-//         // Remove the event handler to avoid interference
-//         $('#unitmodal').off('hidden.bs.modal');
-//     });
-// }
-//     }
-// </script> -->
 <script>
 $(document).ready(function () {
     // Check if the page has been loaded before
