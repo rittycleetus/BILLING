@@ -870,6 +870,7 @@ def edit_debit_note(request, debit_id):
     user_id = request.session.get('user')
 
     debitnote = get_object_or_404(DebitNote, id=debit_id)
+    
 
     if request.method == 'POST':
         party_id = request.POST.get('party')
@@ -885,6 +886,7 @@ def edit_debit_note(request, debit_id):
         # Update debit note fields
         debitnote.party = selected_party
         debitnote.returnno = return_no
+   
         debitnote.created_at = current_date
         debitnote.subtotal = subtotal
         debitnote.taxamount = tax_amount
@@ -930,7 +932,8 @@ def edit_debit_note(request, debit_id):
         items = Item.objects.filter(company_id=company_id)  
         debits = DebitNote.objects.filter(user=request.user).prefetch_related('debitnotehistory_set') 
         current_date = debitnote.created_at.strftime('%Y-%m-%d') if debitnote.created_at else timezone.now().strftime('%Y-%m-%d')
-
+        bills = PurchaseBill.objects.filter(party=debitnote.party)
+        print("Parties:", parties)
         # Get selected items for the debit note
         selected_item = [{
             'id': item.items.id,
@@ -944,6 +947,8 @@ def edit_debit_note(request, debit_id):
         } for item in debitnote.debitnoteitem_set.all()]
 
         associated_bill = PurchaseBill.objects.filter(party=debitnote.party).first()
+        print("Party Object:", debitnote.party)  # Check if party object is retrieved
+        print("Party Address:", debitnote.party.address)
 
         context = {
             'debitnote': debitnote,
@@ -966,6 +971,7 @@ def edit_debit_note(request, debit_id):
             'billno': associated_bill.billno if associated_bill else None,
             'billdate': associated_bill.billdate if associated_bill else None,
             'selected_item': selected_item,
+            'bills': bills,
         }
 
         return render(request, 'editdebitnote.html', context)

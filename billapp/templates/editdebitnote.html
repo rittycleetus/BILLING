@@ -227,24 +227,38 @@
                     <label for="party">Party</label>
                     <div class="input-group">
                         <select name="party" id="party" class="form-control" style="width: 450px" onchange="handlePartySelection()">
-                            
                             {% for party in parties %}
-                            <option value="{{ party.id }}" 
-                                    data-contact="{{ party.contact }}" 
-                                    data-address="{{ party.address }}" 
-                                    data-openingbalance="{{ party.openingbalance }}"
-                                    {% for bill in bills %}
-                                    {% if party.id == bill.party_id %}
-                            
-                                        data-billno="{{ bill.billno }}"
-                                        data-billdate="{{ bill.billdate|date:'d/m/Y' }}"
-                                        {% endif %}
-                                        {% endfor %}
-                            >
-                                {{ party.party_name }}
-                            </option>
+                                {% if debitnote.party and party.id == debitnote.party.id %}
+                                    <option value="{{ party.id }}" 
+                                            data-contact="{{ party.contact }}" 
+                                            data-address="{{ party.address }}" 
+                                            data-openingbalance="{{ party.openingbalance }}"
+                                            {% for bill in bills %}
+                                            {% if party.id == bill.party_id %}
+                                                data-billno="{{ bill.billno }}"
+                                                data-billdate="{{ bill.billdate|date:'d/m/Y' }}"
+                                            {% endif %}
+                                            {% endfor %}
+                                            selected>
+                                        {{ party.party_name }}
+                                    </option>
+                                {% else %}
+                                    <option value="{{ party.id }}" 
+                                            data-contact="{{ party.contact }}" 
+                                            data-address="{{ party.address }}" 
+                                            data-openingbalance="{{ party.openingbalance }}"
+                                            {% for bill in bills %}
+                                            {% if party.id == bill.party_id %}
+                                                data-billno="{{ bill.billno }}"
+                                                data-billdate="{{ bill.billdate|date:'d/m/Y' }}"
+                                            {% endif %}
+                                            {% endfor %}>
+                                        {{ party.party_name }}
+                                    </option>
+                                {% endif %}
                             {% endfor %}
                         </select>
+                      
                             <!-- <div class="input-group-append">
                                 <button type="button" class="btn btn-outline-secondary" style="background-color: maroon;" data-toggle="modal" data-target="#createPartyModal">+</button>
                             </div> -->
@@ -278,13 +292,13 @@
                     <br>
                     <div class="form-group">
                         <label for="date">Date</label>
-                        <input type="date" class="form-control" id="current-date" name="current-date" value="{{ current_date }}">
+                        <input type="date" class="form-control" id="current-date" name="current-date" value="{{ current_date }}" readonly  >
                     </div>
                     <br>
                   
                     <div class="form-group">
                         <label for="bill">Select Bill</label>
-                        <select id="bill" name="bill" class="form-control">
+                        <select id="bill" name="bill" class="form-control"  readonly >
                            
                                 <option value="{{ billno }}">{{ billno }}</option>
                            
@@ -293,7 +307,7 @@
                     
                     <div class="form-group">
                         <label for="billdate">Bill Date</label>
-                        <input type="text" class="form-control" id="bill_date" value="{{ billdate|date:'d / m / Y' }}" disabled style="background-color: white;">
+                        <input type="text" class="form-control" id="bill_date" value="{{ billdate|date:'d / m / Y' }}" disabled style="background-color: white;"  readonly >
                     </div>
                     
                 </div>
@@ -632,16 +646,17 @@
    </div>
 
 
-   <script>
+   <!-- <script>
     window.addEventListener('DOMContentLoaded', (event) => {
         var partyAddress = document.getElementById('party_address').value.trim();
+        console.log('hai',partyAddress);
         var partyAddressGroup = document.getElementById('partyAddressGroup');
         
-        if (partyAddress === '') {
-            partyAddressGroup.style.display = 'none'; // Hide the entire form group
-        }
+        // if (partyAddress === '') {
+        //     partyAddressGroup.style.display = 'none'; // Hide the entire form group
+        // }
     });
-</script>
+</script> -->
    <!-- <script>
     $(document).ready(function () {
         $('#item_tax_1').on('click', function () {
@@ -1332,55 +1347,76 @@
     // Set the value of the input field to the current date
     document.getElementById("current-date").value = currentDate;
 </script>
+<script>
+    $(document).ready(function () {
+        // Function to handle party selection
+        function handlePartySelection(selectedOption) {
+            var addressSection = $("#partyAddressGroup");
+            var billDropdown = $("#bill");
+            var billDateInput = $("#bill_date");
+
+            // Update the "Select Bill" dropdown options
+            billDropdown.empty();
+            if (selectedOption.data('billno') !== undefined) {
+                billDropdown.append($('<option>', {
+                    value: selectedOption.data('billno'),
+                    text: selectedOption.data('billno')
+                }));
+            } else {
+                billDropdown.append($('<option>', {
+                    value: "",
+                    text: "No bills available for the selected party."
+                }));
+            }
+            
+            // Set the value of the "Bill Date" input field
+            if (selectedOption.data('billdate') !== undefined) {
+                billDateInput.val(selectedOption.data('billdate'));
+            } else {
+                billDateInput.val("No bill date available");
+            }
+
+            var address = selectedOption.data("address");
+            if (address && address.trim() !== "") {
+                // Display the address section
+                addressSection.show();
+            } else {
+                // Hide the address section
+                addressSection.hide();
+            }
+        }
+
+        // Trigger party selection on page load and change
+        $('#party').change(function () {
+            var selectedOption = $(this).find(':selected');
+     
+            $('#contact_number').val(selectedOption.data('contact'));
+            $('#party_address').val(selectedOption.data('address'));
+            $('#available_balance').val(selectedOption.data('openingbalance'));
+            handlePartySelection(selectedOption);
+        });
+
+        // Trigger party selection when the page loads initially
+        $('#party').trigger('change');
+    });
+</script>
+
+
+
 
 <script>
-$(document).ready(function () {
-    $('#party').change(function () {
-        var selectedOption = $(this).find(':selected');
-        $('#contact_number').val(selectedOption.data('contact'));
-        $('#available_balance').val(selectedOption.data('openingbalance'));
-        handlePartySelection(selectedOption);
+    // Get all input fields with the readonly attribute
+    var readonlyFields = document.querySelectorAll('input[readonly], textarea[readonly]');
+
+    // Add a click event listener to each readonly field
+    readonlyFields.forEach(function(field) {
+        field.addEventListener('click', function() {
+            // Display a message or information to the user
+            alert('This field cannot be edited.');
+        });
     });
-
-    // Function to handle party selection
-    function handlePartySelection(selectedOption) {
-        var billDropdown = $("#bill");
-        var billDateInput = $("#bill_date");
-        var addressSection = $("#addressSection");
-
-        // Update the "Select Bill" dropdown options
-        billDropdown.empty();
-        if (selectedOption.data('billno') !== undefined) {
-            billDropdown.append($('<option>', {
-                value: selectedOption.data('billno'),
-                text: selectedOption.data('billno')
-            }));
-        } else {
-            billDropdown.append($('<option>', {
-                value: "",
-                text: "No bills available for the selected party."
-            }));
-        }
-
-        // Set the value of the "Bill Date" input field
-        if (selectedOption.data('billdate') !== undefined) {
-            billDateInput.val(selectedOption.data('billdate'));
-        } else {
-            billDateInput.val("NIL");
-        }
-
-        // Update the address section based on whether there is an address available
-        var address = selectedOption.data("address");
-        if (address && address !== "none") {
-            // Display the address section
-            addressSection.show();
-        } else {
-            // Hide the address section
-            addressSection.hide();
-        }
-    }
-});
 </script>
+
 
 
  <script>
