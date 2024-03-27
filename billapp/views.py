@@ -870,12 +870,11 @@ def edit_debit_note(request, debit_id):
     user_id = request.session.get('user')
 
     debitnote = get_object_or_404(DebitNote, id=debit_id)
-    
 
     if request.method == 'POST':
         party_id = request.POST.get('party')
         return_no = request.POST.get('return_no')
-        current_date = request.POST.get('current-date') 
+        current_date = request.POST.get('current-date')
         subtotal = request.POST.get('subtotal')
         tax_amount = request.POST.get('taxAmount')
         adjustment = request.POST.get('adjustment')
@@ -886,7 +885,6 @@ def edit_debit_note(request, debit_id):
         # Update debit note fields
         debitnote.party = selected_party
         debitnote.returnno = return_no
-   
         debitnote.created_at = current_date
         debitnote.subtotal = subtotal
         debitnote.taxamount = tax_amount
@@ -907,13 +905,12 @@ def edit_debit_note(request, debit_id):
             itm = Item.objects.get(id=item)
             DebitNoteItem.objects.create(
                 user=request.user,
-                company_id=company_id,  
+                company_id=company_id,
                 debitnote=debitnote,
                 items=itm,
                 qty=qty,
                 discount=discount,
                 total=total_amount,
-                
             )
 
         # Log the update action
@@ -928,27 +925,28 @@ def edit_debit_note(request, debit_id):
         return redirect('debitnote2')  # Redirect to debit note list page or any other desired page
 
     else:  # Handling GET request
-        parties = Party.objects.filter(company_id=company_id)  
-        items = Item.objects.filter(company_id=company_id)  
-        debits = DebitNote.objects.filter(user=request.user).prefetch_related('debitnotehistory_set') 
+        parties = Party.objects.filter(company_id=company_id)
+        items = Item.objects.filter(company_id=company_id)
+        debits = DebitNote.objects.filter(user=request.user).prefetch_related('debitnotehistory_set')
         current_date = debitnote.created_at.strftime('%Y-%m-%d') if debitnote.created_at else timezone.now().strftime('%Y-%m-%d')
         bills = PurchaseBill.objects.filter(party=debitnote.party)
-        print("Parties:", parties)
-        # Get selected items for the debit note
-        selected_item = [{
-            'id': item.items.id,
-            'name': item.items.itm_name,
-            'itm_hsn': item.items.itm_hsn,
-            'purchaseprice': item.items.itm_purchase_price,
-            'vat': item.items.itm_vat,
-            'qty': item.qty,
-            'discount': item.discount,
-            'total_amount': item.total
-        } for item in debitnote.debitnoteitem_set.all()]
 
+        # Get selected items for the debit note
+        selected_items = debitnote.debitnoteitem_set.all()
+        selected_item = []
+        for item in selected_items:
+            selected_item.append({
+                'id': item.items.id,
+                'name': item.items.itm_name,
+                'itm_hsn': item.items.itm_hsn,
+                'purchaseprice': item.items.itm_purchase_price,
+                'vat': item.items.itm_vat,
+                'qty': item.qty,
+                'discount': item.discount,
+                'total_amount': item.total
+            })
+        print(selected_items)
         associated_bill = PurchaseBill.objects.filter(party=debitnote.party).first()
-        print("Party Object:", debitnote.party)  # Check if party object is retrieved
-        print("Party Address:", debitnote.party.address)
 
         context = {
             'debitnote': debitnote,
@@ -960,7 +958,7 @@ def edit_debit_note(request, debit_id):
             'usr': request.user,
             'selected_party': debitnote.party.id if debitnote.party else None,
             'return_no': debitnote.returnno,
-            'current_date':current_date,
+            'current_date': current_date,
             'subtotal': debitnote.subtotal,
             'taxAmount': debitnote.taxamount,
             'adjustment': debitnote.adjustment,

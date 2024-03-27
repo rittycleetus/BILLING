@@ -331,19 +331,20 @@
 
                         {% for item in selected_item %}
                         <tr style="background-color: #FFADB0;">
-                            <td style="color: black;">1</td>
+                            <td style="color: black;">{{forloop.counter}}</td>
                             <td style="width: 990px;">
                                 <div style="display: flex; position: relative;">
                                     <select name="selected_item[]" style="width: 130px;" class="form-control select2" id="select1" onchange="fillItemDetails1(this)">
-                                        {% for item in selected_item %}
-                                        <option value="{{ item.id }}" data-hsn="{{ selected_item.itm_hsn }}" data-price="{{ selected_item.purchaseprice }}" data-tax="VAT {{ selected_item.vat }}">{{ item.name }}</option>
-                                        {% endfor %}
-                                        {% for item in items %}
-                                        {% if item.id != selected_item.id %}
-                                        <option value="{{ item.id }}" data-hsn="{{ item.itm_hsn }}" data-price="{{ item.itm_purchase_price }}" data-tax="VAT {{ item.itm_vat|floatformat:0 }}%" >{{ item.itm_name }}</option>
-                                        {% endif %}
-                                        {% endfor %}
+                                        <option value="{{ item.id }}" data-hsn="{{ item.itm_hsn }}" data-price="{{ item.purchaseprice }}" data-tax="VAT {{ item.vat }}" selected>{{ item.name }}</option>
+                                         {% for s_item in items %} 
+                                        
+                                           
+                                                <option value="{{ s_item.id }}" data-hsn="{{ s_item.itm_hsn }}" data-price="{{ s_item.itm_purchase_price }}" data-tax="VAT {{ s_item.itm_vat|floatformat:0 }}%">{{ s_item.itm_name }}</option>
+                                                
+                                        {% endfor %} 
+                                    
                                     </select>
+                                    
                                 </div>
                             </td>
                            
@@ -399,7 +400,7 @@
                         <div class="container-fluid border p-3">
                             <!-- Subtotal Input -->
                             
-                            {% for item in selected_item %}
+                        
                             <div class="form-group row">
                                 <label for="subtotal" class="col-sm-4 col-form-label">Subtotal</label>
                                 <div class="col-sm-8">
@@ -429,13 +430,13 @@
                                  <input type="text" id="grandTotal" name="grandTotal" class="form-control" value="{{grandTotal}}">
                         </div>
                     </div>
-                    {% endfor %}
+               
                     </div>
                 </div>
  </div> 
 
  <!-- <a href="{% url 'debitnote2' %}">Submit</button> -->
-    <button type="submit" class="btn-primary">EDIT</button>
+    <button type="submit" class="btn-primary"style="background-color: maroon; height: 40px; width: 85px; text-align: center; padding: 2px;font-size: 15px;color:white">EDIT</button>
 
         </form>
     </div>

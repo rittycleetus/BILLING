@@ -427,7 +427,7 @@
                 </div>
  </div> 
  <!-- <a href="{% url 'debitnote2' %}">Submit</button> -->
-    <button type="submit" class="btn-primary">SUBMIT</button>
+    <button type="submit" class="btn-primary"style="background-color: maroon; height: 40px; width: 85px; text-align: center; padding: 2px;font-size: 15px;color:white">SUBMIT</button>
 
         </form>
     </div>
@@ -456,6 +456,7 @@
                    <button type="button" class="btn-close" data-dismiss="modal" aria-label="Close"></button>
                </div>
                <div class="modal-body">
+                <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
                    {% if success_message %}
                    <script>
                        alert("{{ success_message }}");
@@ -620,23 +621,18 @@
        </div>
    </div>
    </div>
+
    <script>
     $(document).ready(function () {
         $('#item_tax_1').on('click', function () {
             $('#vatdiv').attr('hidden', false);
             $('#vat1').val('VAT 5%');
+            $('#taxable_result').val('Taxable');
         });
 
         $('#item_tax_2').on('click', function () {
             $('#vatdiv').attr('hidden', false);
             $('#vat1').val('VAT 0%');
-        });
-
-        $('#item_tax_1').on('click', function () {
-            $('#taxable_result').val('Taxable');
-        });
-
-        $('#item_tax_2').on('click', function () {
             $('#taxable_result').val('Non Taxable');
         });
 
@@ -650,6 +646,9 @@
    
        
     $(document).on("click", "#itemcreate", function(){
+        // Get CSRF token from the DOM
+        var csrfToken = $('input[name="csrfmiddlewaretoken"]').val();
+
         // Get item details from the form
         var itemName = $('#itemName').val();
         var itemHSN = $('#itemHSN').val();
@@ -659,34 +658,30 @@
         var vat1= $('#vat1').val();
         var salesprice = $('#sal_price').val();
         var purprice = $('#pur_price').val();
-        var openstock= $('#opn_stock').val();
+        var openstock= $('#opn_stock_').val(); // Corrected ID here
         var atprice = $('#at_price').val();
         var dateitem = $('#date').val();
         
-
-       
         $.ajax({
             type : 'POST',
             url: "{% url 'item_create' %}",
             data: {
                 name: itemName,          
-        hsn: itemHSN,           
-        unit: itemunit,          
-        tax1: itemtax1,          
-        tax2: itemtax2,          
-        vat1: vat1,              
-        sales_price: salesprice, 
-        pur_price: purprice,     
-        open_stock: openstock,   
-        at_price: atprice,       
-        date: dateitem,         
-        csrfmiddlewaretoken: '{{ csrf_token }}', 
-    }, function(response) {
-                
-                $('#itemCreationForm').trigger("reset");
-                $('#itemCreationModal').modal('hide');
-                
-                reloadItems();
+                hsn: itemHSN,           
+                unit: itemunit,          
+                tax1: itemtax1,          
+                tax2: itemtax2,          
+                vat1: vat1,              
+                sales_price: salesprice, 
+                pur_price: purprice,     
+                open_stock: openstock,   // Corrected parameter name here
+                at_price: atprice,       
+                date: dateitem,         
+                csrfmiddlewaretoken: csrfToken  // Include CSRF token in the request data
+            },
+            success: function(response) {
+                $('#itemCreateModal').modal('hide'); // Corrected modal ID here
+                // Handle success response here
             },
             error: function(xhr, errmsg, err) {
                 // Handle error
@@ -695,44 +690,40 @@
         });
     });
 
-   
-       $("#unitmodalsubmit").click(function () {
-    $.ajax({
-        type: "POST",
-        url: "{% url 'create_unit' %}",
-        data: {
-            unit_name: $('#unit_name').val() // Use jQuery to get the value of unit_name
-        },
-        beforeSend: function (xhr, settings) {
-            xhr.setRequestHeader("X-CSRFToken", "{{ csrf_token }}");
-        },
-        success: function (response) {
-            // Close the modal
-            $('#unitmodal').hide();
-            $(".modal-backdrop").remove();
-            // Clear the input field
-            $('#unit_name').val('');
-            // Add the new unit to the dropdown
-            $('#unit').append($('<option>', {
-                value: response.id,
-                text: response.unit_name
-            }));
-            
-     
-          
-  
-   
-   
-            // Provide feedback to the user
-            console.log("Unit added successfully!");
-            alert("Unit added successfully!");
-        },
-        error: function (xhr, textStatus, errorThrown) {
-            console.error("Error adding unit:", errorThrown);
-        }
+        $("#unitmodalsubmit").click(function () {
+            $.ajax({
+                type: "POST",
+                url: "{% url 'create_unit' %}",
+                data: {
+                    unit_name: $('#unit_name').val() // Use jQuery to get the value of unit_name
+                },
+                beforeSend: function (xhr, settings) {
+                    xhr.setRequestHeader("X-CSRFToken", "{{ csrf_token }}");
+                },
+                success: function (response) {
+                    // Close the modal
+                    $('#unitmodal').hide();
+                    $(".modal-backdrop").remove();
+                    // Clear the input field
+                    $('#unit_name').val('');
+                    // Add the new unit to the dropdown
+                    $('#unit').append($('<option>', {
+                        value: response.id,
+                        text: response.unit_name
+                    }));
+                    // Provide feedback to the user
+                    console.log("Unit added successfully!");
+                    alert("Unit added successfully!");
+                },
+                error: function (xhr, textStatus, errorThrown) {
+                    console.error("Error adding unit:", errorThrown);
+                }
+            });
+        });
     });
-});
-                 </script>
+</script>
+
+
                </div>
              </div>
            </div>
@@ -961,7 +952,7 @@
    }
        
 
-   $.ajax({
+//    $.ajax({
 //     url: "{% url 'create_party' %}",
 //     type: 'POST',
 //     data: data,
@@ -1171,24 +1162,10 @@
             // Format the date as "YYYY-MM-DD" and set it in the input field
             currentDateInput.value = formatDate(currentDate);
         </script>
-        <script>
-            $(document).ready(function () {
-                // Handle change event when a party is selected
-                $('#party').change(function () {
-                    // Get the selected party option
-                    var selectedOption = $(this).find(':selected');
-        
-                    // Update the input fields with the data attributes of the selected party
-                    $('#contact_number').val(selectedOption.data('contact'));
-                    $('#address').val(selectedOption.data('address'));
-                    $('#available_balance').val(selectedOption.data('openingbalance'));
-                    var billno=selectedOption.data('billno');
-                    console.log(billno)
-                    $('#bill').empty();
-                    $('#bill').append(`<option selected>${billno}</option> `)
-                });
-            });
-        </script>
+    
+
+
+
         <script>
             
     // Function to format the date as "YYYY-MM-DD"
@@ -1271,88 +1248,109 @@
         returnNoInput.value = countValue;
     };
 </script>
-
 <script>
-$(document).ready(function () {
-    // Check if the page has been loaded before
-    var isFirstLoad = sessionStorage.getItem('isFirstLoad');
+    $(document).ready(function () {
+        // Handle change event when a party is selected
+        $('#party').change(function () {
+            // Get the selected party option
+            var selectedOption = $(this).find(':selected');
 
-    // If it's the first load or the page is being reloaded, set the default values
-    if (!isFirstLoad) {
-        // Set default values for the input fields
-        $('#contact_number').val('');
-        $('#address').val('');
-        $('#available_balance').val('');
-        $('#bill').val('');
-        $('#bill_date').val('');
+            // Check if a valid option is selected
+            if (selectedOption.length) {
+                // Update the input fields with the data attributes of the selected party
+                $('#contact_number').val(selectedOption.data('contact'));
+                $('#address').val(selectedOption.data('address'));
+                $('#available_balance').val(selectedOption.data('openingbalance'));
 
-        // Indicate that the page has been loaded
-        sessionStorage.setItem('isFirstLoad', true);
-    }
+                // Update the bill dropdown based on selected party
+                handleBillSelection(selectedOption);
 
-    // Handle change event when a party is selected
-    $('#party').change(function () {
-        // Get the selected party option
-        var selectedOption = $(this).find(':selected');
+                // Check if it's a newly created party (just added)
+                if (selectedOption.data('isNewParty')) {
+                    // If it's a newly created party, clear sessionStorage to prevent default values
+                    sessionStorage.clear();
+                }
+            }
+        });
 
-        // Update the input fields with the data attributes of the selected party
-        $('#contact_number').val(selectedOption.data('contact'));
-        $('#address').val(selectedOption.data('address'));
-        $('#available_balance').val(selectedOption.data('openingbalance'));
+        // Check if the page has been loaded before
+        var isFirstLoad = sessionStorage.getItem('isFirstLoad');
 
-        // Update the bill dropdown and date input based on selected party
-        handlePartySelection(selectedOption);
+        // If it's the first load or the page is being reloaded, set the default values
+        if (!isFirstLoad) {
+            // Set default values for the input fields
+            $('#contact_number').val('');
+            $('#address').val('');
+            $('#available_balance').val('');
+            $('#bill').val('');
+            $('#bill_date').val('');
+
+            // Indicate that the page has been loaded
+            sessionStorage.setItem('isFirstLoad', true);
+        }
+
+        // Trigger handlePartySelection on page load to handle default selection
+        handlePartySelection($('#party').find(':selected'));
     });
 
-    // Trigger handlePartySelection on page load to handle default selection
-    // handlePartySelection($('#party').find(':selected'));
-});
+    function handlePartySelection(selectedOption) {
+        var billDropdown = $("#bill");
+        var billDateInput = $("#bill_date");
+        var addressSection = $("#addressSection");
 
-function handlePartySelection(selectedOption) {
-    var billDropdown = $("#bill");
-    var billDateInput = $("#bill_date");
-    var addressSection = $("#addressSection");
+        // Update the "Select Bill" dropdown options
+        billDropdown.empty();
 
-    // Update the "Select Bill" dropdown options
-    billDropdown.empty();
+        // Check if the selected party has associated bills
+        if (selectedOption.data('billno') !== undefined) {
+            billDropdown.append($('<option>', {
+                value: selectedOption.data('billno'),
+                text: selectedOption.data('billno')
+            }));
+        } else {
+            billDropdown.append($('<option>', {
+                value: "",
+                text: "No bills available for the selected party."
+            }));
+        }
 
-    // Check if the selected party has associated bills
-    if (selectedOption.data('billno') !== undefined) {
-        billDropdown.append($('<option>', {
-            value: selectedOption.data('billno'),
-            text: selectedOption.data('billno')
-        }));
-    } else {
-        billDropdown.append($('<option>', {
-            value: "",
-            text: "No bills available for the selected party."
-        }));
+        // Set the value of the "Bill Date" input field
+        if (selectedOption.data('billdate') !== undefined) {
+            billDateInput.val(selectedOption.data('billdate'));
+        } else {
+            billDateInput.val("NIL");
+        }
+
+        // Update the address section based on whether there is an address available
+        var address = selectedOption.data("address");
+        if (address && address !== "none") {
+            // Display the address section
+            addressSection.show();
+        } else {
+            // Hide the address section
+            addressSection.hide();
+        }
     }
 
-    // Set the value of the "Bill Date" input field
-    if (selectedOption.data('billdate') !== undefined) {
-        billDateInput.val(selectedOption.data('billdate'));
-    } else {
-        billDateInput.val("NIL");
-    }
+    function handleBillSelection(selectedOption) {
+        var billDropdown = $("#bill");
 
-    // Update the address section based on whether there is an address available
-    var address = selectedOption.data("address");
-    if (address && address !== "none") {
-        // Display the address section
-        addressSection.show();
-    } else {
-        // Hide the address section
-        addressSection.hide();
+        // Update the "Select Bill" dropdown options
+        billDropdown.empty();
+
+        // Check if the selected party has associated bills
+        if (selectedOption.data('billno') !== undefined) {
+            billDropdown.append($('<option>', {
+                value: selectedOption.data('billno'),
+                text: selectedOption.data('billno')
+            }));
+        } else {
+            billDropdown.append($('<option>', {
+                value: "",
+                text: "No bills available for the selected party."
+            }));
+        }
     }
-}
-window.onload = function () {
-    // Clear all fields on page load
-    clearFieldsOnLoad();
-    
-    // Trigger handlePartySelection with an empty selectedOption
-    // handlePartySelection($()); // Passing an empty jQuery object
-};
 </script>
 <script>
     function fillItemDetails1(selectElement) {

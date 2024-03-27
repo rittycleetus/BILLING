@@ -18,11 +18,18 @@
     /* Style for debit note report */
   
     .debit-wrapper {
-        margin-top: 20px; /* Adjust the top margin as needed */
-    
-   
+            margin-top: 20px;
+        }
         
-    }
+        .debit-container {
+            background-color: #f9f9f9;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 20px;
+        }
+
+        
+    
     .debit-head {
         margin-bottom: 20px;
     }
@@ -49,7 +56,7 @@
         background-color: #f9f9f9;
         border: 1px solid #ddd;
         border-radius: 5px;
-        padding: 80px;
+      
     }
 
      .debit-head-bottom {
@@ -62,7 +69,7 @@
     color: white; /* White text color */
     border: none; /* No border */
     padding: 10px 20px; /* Padding */
-    margin: 5px; /* Margin */
+   
     border-radius: 5px; /* Rounded corners */
     cursor: pointer; /* Cursor style */
     transition: background-color 0.3s ease; /* Smooth transition */
@@ -83,23 +90,27 @@
     .body-wrapper {
         overflow-x: auto;
     }
+.container {
+            padding: 0;
+        }
 
+        .btn-group {
+            margin-top: 10px;
+        }
+
+        .popup-container {
+            margin-top: 10px;
+        }
 }
+
+        
     /* Style for table */
     body {
             font-family: Arial, sans-serif;
             background-color: #f2f2f2; /* Light gray background */
             color: #333; /* Dark gray text color */
         }
-        .debit-container {
-            background-color: #fff; /* White background for the container */
-            padding: 20px;
-            border-radius: 10px;
-            border: 1px solid #ccc; /* Gray border */
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Shadow effect */
-            margin: 20px auto;
-            max-width: 800px;
-        }
+       
         .text-bold {
             font-weight: bold;
         }
@@ -251,8 +262,7 @@
 
 
 
-    <div class="body-wrapper">
-        <br><br><br><br><br><br>
+        
         <div class="row ps-3 pe-3 m-0">
             <div class="col-sm-12 col-lg-12  ps-2 pe-3 pb-2">
                 <div class="card bg-light bs"style="height:100%;">
@@ -330,94 +340,98 @@
                     </div>
                     
                 </div>
-            </div>
-
-
-
-            <h3>TEMPLATES</h3>
-
-            <div class="debit-wrapper"  id="template1">
-                <div class="debit col-15 mr-0" id="print-area">
-                 
-                    <div class="debit-container" id="slipdiv">
-                        <div class="debit-head">
-                            <div class="debit-head-top">
-                                <div class="debit-head-top-left text-start">
-                                </div>
-                            </div>
-                            <div class="hr"></div>
-                            <div class="debit-head-middle">
-                                <h1 style="text-align: center;">DEBIT NOTE</h1>
-                                <div class="debit-head-middle-left text-start">
-                                    <p><span class="text-bold" style="color: darkblue;">Debit Date:</span> {{ debit_note.created_at|date:'d-m-Y' }}</p>
-                                    <p><span class="text-bold" style="color: darkblue;">Debit No:</span> {{ debit_note.returnno }}</p>
-                                </div>
-                            </div>
-                            <br>
-                            <div class="hr"></div>
-                            <div class="debit-head-bottom">
-                                <div class="debit-head-bottom-left">
-                                    <ul>
-                                        <li class='text-bold' style="color: darkblue;">FROM,</li>
-                                        <li>{{ company.company_name }}</li>
-                                        <li>{{ company.address }}</li>
-                                    </ul>
-                                </div>
-                                <div class="debit-head-bottom-right">
-                                    <ul class="text-end">
-                                        <li class='text-bold' style="color: darkblue;">TO,</li>
-                                        <li>{{ party.party_name }}</li>
-                                        <li>{{ party.address }}</li>
-                                    </ul>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="overflow-view">
-                            <div class="debit-body">
-                                <table id="debit-table">
-                                    <thead>
-                                        <tr>
-                                            <th class="text-bold">Item Name</th>
-                                            <th class="text-bold">HSN</th>
-                                            <th class="text-bold">Quantity</th>
-                                            <th class="text-bold">Rate</th>
-                                            <th class="text-bold">Tax</th>
-                                            <th class="text-bold">Discount</th>
-                                            <th class="text-bold">Total</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {% for debit_note_item in debit_note_items %}
-                                        <tr>
-                                            <td>{{ debit_note_item.items.itm_name }}</td>
-                                            <td>{{ debit_note_item.items.itm_hsn }}</td>
-                                            <td>{{ debit_note_item.qty }}</td>
-                                            <td>{{ debit_note_item.items.itm_purchase_price}}</td>
-                                            <td>VAT {{ debit_note_item.items.itm_vat|floatformat:0 }}%</td>
-                                            <td>{{ debit_note_item.discount }}</td>
-                                            <td>{{ debit_note_item.total }}</td>
-                                        </tr>
-                                        {% endfor %}
-                                    </tbody>
-                                </table>
-                                <br>
-                                <br><br>
-                                <div class="debit-body-bottom">
-                                    <div class="debit-body-info-item border-bottom">
-                                        <div class="info-item-td text-end text-bold">Sub Total:</div>
-                                        <div class="info-item-td text-end">{{ debit_note.subtotal }}</div>
-                                    </div>
-                                    <div class="debit-body-info-item border-bottom">
-                                        <div class="info-item-td text-end text-bold">Tax:</div>
-                                        <div class="info-item-td text-end">{{ debit_note.taxamount }}</div>
-                                    </div>
-                                    <div class="debit-body-info-item">
-                                        <div class="info-item-td text-end text-bold">Adjustment:</div>
-                                        <div class="info-item-td text-end">{{ debit_note.adjustment }}</div>
-                                    </div>
-                                    <div class="debit-body-info-item">
-                                        <div class="info-item-td text-end text-bold">Grand Total:</div>
-                                        <div class="info-item-td text-end">{{ debit_note.grandtotal }}</div>
+          
+         
+        
+                
+                <h3>TEMPLATES</h3>
+            
+              <div class="row" style="margin-top: 30px;">
+                        <div class="debit-wrapper" id="template1">
+                            <div class="debit col-15 mr-0" id="print-area">
+                                <div class="debit-container" id="slipdiv">
+                                    <div class="debit-head">
+                                            <div class="debit-head-top">
+                                                <div class="debit-head-top-left text-start">
+                                                </div>
+                                            </div>
+                                            <div class="hr"></div>
+                                            <div class="debit-head-middle">
+                                                <h1 style="text-align: center;">DEBIT NOTE</h1>
+                                                <div class="debit-head-middle-left text-start">
+                                                    <p><span class="text-bold" style="color: darkblue;">Debit Date:</span> {{ debit_note.created_at|date:'d-m-Y' }}</p>
+                                                    <p><span class="text-bold" style="color: darkblue;">Debit No:</span> {{ debit_note.returnno }}</p>
+                                                </div>
+                                            </div>
+                                            <br>
+                                            <div class="hr"></div>
+                                            <div class="debit-head-bottom">
+                                                <div class="debit-head-bottom-left">
+                                                    <ul>
+                                                        <li class='text-bold' style="color: darkblue;">FROM,</li>
+                                                        <li>{{ company.company_name }}</li>
+                                                        <li>{{ company.address }}</li>
+                                                    </ul>
+                                                </div>
+                                                <div class="debit-head-bottom-right">
+                                                    <ul class="text-end">
+                                                        <li class='text-bold' style="color: darkblue;">TO,</li>
+                                                        <li>{{ party.party_name }}</li>
+                                                        <li>{{ party.address }}</li>
+                                                    </ul>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="overflow-view">
+                                            <div class="debit-body">
+                                                <table class="table">
+                                                    <thead>
+                                                        <tr>
+                                                            <th class="text-bold">Item Name</th>
+                                                            <th class="text-bold">HSN</th>
+                                                            <th class="text-bold">Quantity</th>
+                                                            <th class="text-bold">Rate</th>
+                                                            <th class="text-bold">Tax</th>
+                                                            <th class="text-bold">Discount</th>
+                                                            <th class="text-bold">Total</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        {% for debit_note_item in debit_note_items %}
+                                                        <tr>
+                                                            <td>{{ debit_note_item.items.itm_name }}</td>
+                                                            <td>{{ debit_note_item.items.itm_hsn }}</td>
+                                                            <td>{{ debit_note_item.qty }}</td>
+                                                            <td>{{ debit_note_item.items.itm_purchase_price}}</td>
+                                                            <td>VAT {{ debit_note_item.items.itm_vat|floatformat:0 }}%</td>
+                                                            <td>{{ debit_note_item.discount }}</td>
+                                                            <td>{{ debit_note_item.total }}</td>
+                                                        </tr>
+                                                        {% endfor %}
+                                                    </tbody>
+                                                </table>
+                                                <br>
+                                                <br><br>
+                                                <div class="debit-body-bottom">
+                                                    <div class="debit-body-info-item border-bottom">
+                                                        <div class="info-item-td text-end text-bold">Sub Total:</div>
+                                                        <div class="info-item-td text-end">{{ debit_note.subtotal }}</div>
+                                                    </div>
+                                                    <div class="debit-body-info-item border-bottom">
+                                                        <div class="info-item-td text-end text-bold">Tax:</div>
+                                                        <div class="info-item-td text-end">{{ debit_note.taxamount }}</div>
+                                                    </div>
+                                                    <div class="debit-body-info-item">
+                                                        <div class="info-item-td text-end text-bold">Adjustment:</div>
+                                                        <div class="info-item-td text-end">{{ debit_note.adjustment }}</div>
+                                                    </div>
+                                                    <div class="debit-body-info-item">
+                                                        <div class="info-item-td text-end text-bold">Grand Total:</div>
+                                                        <div class="info-item-td text-end">{{ debit_note.grandtotal }}</div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -425,8 +439,8 @@
                     </div>
                 </div>
             </div>
-
-
+            
+        </div>
 
 
     <div class="debit-wrapper"  id="template2" style="display: none;">
@@ -620,14 +634,22 @@
           </div>
           </div>
           </div>
-          </div>
+          </div> 
            
 
           <div class="debit text-center" style="bottom: 20px; width: 100%; margin-left: 100px;">
             <button class="template-button small" onclick="showTemplate(1);">1</button>
             <button class="template-button small" onclick="showTemplate(2);">2</button>
             <button class="template-button small" onclick="showTemplate(3);">3</button>
-        </div>
+        </div> 
+    </div>
+</div>
+
+
+
+
+
+
 
 <script>
  function showTemplate(templateIndex) {
