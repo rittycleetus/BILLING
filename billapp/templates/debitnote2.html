@@ -1,30 +1,98 @@
 {% extends 'base.html' %}
 {% load static %}
 {% block content %}
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
-    <!-- Include jsPDF -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
-    <!-- Include jsPDF AutoTable plugin -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.13/jspdf.plugin.autotable.min.js"></script>
-     
-     
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js:2:80625"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.3/xlsx.full.min.js"></script>
 
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
 <link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.0.1/css/toastr.css" rel="stylesheet"/>
-      
-<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.0.1/js/toastr.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.3/html2pdf.bundle.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/0.4.1/html2canvas.min.js"></script>
-     
 
 <style>
+    .g-1
+    {
+        gap: 0.50rem;
+    }
+    .justify-content-space-between
+    {
+        justify-content: space-between;
+    }
+    .justify-content-space-around
+    {
+        justify-content: space-around;
+        gap: 1rem;
+    }
+    label
+    {
+        font-size: 12px;
+        padding-bottom: 0.30rem;
+        font-weight: 500;
+    }
+
+    .search-container {
+        position: relative;
+    }
+    
+    /* Style for the input field */
+    .search-input {
+        padding-right: 30px; /* Ensure enough space for the icon */
+        width: 200px; /* Set the width of the input box */
+    }
+    
+    /* Style for the search icon button */
+    .search-button {
+        position: absolute;
+        top: 0;
+        right: 0;
+        height: 100%;
+        padding: 8px;
+        background-color: transparent;
+        border: none;
+        cursor: pointer;
+    }
+    
+    /* Style for the search icon */
+    .search-button i {
+        color: #aaa; /* Icon color */
+    }
+    
+    /* Adjust icon color on hover */
+    .search-button:hover i {
+        color: #333;
+    }
+    .fa-file-excel
+    {
+        color: #27ae60;
+    }
+    .fa-file-excel span,
+    .fa-print span{
+        color: #333;
+        padding-left: 0.10rem;
+        font-size: 12px;
+        font-weight: 700;
+    }
+    .fa-print
+    {
+        color: #c40606;
+    }
+    #debitTable 
+    {
+       
+    }
+    @media (max-width:732px)
+    {
+        .justify-content-space-between,
+        .justify-content-space-around
+        {
+            flex-direction: column;
+        }
+        .form-control
+        {
+            display: inline-block;
+        }
+    }
+    
+
     .created {
         color: red;
+       
     }
     .edited{
         color: red;
@@ -224,344 +292,339 @@
     }
 
 
+</style>
 
 
-
-
-    
-    </style>
-
-        </head>
-        
-        <div class="body-wrapper">
-            <!-- Container 1: Date inputs and action icons -->
-            <div class="container" style="border: 1px solid #ccc; border-radius: 8px; padding: 20px; margin-top: 10px; position: relative;">
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-lg-12 col-12 d-flex align-items-strech" >
+          <div class="card" >
+            <div class="card-body">
                 <!-- Date inputs -->
                 <form>
-                    <div class="dateclass" style="display: flex; justify-content: space-between; align-items: center; width: 100%; max-width: 800px; margin-top: 70px;">
-                        <div style="flex: 1;">
-                            <label for="fromDate" style="margin-right: 10px;">From Date</label>
-                            <input type="date" id="fromDate" name="fromDate" style="width: 100%; max-width: 380px; padding: 5px; border-radius: 4px;" onchange="filterTable(this);updateToDateMin(this)">
-                        </div>
-                        <div style="flex: 1;">
-                            <label for="toDate" style="margin-left: 10px;">To Date</label>
-                            <input type="date" id="toDate" name="toDate" style="width: 100%; max-width: 380px; padding: 5px; border-radius: 4px;" onchange="filterTable(this);updateToDateMin(this)">
-                        </div>
-                    </div>
-                </form>
-                  <!-- Action icons -->
-        <div style="display: flex; justify-content: flex-end;">
-            <a href="#" class="btn-icon" onclick="downloadExcel()">
-                <i class="fas fa-file-excel" style="color: green; font-size: 24px; width: 50px;"></i><br>Excel
-            </a>
-            <a href="#" class="btn-icon" onclick="printPDFWithTable()">
-                <i class="fas fa-print" style="color: red; font-size: 24px; width: 50px;"></i><br>Print
-            </a>
-           
-            
-
-        <!-- Popup content -->
-        <div class="popup" id="sharePopup">
-            <p>Choose a platform to share:</p>
-            <button onclick="shareWithCustomEmail()">
-                <i class="fas fa-envelope" style="color: #4285F4;"></i>
-                Gmail
-            </button>
-            <button onclick="shareWithWhatsApp()">
-                <i class="fab fa-whatsapp" style="color: #25D366;"></i>
-                WhatsApp
-            </button>
-            <button onclick="closePopup()">
-                <i class="fas fa-times" style="color: #333;"></i>
-            </button>
-        </div>
-
-        <!-- Overlay to cover the background when the popup is open -->
-        <div class="overlay" id="overlay"></div>
-    </div>
-
-    <div class="container" style="border: 1px solid #ccc; border-radius: 8px; padding: 20px; margin-top: 20px; position: relative;">
-        <h2>Debit Note</h2>
-        <!-- Search Column and Add Debit Note button on the same line -->
-        <div class="search-and-button" style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; width: 100%; max-width: 800px;">
-            <!-- Search Column -->
-            <div class="search-column" style="display: flex; align-items: center; flex-grow: 1; position: relative;">
-                <input type="text" id="search" name="search" placeholder="Search" style="width: 100%; height: 40px; padding-left: 30px;">
-                <i class="fas fa-search" style="position: absolute; left: 10px; top: 50%; transform: translateY(-50%);"></i> <!-- Font Awesome lens icon -->
-            </div>
-            <!-- Add Debit Note Button -->
-            <a href="{% url 'createdebitnote' %}" class="btn btn-primary" style="background-color: maroon; height: 40px; margin-right: 320px;display: flex-end;"><b>+</b> Add Debit Note</a>
-        </div>
-    
-
-        <div style="overflow-x: auto;">
-          <table class="table table-hover  mt-5 " style="background-color: white;box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);"  id="debitTable">
-            <thead style="background: #68020F;">
-              <tr class=" text-start text-light" style="font-size: 12px;">
-                <th scope="col"class="custom-width" style="border-right: 1px solid;">#</th>
-                
-
-                <th scope="col" style="border-right: 1px solid; position: relative;">
-                    Date&nbsp;&nbsp;
-                    <i class="fas fa-filter fa-xs" onclick="toggleFilterBoxdate(this)" style="color: #3498db;"></i>
-                    <div class="filter-box" id="dateFilterBox">
-                        <select id="dateFilterOption" style="width: 190px;" onchange="toggleDateInput()">
-                            <option value="equalto">Equal to</option>
-                            <option value="greaterthan">Greater than</option>
-                            <option value="lessthan">Less than</option>
-                            <option value="range">Range</option>
-                        </select>
-                        
-                        <!-- Input field for equal to filter -->
-                        <input type="date" id="equalToDateInput" placeholder="dd/mm/yy" style="width: 190px; display: none;">
-                        
-                        <!-- Input field for greater than filter -->
-                        <input type="date" id="greaterThanDateInput" placeholder="dd/mm/yy" style="width: 190px; display: none;">
-                        
-                        <!-- Input field for less than filter -->
-                        <input type="date" id="lessThanDateInput" placeholder="dd/mm/yy" style="width: 190px; display: none;">
-                    
-                        <label for="fromDateInput" style="color: black;">From:</label>
-                        <input type="date" id="fromDateInput" placeholder="dd/mm/yy" style="width: 190px; display: none;"><br>
-                        <label for="toDateInput"style="color: black;">To:</label>
-                        <input type="date" id="toDateInput" placeholder="dd/mm/yy" style="width: 190px; display: none;">
-                      
-                        <div class="filter-btns">
-                            <button onclick="clearFilter()" class="custom-button">CLEAR</button>
-                            <button onclick="applyFilter()" class="custom-button" id="applyButton">APPLY</button>
-                        </div>
-    </div>
-</th>
-                <th scope="col" style="border-right: 1px solid; width: 300px;">
-                    Ref.No
-                    <i class="fas fa-filter fa-xs" onclick="toggleFilterBox(this)" style="color: #3498db;"></i>
-                    <div class="filter-box" id="refNoFilterBox" style="width:200px">
-                        <select style="width: 190px;">
-                            <option value="exact">Exact match</option>
-                            <option value="contains">Contains</option>
-                        </select>
-                        <input type="text" placeholder="Search...">
-                        <div class="filter-btns">
-                            <button onclick="clearFilter()" class="custom-button">CLEAR</button>
-                            <button onclick="applyFilter()" class="custom-button">APPLY</button>
-                        </div>
-                    </div>
-                </th>
-                <th scope="col" style="border-right: 1px solid; width: 1500px;">
-                    Party Name&nbsp;&nbsp;
-                    <i class="fas fa-filter fa-xs" style="color: #3498db; cursor: pointer;" onclick="toggleFilterBox1()"></i>
-                    <div class="filter-box" id="partyNameFilterBox" style="width:200px">
-                        <select id="optionSelect" style="width: 190px;" onchange="handleOptionChange()">
-                            <option value="exact">Exact match</option>
-                            <option value="contains">Contains</option>
-                        </select>
-                        <input type="text" placeholder="Search..." id="searchInput">
-                        <div class="filter-btns">
-                            <button id="clearButton" onclick="clearFilter1()" class="custom-button">CLEAR</button>
-                            <button id="applyButton" onclick="applyFilter1()" class="custom-button">APPLY</button>
-                        </div>
-                    </div>
-                </th>
-                <!-- <th scope="col" style="border-right: 1px solid;width: 1500px;">Category Name<i class="fas fa-filter fa-xs" onclick="toggleFilterBox(this)" style="color: #3498db;"></i>
-                    <div class="filter-box" id="categoryNameFilterBox" style="width:100px">
-                        <select style="width: 190px;">
-                            <option value="exact">Exact match</option>
-                            <option value="contains">Contains</option>
-                        </select>
-                        <input type="text" placeholder="Search...">
-                        <div class="filter-btns">
-                            <button onclick="clearFilter()" class="custom-button">CLEAR</button>
-                            <button onclick="applyFilter()" class="custom-button">APPLY</button>
-                        </div>
-                    </div>
-                </th> -->
-                <th scope="col"  style="border-right: 1px solid;width: 800px;">Type<i class="fas fa-filter fa-xs" onclick="toggleFilterBox(this)" style="color: #3498db;"></i>
-                    <div class="filter-box" id="typeFilterBox" style="width:200px">
-                        <select style="width: 190px;">
-                            <option value="exact">Exact match</option>
-                            <option value="contains">Contains</option>
-                        </select>
-                        <input type="text" placeholder="Search...">
-                        <div class="filter-btns">
-                            <button onclick="clearFilter()" class="custom-button">CLEAR</button>
-                            <button onclick="applyFilter()" class="custom-button">APPLY</button>
-                        </div>
-                    </div>
-                </th>
-                <th scope="col" style="border-right: 1px solid;width: 800px;">
-                    Total
-                    <i class="fas fa-filter fa-xs" onclick="toggleFilterBox('totalFilterBox')" id="totalFilterBoxIcon" style="color: #3498db;"></i>
-                    <div class="filter-box" id="totalFilterBox" style="width: 200px; display: none;">
-                        <select style="width: 190px;" id="totaloptions">
-                            <option value="equalto">Equal to</option>
-                            <option value="greaterthan">Greater than</option>
-                            <option value="lessthan">Less than</option>
-                        </select>
-                        <input type="number" id="totalFilterValue" placeholder="Enter value">
-                        <div class="filter-btns">
-                            <button onclick="clearTotalFilter()" class="custom-button">CLEAR</button>
-                            <button onclick="applyTotalFilter()" class="custom-button">APPLY</button>
-                        </div>
-                    </div>
-                </th>
-                </th>
-                <!-- <th scope="col" style="width: 100px; border-right: 1px solid; white-space: nowrap; overflow: hidden; ">Received/Paid<i class="fas fa-filter fa-xs" onclick="toggleFilterBox(this)" style="color: #3498db;"></i>
-                    <div class="filter-box" id="recievedFilterBox" style="width:200px">
-                        <select style="width: 190px;">
-                            <option value="exact">Exact match</option>
-                            <option value="contains">Contains</option>
-                        </select>
-                        <input type="text" placeholder="Search...">
-                        <div class="filter-btns">
-                            <button onclick="clearFilter()" class="custom-button">CLEAR</button>
-                            <button onclick="applyFilter()" class="custom-button">APPLY</button>
-                        </div>
-                    </div>
-                </th>
-                <th scope="col"  style="border-right: 1px solid;width: 500px;">Balance<i class="fas fa-filter fa-xs" onclick="toggleFilterBox(this)" style="color: #3498db;"></i>
-                    <div class="filter-box" id="balanceFilterBox" style="width:200px">
-                        <div>
-                            <select style="width: 190px;">
-                                <option value="exact">Exact match</option>
-                                <option value="contains">Contains</option>
-                            </select>
-                            <input type="text" placeholder="Search...">
-                            <div class="filter-btns">
-                                <button onclick="clearFilter()" class="custom-button">CLEAR</button>
-                                <button onclick="applyFilter()" class="custom-button">APPLY</button>
+                    <h3>Debit Note</h3>
+                    <div class="d-flex align-items-center justify-content-space-between">
+                        <div class="search-column d-flex g-1" >
+                            <div class="search-container">
+                                <input type="text" id="search" class="search-input form-control" name="search" placeholder="Search...">
+                                <button type="button" class="search-button"><i class="fas fa-search"></i></button>
                             </div>
+                            
+                            
+                            <a href="{% url 'createdebitnote' %}" class="btn btn-primary" style="font-size: 12px;" title="Debit Note"><i class="fas fa-plus"></i> </a>
                         </div>
-                    </th> -->
-                <th scope="col"  style="border-right: 1px solid;width: 350px;">Action<i class="fas fa-filter fa-xs" onclick="toggleFilterBox(this)" style="color: #3498db;"></i>
-                    <div class="filter-box1" id="actionFilterBox" style="width:200px">
-                        <select style="width: 190px;">
-                            <option value="exact">Exact match</option>
-                            <option value="contains">Contains</option>
-                        </select>
-                        <input type="text" placeholder="Search...">
-                        <div class="filter-btns">
-                            <button onclick="clearFilter()" class="custom-button">CLEAR</button>
-                            <button onclick="applyFilter()" class="custom-button">APPLY</button>
-                        </div>
-                    </div>
-                </th>
-                <th scope="col"  style="border-right: 1px solid;width: 100px;">By<i class="fas fa-filter fa-xs" onclick="toggleFilterBox(this)" style="color: #3498db;"></i>
-                    <div class="filter-box2" id="byFilterBox" style="width:200px">
-                        <select style="width: 190px;">
-                            <option value="exact">Exact match</option>
-                            <option value="contains">Contains</option>
-                        </select>
-                        <input type="text" placeholder="Search...">
-                        <div class="filter-btns">
-                            <button onclick="clearFilter()" class="custom-button">CLEAR</button>
-                            <button onclick="applyFilter()" class="custom-button">APPLY</button>
-                        </div>
-                    </div>
-                </th>
-                <th scope="col"  style="border-right: 1px solid;width: 120px;"></th>
-                </tr>
-            </thead>
-         
-            <tbody id="searchResults" style="font-size: 10px;font-weight: 700;">
-                {% for debit in debits %}
-                <tr onclick="viewAction('{{ debit.id }}')">
-                    <td>{{ forloop.counter }}</td>
-                    <td>{{ debit.created_at|date:'d-m-Y' }}</td>
-                    <td>{{ debit.returnno }}</td> 
-                    <td class="party-name">{{ debit.party.party_name }}</td>
-                    <td>Debit Note</td> 
-                    <td>{{ debit.grandtotal }}</td> 
-                    <td>
-                        {% with debit.debitnotehistory_set.last as latest_history %}
-                        {% if latest_history %}
-                        {% if latest_history.action == 'C' %}
-                        <span style="color: red;">CREATED</span>
-                        {% else %}
-                        <span style="color: red;">EDITED</span>
-                        {% endif %}
-                        {% else %}
-                        Unknown
-                        {% endif %}
-                        {% endwith %}
-                    </td>
-                    <td>
-                        {% if debit.debitnotehistory_set.exists %}
-                        {{ debit.debitnotehistory_set.last.company.company_name }}
-                        {% else %}
-                        Unknown
-                        {% endif %}
-                    </td> 
-                    <td>
-                        <div class="ellipsis-menu-container" onclick="event.stopPropagation()">
-                            <div class="ellipsis-menu" id="ellipsisMenu{{ forloop.counter }}" onclick="toggleMenu(event, 'menuOptions{{ forloop.counter }}')">
-                                <i class="fas fa-ellipsis-v"></i>
-                                <div class="menu-options" id="menuOptions{{ forloop.counter }}">
-                                    <div class="menu-option" onclick="editAction('{{ debit.id }}')">
-                                        <i class="fas fa-edit" style="color: #3498db;"></i> Edit
-                                    </div>
-                                    <div class="menu-option" onclick="historyAction('{{ debit.id }}')">
-                                        <i class="fas fa-history" style="color: #e67e22;"></i> History
-                                    </div>
-                                    <div class="menu-option" onclick="viewAction('{{debit.id}}')">
-                                        <i class="fas fa-file-pdf" style="color: #27ae60;"></i> View
-                                    </div>
-                                    <div class="menu-option" onclick="deleteDebitNoteItem('{{ debit.id }}')">
-                                        <i class="fas fa-trash" style="color: #e74c3c;"></i> Delete
-                                    </div>
+
+                        <div>
+                            <div class="d-flex justify-content-space-around ">
+                                <div style="flex: 1;">
+                                    <label for="fromDate" style="margin-right: 10px;">From Date</label>
+                                    <input type="date" id="fromDate" class="form-control" name="fromDate" onchange="filterTable(this);updateToDateMin(this)">
+                                </div>
+                                <div style="flex: 1;">
+                                    <label for="toDate" style="margin-left: 10px;">To Date</label>
+                                    <input type="date" id="toDate" class="form-control" name="toDate"  onchange="filterTable(this);updateToDateMin(this)">
                                 </div>
                             </div>
+                            
                         </div>
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-        </div>
-        <div id="noDataMessage" style="display: none; text-align: center;">
-           
-            <img src="{% static 'img/blank.png' %}" alt="No data image" style="height: 150px;">
-            <p>No data is available for DebitNote,<br> Please try again after making relevant changes.</p>
-        </div>
-    <!-- Table -->
-   
+                        
+                    </div>
+                       
+                </form>
+                <hr>
+                <div class="d-flex g-1 justify-content-end">
+                    <a href="#" class="btn-icon" onclick="downloadExcel()">
+                        <i class="fas fa-file-excel" > <span>Excel</span></i>
+                    </a>
+                    <a href="#" class="btn-icon" onclick="printPDFWithTable()">
+                        <i class="fas fa-print" > <span>Print</span></i>
+                    </a>
+                </div>
+                <div class="container-fluid" >
+                    <div class="table-responsive">
+                        <table class="table table-hover mt-4 "  id="debitTable">
+                            <thead style="background: #68020F;">
+                            <tr class=" text-start text-light" style="font-size: 12px;">
+                                <th scope="col"class="custom-width" style="border-right: 1px solid;">#</th>
+                                
 
+                                <th scope="col" style="border-right: 1px solid; position: relative;">
+                                    Date&nbsp;&nbsp;
+                                    <i class="fas fa-filter fa-xs" onclick="toggleFilterBoxdate(this)" style="color: #3498db;"></i>
+                                    <div class="filter-box" id="dateFilterBox">
+                                        <select id="dateFilterOption" style="width: 190px;" onchange="toggleDateInput()">
+                                            <option value="equalto">Equal to</option>
+                                            <option value="greaterthan">Greater than</option>
+                                            <option value="lessthan">Less than</option>
+                                            <option value="range">Range</option>
+                                        </select>
+                                        
+                                        <!-- Input field for equal to filter -->
+                                        <input type="date" id="equalToDateInput" placeholder="dd/mm/yy" style="width: 190px; display: none;">
+                                        
+                                        <!-- Input field for greater than filter -->
+                                        <input type="date" id="greaterThanDateInput" placeholder="dd/mm/yy" style="width: 190px; display: none;">
+                                        
+                                        <!-- Input field for less than filter -->
+                                        <input type="date" id="lessThanDateInput" placeholder="dd/mm/yy" style="width: 190px; display: none;">
+                                    
+                                        <label for="fromDateInput" style="color: black;">From:</label>
+                                        <input type="date" id="fromDateInput" placeholder="dd/mm/yy" style="width: 190px; display: none;"><br>
+                                        <label for="toDateInput"style="color: black;">To:</label>
+                                        <input type="date" id="toDateInput" placeholder="dd/mm/yy" style="width: 190px; display: none;">
+                                    
+                                        <div class="filter-btns">
+                                            <button onclick="clearFilter()" class="custom-button">CLEAR</button>
+                                            <button onclick="applyFilter()" class="custom-button" id="applyButton">APPLY</button>
+                                        </div>
+                    </div>
+                </th>
+                                <th scope="col" style="border-right: 1px solid; width: 300px;">
+                                    Ref.No
+                                    <i class="fas fa-filter fa-xs" onclick="toggleFilterBox(this)" style="color: #3498db;"></i>
+                                    <div class="filter-box" id="refNoFilterBox" style="width:200px">
+                                        <select style="width: 190px;">
+                                            <option value="exact">Exact match</option>
+                                            <option value="contains">Contains</option>
+                                        </select>
+                                        <input type="text" placeholder="Search...">
+                                        <div class="filter-btns">
+                                            <button onclick="clearFilter()" class="custom-button">CLEAR</button>
+                                            <button onclick="applyFilter()" class="custom-button">APPLY</button>
+                                        </div>
+                                    </div>
+                                </th>
+                                <th scope="col" style="border-right: 1px solid; width: 1500px;">
+                                    Party Name&nbsp;&nbsp;
+                                    <i class="fas fa-filter fa-xs" style="color: #3498db; cursor: pointer;" onclick="toggleFilterBox1()"></i>
+                                    <div class="filter-box" id="partyNameFilterBox" style="width:200px">
+                                        <select id="optionSelect" style="width: 190px;" onchange="handleOptionChange()">
+                                            <option value="exact">Exact match</option>
+                                            <option value="contains">Contains</option>
+                                        </select>
+                                        <input type="text" placeholder="Search..." id="searchInput">
+                                        <div class="filter-btns">
+                                            <button id="clearButton" onclick="clearFilter1()" class="custom-button">CLEAR</button>
+                                            <button id="applyButton" onclick="applyFilter1()" class="custom-button">APPLY</button>
+                                        </div>
+                                    </div>
+                                </th>
+                                <!-- <th scope="col" style="border-right: 1px solid;width: 1500px;">Category Name<i class="fas fa-filter fa-xs" onclick="toggleFilterBox(this)" style="color: #3498db;"></i>
+                                    <div class="filter-box" id="categoryNameFilterBox" style="width:100px">
+                                        <select style="width: 190px;">
+                                            <option value="exact">Exact match</option>
+                                            <option value="contains">Contains</option>
+                                        </select>
+                                        <input type="text" placeholder="Search...">
+                                        <div class="filter-btns">
+                                            <button onclick="clearFilter()" class="custom-button">CLEAR</button>
+                                            <button onclick="applyFilter()" class="custom-button">APPLY</button>
+                                        </div>
+                                    </div>
+                                </th> -->
+                                <th scope="col"  style="border-right: 1px solid;width: 800px;">Type<i class="fas fa-filter fa-xs" onclick="toggleFilterBox(this)" style="color: #3498db;"></i>
+                                    <div class="filter-box" id="typeFilterBox" style="width:200px">
+                                        <select style="width: 190px;">
+                                            <option value="exact">Exact match</option>
+                                            <option value="contains">Contains</option>
+                                        </select>
+                                        <input type="text" placeholder="Search...">
+                                        <div class="filter-btns">
+                                            <button onclick="clearFilter()" class="custom-button">CLEAR</button>
+                                            <button onclick="applyFilter()" class="custom-button">APPLY</button>
+                                        </div>
+                                    </div>
+                                </th>
+                                <th scope="col" style="border-right: 1px solid;width: 800px;">
+                                    Total
+                                    <i class="fas fa-filter fa-xs" onclick="toggleFilterBox('totalFilterBox')" id="totalFilterBoxIcon" style="color: #3498db;"></i>
+                                    <div class="filter-box" id="totalFilterBox" style="width: 200px; display: none;">
+                                        <select style="width: 190px;" id="totaloptions">
+                                            <option value="equalto">Equal to</option>
+                                            <option value="greaterthan">Greater than</option>
+                                            <option value="lessthan">Less than</option>
+                                        </select>
+                                        <input type="number" id="totalFilterValue" placeholder="Enter value">
+                                        <div class="filter-btns">
+                                            <button onclick="clearTotalFilter()" class="custom-button">CLEAR</button>
+                                            <button onclick="applyTotalFilter()" class="custom-button">APPLY</button>
+                                        </div>
+                                    </div>
+                                </th>
+                                </th>
+                                <!-- <th scope="col" style="width: 100px; border-right: 1px solid; white-space: nowrap; overflow: hidden; ">Received/Paid<i class="fas fa-filter fa-xs" onclick="toggleFilterBox(this)" style="color: #3498db;"></i>
+                                    <div class="filter-box" id="recievedFilterBox" style="width:200px">
+                                        <select style="width: 190px;">
+                                            <option value="exact">Exact match</option>
+                                            <option value="contains">Contains</option>
+                                        </select>
+                                        <input type="text" placeholder="Search...">
+                                        <div class="filter-btns">
+                                            <button onclick="clearFilter()" class="custom-button">CLEAR</button>
+                                            <button onclick="applyFilter()" class="custom-button">APPLY</button>
+                                        </div>
+                                    </div>
+                                </th>
+                                <th scope="col"  style="border-right: 1px solid;width: 500px;">Balance<i class="fas fa-filter fa-xs" onclick="toggleFilterBox(this)" style="color: #3498db;"></i>
+                                    <div class="filter-box" id="balanceFilterBox" style="width:200px">
+                                        <div>
+                                            <select style="width: 190px;">
+                                                <option value="exact">Exact match</option>
+                                                <option value="contains">Contains</option>
+                                            </select>
+                                            <input type="text" placeholder="Search...">
+                                            <div class="filter-btns">
+                                                <button onclick="clearFilter()" class="custom-button">CLEAR</button>
+                                                <button onclick="applyFilter()" class="custom-button">APPLY</button>
+                                            </div>
+                                        </div>
+                                    </th> -->
+                                <th scope="col"  style="border-right: 1px solid;width: 350px;">Action<i class="fas fa-filter fa-xs" onclick="toggleFilterBox(this)" style="color: #3498db;"></i>
+                                    <div class="filter-box1" id="actionFilterBox" style="width:200px">
+                                        <select style="width: 190px;">
+                                            <option value="exact">Exact match</option>
+                                            <option value="contains">Contains</option>
+                                        </select>
+                                        <input type="text" placeholder="Search...">
+                                        <div class="filter-btns">
+                                            <button onclick="clearFilter()" class="custom-button">CLEAR</button>
+                                            <button onclick="applyFilter()" class="custom-button">APPLY</button>
+                                        </div>
+                                    </div>
+                                </th>
+                                <th scope="col"  style="border-right: 1px solid;width: 100px;">By<i class="fas fa-filter fa-xs" onclick="toggleFilterBox(this)" style="color: #3498db;"></i>
+                                    <div class="filter-box2" id="byFilterBox" style="width:200px">
+                                        <select style="width: 190px;">
+                                            <option value="exact">Exact match</option>
+                                            <option value="contains">Contains</option>
+                                        </select>
+                                        <input type="text" placeholder="Search...">
+                                        <div class="filter-btns">
+                                            <button onclick="clearFilter()" class="custom-button">CLEAR</button>
+                                            <button onclick="applyFilter()" class="custom-button">APPLY</button>
+                                        </div>
+                                    </div>
+                                </th>
+                                <th scope="col"  style="border-right: 1px solid;width: 120px;"></th>
+                                </tr>
+                            </thead>
+                        
+                            <tbody id="searchResults" style="font-size: 10px;font-weight: 700;">
+                                {% for debit in debits %}
+                                <tr onclick="viewAction('{{ debit.id }}')">
+                                    <td>{{ forloop.counter }}</td>
+                                    <td>{{ debit.created_at|date:'d-m-Y' }}</td>
+                                    <td>{{ debit.returnno }}</td> 
+                                    <td class="party-name">{{ debit.party.party_name }}</td>
+                                    <td>Debit Note</td> 
+                                    <td>{{ debit.grandtotal }}</td> 
+                                    <td>
+                                        {% with debit.debitnotehistory_set.last as latest_history %}
+                                        {% if latest_history %}
+                                        {% if latest_history.action == 'C' %}
+                                        <span style="color: red;">CREATED</span>
+                                        {% else %}
+                                        <span style="color: red;">EDITED</span>
+                                        {% endif %}
+                                        {% else %}
+                                        Unknown
+                                        {% endif %}
+                                        {% endwith %}
+                                    </td>
+                                    <td>
+                                        {% if debit.debitnotehistory_set.exists %}
+                                        {{ debit.debitnotehistory_set.last.company.company_name }}
+                                        {% else %}
+                                        Unknown
+                                        {% endif %}
+                                    </td> 
+                                    <td>
+                                        <div class="ellipsis-menu-container" onclick="event.stopPropagation()">
+                                            <div class="ellipsis-menu" id="ellipsisMenu{{ forloop.counter }}" onclick="toggleMenu(event, 'menuOptions{{ forloop.counter }}')">
+                                                <i class="fas fa-ellipsis-v"></i>
+                                                <div class="menu-options" id="menuOptions{{ forloop.counter }}">
+                                                    <div class="menu-option" onclick="editAction('{{ debit.id }}')">
+                                                        <i class="fas fa-edit" style="color: #3498db;"></i> Edit
+                                                    </div>
+                                                    <div class="menu-option" onclick="historyAction('{{ debit.id }}')">
+                                                        <i class="fas fa-history" style="color: #e67e22;"></i> History
+                                                    </div>
+                                                    <div class="menu-option" onclick="viewAction('{{debit.id}}')">
+                                                        <i class="fas fa-file-pdf" style="color: #27ae60;"></i> View
+                                                    </div>
+                                                    <div class="menu-option" onclick="deleteDebitNoteItem('{{ debit.id }}')">
+                                                        <i class="fas fa-trash" style="color: #e74c3c;"></i> Delete
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                            
+                    </div>
 
-</div>
-
-</div>
-</div>
-
-
-
-<div id="historyModal" class="modal">
-    <div class="modal-content">
-        <span class="close" onclick="closeModal()">&times;</span>
-        <h2 style="color: maroon;">DEBIT NOTE HISTORY</h2>
-        <div style="background-color: pink; padding: 20px;">
-            <br>
-            <h3 style="color: maroon;">Debit Note No: <span id="debitNoteNo"></span></h3>
-            <br><br><br>
-            <table id="historyTable" style="width: 100%; border-collapse: collapse;">
-                <thead>
-                    <tr style="background-color: maroon; color: white;">
-                        <th style="padding: 10px;">DATE</th>
-                        <th style="padding: 10px;">STAFF NAME</th>
-                        <th style="padding: 10px;">ACTION</th>
-                    </tr>
-                    
-                </thead>
-           
-                <tbody id="historyTableBody">
+                    <div id="noDataMessage" style="display: none; text-align: center;">
+                        
+                        <img src="{% static 'img/blank.png' %}" alt="No data image" style="height: 150px;">
+                        <p>No data is available for DebitNote,<br> Please try again after making relevant changes.</p>
+                    </div>
+                        
                   
-                    <!-- History details will be populated here dynamically -->
-                </tbody>
-            </table>
+                 
+                </div>
+                
+                <!------------- Modal section --------------->
+
+                <div id="historyModal" class="modal">
+                    <div class="modal-content">
+                        <span class="close" onclick="closeModal()">&times;</span>
+                        <h2 style="color: maroon;">DEBIT NOTE HISTORY</h2>
+                        <div style="background-color: pink; padding: 20px;">
+                            <br>
+                            <h3 style="color: maroon;">Debit Note No: <span id="debitNoteNo"></span></h3>
+                            <br><br><br>
+                            <table id="historyTable" style="width: 100%; border-collapse: collapse;">
+                                <thead>
+                                    <tr style="background-color: maroon; color: white;">
+                                        <th style="padding: 10px;">DATE</th>
+                                        <th style="padding: 10px;">STAFF NAME</th>
+                                        <th style="padding: 10px;">ACTION</th>
+                                    </tr>
+                                    
+                                </thead>
+                        
+                                <tbody id="historyTableBody">
+                                
+                                    <!-- History details will be populated here dynamically -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-------------End  Modal section --------------->
+
+
+
+            </div>
         </div>
     </div>
 </div>
 
- 
- <script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.0.1/js/toastr.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.3/html2pdf.bundle.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/0.4.1/html2canvas.min.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js:2:80625"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.3/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.13/jspdf.plugin.autotable.min.js"></script>
+
+
+<script>
     window.onload = function() {
         // Reset date inputs to empty string
         document.getElementById('equalToDateInput').value = '';
@@ -629,6 +692,7 @@
         }
     }
 </script>
+
 <script>
     // Add event listener to the "Apply" button
         var applyButton = document.getElementById("applyButton");
@@ -799,8 +863,6 @@ document.addEventListener('DOMContentLoaded', function () {
 </script>
   
 
-
-
 <script>
     document.getElementById('search').addEventListener('input', function() {
         var input, filter, table, tr, td, i, txtValue;
@@ -838,16 +900,8 @@ document.addEventListener('DOMContentLoaded', function () {
 </script>
 
 
-
-
-
-
-
-
-
-
 <!-- PARTY NAME FILTER -->
-  <script>
+<script>
 document.addEventListener('DOMContentLoaded', function () {
     // Retrieve filter settings from localStorage
     var option = localStorage.getItem('filterOption');
@@ -917,10 +971,6 @@ function toggleFilterBox1() {
     }
 }
 </script>
-
-
-
-
 
 
 <!-- TOTAL FILTER -->
@@ -1032,18 +1082,9 @@ function clearTotalFilter() {
 
  
 }
-    </script>
+</script>
+
 <script>
-
-
-
-
-
-
-
-
-
-
 
     function shareWithCustomEmail() {
     // Prompt for email address
@@ -1089,7 +1130,7 @@ function shareWithWhatsApp() {
     var sharePopup = document.getElementById('sharePopup');
     sharePopup.style.display = 'none';
 }
-  </script>
+</script>
 
 <script>
     
@@ -1162,6 +1203,7 @@ function filterTable() {
     }
 }
 </script>
+
 <script>
     document.addEventListener('DOMContentLoaded', function () {
         var ellipsisMenus = document.querySelectorAll('.ellipsis-menu-container');
@@ -1243,6 +1285,7 @@ function printPDFWithTable() {
 }
 </script>
 
+
 <script>
     function handleAction(action) {
         switch (action) {
@@ -1315,11 +1358,6 @@ function printPDFWithTable() {
         }
     });
 }
-
-
-
-
-
 
 
 
@@ -1402,6 +1440,7 @@ window.onclick = function(event) {
     }
 };
 </script>
+
 <script type="text/javascript">
     $(document).ready(function () {
         $(document).on('click', '.menu-option', function (event) {
@@ -1450,14 +1489,13 @@ window.onclick = function(event) {
 </script>
 
 
-
-
 <script>
     function viewAction(debitId) {
         var url = "/get_debit_note_details/" + debitId + "/";
         window.location.href = url;
     }
 </script>
+
 <script>
     function deleteDebitNoteItem(debitnoteId) {
         if (confirm('Are you sure you want to delete this debit note item?')) {
@@ -1481,8 +1519,6 @@ window.onclick = function(event) {
   
   
 </script>
-
-
 
 
 <script>

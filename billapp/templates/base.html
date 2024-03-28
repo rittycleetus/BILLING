@@ -277,8 +277,9 @@
             </div>
           </nav>
         </header>
+        {% block content %}{% endblock content %}
       </div>
-      {% block content %}{% endblock content %}
+     
     </div>
 
     <script src="{% static 'assets/js/app.min.js' %}"></script>

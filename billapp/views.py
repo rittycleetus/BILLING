@@ -650,22 +650,43 @@ def extract_percentage(vat_string):
 
 def item_create(request):
     if request.method == 'POST':
-        
-        itm_type = request.POST.get('itm_type')
-        itm_name = request.POST.get('name')
-        itm_hsn = request.POST.get('hsn')
-        itm_unit = request.POST.get('unit')
-        itm_taxable = request.POST.get('taxable_result')
-        
-        print(request.POST.get('vat'))
-        itm_vat = extract_percentage(request.POST.get('vat'))
-        
-        itm_sale_price = request.POST.get('sale_price')
-        itm_purchase_price = request.POST.get('purchase_price')
-        itm_stock_in_hand = request.POST.get('stock_in_hand')
-        itm_at_price = request.POST.get('at_price')
-        itm_date = request.POST.get('itm_date')
+        print('Request received')
 
+        # Retrieve each variable from the request
+        itm_type = request.POST.get('itm_type')
+        print('Item Type:', itm_type)
+
+        itm_name = request.POST.get('itemName')
+        print('Item Name:', itm_name)
+
+        itm_hsn = request.POST.get('itemHSN')
+        print('HSN:', itm_hsn)
+
+        itm_unit = request.POST.get('unit')
+        print('Unit:', itm_unit)
+
+        itm_taxable = request.POST.get('taxable_result')
+        print('Taxable:', itm_taxable)
+
+        itm_vat = extract_percentage(request.POST.get('vat1'))
+        print('VAT:', itm_vat)
+
+        itm_sale_price = request.POST.get('sal_price')
+        print('Sales Price:', itm_sale_price)
+
+        itm_purchase_price = request.POST.get('pur_price')
+        print('Purchase Price:', itm_purchase_price)
+
+        itm_stock_in_hand = request.POST.get('opn_stock_')
+        print('Stock In Hand:', itm_stock_in_hand)
+
+        itm_at_price = request.POST.get('at_price')
+        print('AT Price:', itm_at_price)
+
+        itm_date = request.POST.get('date')
+        print('Date:', itm_date)
+
+        # Create item object and save
         item = Item(
             user=request.user,
             company=request.user.company,
@@ -682,12 +703,11 @@ def item_create(request):
             itm_date=itm_date
         )
         item.save()
-        response_data = {'success': True, 'message': 'Item created successfully!'}
-        return render(request, 'createdebitnote.html',response_data)
 
+        response_data = {'success': True, 'message': 'Item created successfully!'}
+        return render(request, 'createdebitnote.html', response_data)
 
     return render(request, 'createdebitnote.html')
-
 
 
 def create_unit(request):
