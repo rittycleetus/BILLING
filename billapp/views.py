@@ -658,9 +658,17 @@ def item_create(request):
 
         itm_name = request.POST.get('itemName')
         print('Item Name:', itm_name)
+        if Item.objects.filter(itm_name=itm_name).exists():
+          response_data = {'success': False, 'message': 'Item name already exists!'}
+          return JsonResponse(response_data)
+
 
         itm_hsn = request.POST.get('itemHSN')
         print('HSN:', itm_hsn)
+
+        if Item.objects.filter(itm_hsn=itm_hsn).exists():
+            response_data = {'success': False, 'message': 'HSN already exists!'}
+            return JsonResponse(response_data)
 
         itm_unit = request.POST.get('unit')
         print('Unit:', itm_unit)
