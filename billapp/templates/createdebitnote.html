@@ -228,7 +228,7 @@
                     <div class="form-group">
                         <label for="party">Party</label>
                         <div class="input-group">
-                        <select name="party" id="party" class="form-control" style="width: 800px" onchange="handlePartySelection()">
+                        <select name="party" id="party" class="form-control"onchange="handlePartySelection()">
                          <option value="">-- Select/Search Party --</option>
     {% for party in parties %}
   
@@ -334,7 +334,7 @@
                             <td style="color: black;">1</td>
                             <td style="width: 990px;">
                                 <div style="display: flex; position: relative;">
-                                    <select name="selected_item[]" onchange="fillItemDetails1(this)" style="width: 130px;" class="form-control select2" id="select1">
+                                    <select name="selected_item[]" onchange="fillItemDetails1(this)"  class="form-control select2" id="select1">
                                         <option value="">-Select-</option>
                                         {% for item in items %}
                                             <option value="{{ item.id }}" data-hsn="{{ item.itm_hsn }}" data-price="{{ item.itm_purchase_price }}"  data-tax="VAT {{ item.itm_vat|floatformat:0 }}%" >{{ item.itm_name }}</option>
@@ -376,9 +376,8 @@
 
 
 
-            <div class="container-fluid">
+            <div class="container">
                 <div class="row">
-            
                     <div class="col-md-4">
                         <label for="paymentType">Payment Type</label>
                         <select id="paymentType" name="paymentType" class="form-control" required>
@@ -389,8 +388,7 @@
                         </select>
                     </div>
             
-                    
-                    <div class="col-md-6" style="margin-left: 170px;"  class="form-control">
+                    <div class="col-md-8">
                         <div class="container-fluid border p-3">
                             <!-- Subtotal Input -->
                             <div class="form-group row">
@@ -399,34 +397,36 @@
                                     <input type="text" id="subtotal" name="subtotal" class="form-control" readonly>
                                 </div>
                             </div>
-<!--                     
-                            Tax Amount Input -->
-                             <div class="form-group row">
+            
+                            <!-- Tax Amount Input -->
+                            <div class="form-group row">
                                 <label for="taxAmount" class="col-sm-4 col-form-label">Tax Amount</label>
                                 <div class="col-sm-8">
                                     <input type="text" id="taxAmount" name="taxAmount" class="form-control" readonly>
                                 </div>
-                            </div> 
-                    
-                              <div class="form-group row">
+                            </div>
+            
+                            <!-- Adjustment Input -->
+                            <div class="form-group row">
                                 <label for="adjustment" class="col-sm-4 col-form-label">Adjustment</label>
                                 <div class="col-sm-8">
                                     <input type="text" id="adjustment" name="adjustment" class="form-control" value="0.00">
                                 </div>
-                            </div>  
-                       
-                             <!-- Grand Total Input  -->
-                             <div class="form-group row">
-                             <label for="grandTotal" class="col-sm-4 col-form-label">Grand Total</label>
-                             <div class="col-sm-8">
-                                 <input type="text" id="grandTotal" name="grandTotal" class="form-control" readonly>
+                            </div>
+            
+                            <!-- Grand Total Input -->
+                            <div class="form-group row">
+                                <label for="grandTotal" class="col-sm-4 col-form-label">Grand Total</label>
+                                <div class="col-sm-8">
+                                    <input type="text" id="grandTotal" name="grandTotal" class="form-control" readonly>
+                                </div>
+                            </div>
                         </div>
                     </div>
-                    </div>
                 </div>
- </div> 
+            </div>
  <!-- <a href="{% url 'debitnote2' %}">Submit</button> -->
-    <button type="submit" class="btn-primary"style="background-color: maroon; height: 40px; width: 85px; text-align: center; padding: 2px;font-size: 15px;color:white">SUBMIT</button>
+    <button type="submit" class="btn-primary"style="background-color: maroon; height: 40px; width: 85px; text-align: center; padding: 2px;font-size: 15px;color:white">SAVE</button>
 
         </form>
     </div>
@@ -502,6 +502,7 @@
                                         <div class=" me-3 w-50">
                                             <label class="fw-bold tb fs-3 " for="">HSN </label><br>
                                             <input style="color: black;" class="form-control mt-2 input_border text-black" type="number" placeholder="Enter HSN value" name="hsn" id="itemHSN">
+                                            <span id="hsnErrorMessage" style="color: red;"></span>
                                         </div>
                                            <br>
                                            <div class="mb-3 w-50">
@@ -622,7 +623,7 @@
    </div>
 
    <script>
-     $(document).ready(function () {
+    $(document).ready(function () {
         // Function to validate HSN length
         function validateHSN(hsn) {
             if (hsn.length !== 6) {
@@ -633,6 +634,24 @@
                 return true;
             }
         }
+
+        $(document).on("click", "#itemcreate", function () {
+            // Get CSRF token from the DOM
+            var csrfToken = $('input[name="csrfmiddlewaretoken"]').val();
+
+            // Get item details from the form
+            var itemName = $('#itemName').val();
+            var itemHSN = $('#itemHSN').val();
+
+            // Check if either item name is empty or HSN length is less than 6
+            if (itemName.trim() === '') {
+                alert('Please provide an item name');
+                return;
+            } else if (!validateHSN(itemHSN)) {
+                alert('Please provide a valid 6-digit HSN number.');
+                return;
+            }
+
         $('#item_tax_1').on('click', function () {
             $('#vatdiv').removeAttr('hidden'); // Remove the 'hidden' attribute
             $('#vat1').val('VAT 5%');
@@ -653,22 +672,7 @@
             $('#itm_type').val('Service');
         });
 
-        $(document).on("click", "#itemcreate", function () {
-    // Get CSRF token from the DOM
-    var csrfToken = $('input[name="csrfmiddlewaretoken"]').val();
-
-    // Get item details from the form
-    var itemName = $('#itemName').val();
-    var itemHSN = $('#itemHSN').val();
-
-    // Check if either item name is empty or HSN length is less than 6
-    if (itemName.trim() === '') {
-        alert('Please provide an item name');
-        return;
-    } else if (itemHSN.length < 6) {
-        alert('Please provide a 6-digit HSN number.');
-        return;
-    }
+     
 
     var itemtype = $('#itm_type').val();
     var itemunit = $('#unit').val();
@@ -742,10 +746,11 @@
 
             // Append the new item to the dropdown
             $('#select1').append($('<option>', {
-                value: response.item_id, // Assuming response contains the ID of the newly added item
-                text: response.itemName // Assuming response contains the name of the newly added item
+                value: response.item_id, 
+                text: response.itemName 
             }));
-        },
+            console.log(response);
+},
         error: function (xhr, errmsg, err) {
             // Handle error
             console.log('Error:', errmsg);
@@ -753,37 +758,51 @@
     });
 });
 
-        $("#unitmodalsubmit").click(function () {
-            $.ajax({
-                type: "POST",
-                url: "{% url 'create_unit' %}",
-                data: {
-                    unit_name: $('#unit_name').val() // Use jQuery to get the value of unit_name
-                },
-                beforeSend: function (xhr, settings) {
-                    xhr.setRequestHeader("X-CSRFToken", "{{ csrf_token }}");
-                },
-                success: function (response) {
-                    // Close the modal
-                    $('#unitmodal').hide();
-                    $(".modal-backdrop").remove();
-                    // Clear the input field
-                    $('#unit_name').val('');
-                    // Add the new unit to the dropdown
-                    $('#unit').append($('<option>', {
-                        value: response.id,
-                        text: response.unit_name
-                    }));
-                    // Provide feedback to the user
-                    console.log("Unit added successfully!");
-                    alert("Unit added successfully!");
-                },
-                error: function (xhr, textStatus, errorThrown) {
-                    console.error("Error adding unit:", errorThrown);
-                }
-            });
-        });
+$("#unitmodalsubmit").click(function () {
+    // Get the unit name from the input field
+    var unitName = $('#unit_name').val();
+
+    // Check if the unit name already exists in the dropdown
+    if ($('#unit option').filter(function () {
+        return $(this).text().toLowerCase() === unitName.toLowerCase();
+    }).length > 0) {
+        // If the unit already exists, show an alert
+        alert("Unit already exists!");
+        $('#unit_name').val('');
+        return; // Exit the function to prevent further execution
+    }
+
+    $.ajax({
+        type: "POST",
+        url: "{% url 'create_unit' %}",
+        data: {
+            unit_name: unitName
+        },
+        beforeSend: function (xhr, settings) {
+            xhr.setRequestHeader("X-CSRFToken", "{{ csrf_token }}");
+        },
+        success: function (response) {
+            // Close the modal
+            $('#unitmodal').hide();
+            $(".modal-backdrop").remove();
+            // Clear the input field
+            $('#unit_name').val('');
+            // Add the new unit to the dropdown
+            $('#unit').append($('<option>', {
+        value: response.id,
+        text: response.unit_name
+    }).text(response.unit_name));
+            // Provide feedback to the user
+            console.log("Unit added successfully!");
+            alert("Unit added successfully!");
+        },
+        error: function (xhr, textStatus, errorThrown) {
+            console.error("Error adding unit:", errorThrown);
+        }
     });
+});
+    });
+
 </script>
 
 
@@ -1355,47 +1374,45 @@
         // Trigger handlePartySelection on page load to handle default selection
         handlePartySelection($('#party').find(':selected'));
     });
+function handlePartySelection(selectedOption) {
+    var billDropdown = $("#bill");
+    var billDateInput = $("#bill_date");
+    var addressSection = $("#addressSection");
 
-    function handlePartySelection(selectedOption) {
-        var billDropdown = $("#bill");
-        var billDateInput = $("#bill_date");
-        var addressSection = $("#addressSection");
+    // Update the "Select Bill" dropdown options
+    billDropdown.empty();
 
-        // Update the "Select Bill" dropdown options
-        billDropdown.empty();
-
-        // Check if the selected party has associated bills
-        if (selectedOption.data('billno') !== undefined) {
-            billDropdown.append($('<option>', {
-                value: selectedOption.data('billno'),
-                text: selectedOption.data('billno')
-            }));
-        } else {
-            billDropdown.append($('<option>', {
-                value: "",
-                text: "No bills available for the selected party."
-            }));
-        }
-
-        // Set the value of the "Bill Date" input field
-        if (selectedOption.data('billdate') !== undefined) {
-            billDateInput.val(selectedOption.data('billdate'));
-        } else {
-            billDateInput.val("NIL");
-        }
-
-        // Update the address section based on whether there is an address available
-        var address = selectedOption.data("address");
-        if (address && address !== "none") {
-            // Display the address section
-            addressSection.show();
-        } else {
-            // Hide the address section
-            addressSection.hide();
-        }
+    // Check if the selected party has associated bills
+    if (selectedOption.data('billno') !== undefined) {
+        billDropdown.append($('<option>', {
+            value: selectedOption.data('billno'),
+            text: selectedOption.data('billno')
+        }));
+    } else {
+        billDropdown.append($('<option>', {
+            value: "",
+            text: "No bills available for the selected party."
+        }));
     }
 
-    function handleBillSelection(selectedOption) {
+    // Set the value of the "Bill Date" input field
+    if (selectedOption.data('billdate') !== undefined) {
+        billDateInput.val(selectedOption.data('billdate'));
+    } else {
+        billDateInput.val("NIL");
+    }
+
+    // Check if there's an address associated with the selected party
+    var address = selectedOption.data("address");
+            if (address && address.trim() !== "") {
+                // Display the address section
+                addressSection.show();
+            } else {
+                // Hide the address section
+                addressSection.hide();
+            }
+        }
+function handleBillSelection(selectedOption) {
         var billDropdown = $("#bill");
 
         // Update the "Select Bill" dropdown options
@@ -1414,6 +1431,24 @@
             }));
         }
     }
+    
+        // Handle change event when a party is selected
+        $('#party').change(function () {
+            // Get the selected party option
+            var selectedOption = $(this).find(':selected');
+
+            // Update the input fields with the data attributes of the selected party
+            $('#contact_number').val(selectedOption.data('contact'));
+            $('#address').val(selectedOption.data('address'));
+            $('#available_balance').val(selectedOption.data('openingbalance'));
+
+            // Call the function to handle party selection
+            handlePartySelection(selectedOption);
+        });
+
+        // Trigger party selection when the page loads initially
+        $('#party').trigger('change');
+
 </script>
 <script>
     function fillItemDetails1(selectElement) {

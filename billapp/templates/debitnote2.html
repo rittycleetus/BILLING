@@ -311,7 +311,7 @@
                             </div>
                             
                             
-                            <a href="{% url 'createdebitnote' %}" class="btn btn-primary" style="font-size: 12px;" title="Debit Note"><i class="fas fa-plus"></i> </a>
+                            <a href="{% url 'createdebitnote' %}" class="btn btn-primary" style="font-size: 12px;background-color: #68020F;" title="Debit Note"><i class="fas fa-plus"></i> </a>
                         </div>
 
                         <div>
@@ -586,21 +586,21 @@
                             <br>
                             <h3 style="color: maroon;">Debit Note No: <span id="debitNoteNo"></span></h3>
                             <br><br><br>
-                            <table id="historyTable" style="width: 100%; border-collapse: collapse;">
-                                <thead>
-                                    <tr style="background-color: maroon; color: white;">
-                                        <th style="padding: 10px;">DATE</th>
-                                        <th style="padding: 10px;">STAFF NAME</th>
-                                        <th style="padding: 10px;">ACTION</th>
-                                    </tr>
-                                    
-                                </thead>
-                        
-                                <tbody id="historyTableBody">
+                            <div class="table-responsive">
+                                <table id="historyTable" style="width: 100%; border-collapse: collapse;">
+                                    <thead>
+                                        <tr style="background-color: maroon; color: white;">
+                                            <th style="padding: 10px;">DATE</th>
+                                            <th style="padding: 10px;">STAFF NAME</th>
+                                            <th style="padding: 10px;">ACTION</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="historyTableBody">
                                 
                                     <!-- History details will be populated here dynamically -->
                                 </tbody>
                             </table>
+                            </div>
                         </div>
                     </div>
                 </div>

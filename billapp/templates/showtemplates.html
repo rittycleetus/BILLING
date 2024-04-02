@@ -300,6 +300,30 @@
             padding: 3rem;
 
         }
+
+
+        @media (max-width: 576px) {
+    .modal {
+        width: 90% !important; /* Adjust width as needed */
+        left: 50% !important; /* Center the modal horizontally */
+    }
+
+    .modal h2 {
+        font-size: 1.5rem; /* Adjust font size */
+    }
+
+    .modal textarea {
+        width: calc(100% - 20px); /* Adjust textarea width */
+        margin-left: 10px; /* Adjust margin */
+        margin-right: 10px; /* Adjust margin */
+    }
+
+    .sendEmailBtn {
+        width: 80% !important; /* Adjust button width */
+        margin-left: 10%; /* Center the button horizontally */
+        margin-right: 10%; /* Center the button horizontally */
+    }
+}
 </style>
 
 
@@ -422,9 +446,10 @@
                                                 </div>
                                             </div>
                                         </div>
-                                        <div class="overflow-view " >
-                                            <div class="debit-body " style="overflow-x: auto;">
-                                                <table class="table">
+                                        <div class="overflow-view">
+                                            <div class="debit-body" style="overflow-x: auto;">
+                                                <div class="table-responsive">
+                                                    <table class="table">
                                                     <thead>
                                                         <tr>
                                                             <th class="text-bold">Item Name</th>
@@ -450,6 +475,7 @@
                                                         {% endfor %}
                                                     </tbody>
                                                 </table>
+                                                </div>
                                                 <br>
                                                 <br><br>
                                                 <div class="debit-body-bottom">
@@ -476,12 +502,12 @@
                                 </div>
                         </div>
 
-                        <div class="debit-wrapper"  id="template2" style="display: none;">
-                            <div class="debit " id="print-area">
+                        <div class="debit-wrapper" id="template2">
+                            <div class="debit" id="print-area">
                                 <div class="debit-container" id="slipdiv">
                                     <div class="debit-head">
-                                        <div class="debit-head-top">
-                                            <div class="debit-head-top-left text-start">
+                                            <div class="debit-head-top">
+                                                <div class="debit-head-top-left text-start">
                                             </div>
                                         </div>
                                         <div class="hr"></div>
@@ -494,23 +520,24 @@
                                                 </ul>
                                             </div>
                                         </div>
-                                        <div style="display: flex;">
-                                            <div class="debit-head-middle-left text-start" style="flex: 1;">
+                                        <div class="debit-head-bottom" style="display: flex; flex-wrap: wrap;">
+                                            <div class="debit-head-bottom-left text-start" style="flex: 1;">
                                                 <ul>
                                                     <li class='text-bold' style="color: red;">TO,</li>
                                                     <li><b>{{ party.party_name }}</b></li>
                                                     <li>{{ party.address }}</li>
                                                 </ul>
                                             </div>
-                                            <div class="debit-head-bottom-right" style="flex: 1; text-align: left;margin-left: 390px;">
+                                            <div class="debit-head-bottom-right">
                                                 <p><span class="text-bold" style="color: red;">Debit No:</span> {{ debit_note.returnno }}</p>
                                                 <p><span class="text-bold" style="color: red;">Debit Date:</span> {{ debit_note.created_at|date:'d-m-Y' }}</p>
-                                                
                                             </div>
                                         </div>
                                         <div class="overflow-view">
                                             <div class="debit-body" style="overflow-x: auto;">
-                                                <table id="debit-table">
+                                                
+                                                <table class="table-responsive" id="debit-table">
+                                                    
                                                     <thead>
                                                         <tr>
                                                             <th class="text-bold">Item Name</th>
@@ -536,6 +563,7 @@
                                                         {% endfor %}
                                                     </tbody>
                                                 </table>
+                                                </div>
                                                 <br>
                                                 <br><br>
                                                 <div class="debit-body">
@@ -599,7 +627,7 @@
                                         </div>
                                     </div>
                                     <div class="debit-body" style="overflow-x: auto;">
-                                        <table id="debit-table">
+                                        <table class="table-responsive" id="debit-table">
                                             <thead>
                                                 <tr>
                                                     <th class="text-bold">Item Name</th>
@@ -625,6 +653,7 @@
                                                 {% endfor %}
                                             </tbody>
                                         </table>
+                                        </div>
                                         <br>
                                         <div class="debit-body-info">
                                             <div class="debit-body-info-item">
@@ -1031,25 +1060,34 @@
        // Close the document for proper rendering
        printWindow.document.close();
    
-       printWindow.document.addEventListener('DOMContentLoaded', function () {
-           // Generate PDF after content is fully loaded
-           var element = printWindow.document.body;
-           var opt = {
-               margin: 1,
-               filename: 'Template_PDF.pdf', // Set your desired filename here
-               image: { type: 'jpeg', quality: 0.98 },
-               html2canvas: { scale: 2 },
-               jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
-           };
-           html2pdf().set(opt).from(element).save();
-       });
-   }
-   
-   function getCurrentTemplateId() {
-       var displayedTemplateId = document.querySelector(".debit-wrapper[style='display: block;']").id;
-       var templateId = displayedTemplateId.replace("template", "");
-       return templateId;
-   }
+   // Show loading indicator
+var loadingIndicator = document.createElement('div'); loadingIndicator.innerText = 'Generating PDF... Please wait.';
+    printWindow.document.body.appendChild(loadingIndicator);
+
+    // Listen for the 'load' event on the print window's document
+    printWindow.addEventListener('load', function() {
+        // Generate PDF after content is fully loaded
+        var element = printWindow.document.body;
+        var opt = {
+            margin: 1,
+            filename: 'Template_PDF.pdf', 
+            image: { type: 'jpeg', quality: 0.98 },
+            html2canvas: { scale: 2 },
+            jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
+        };
+        html2pdf().set(opt).from(element).save();
+
+       // Remove loading indicator
+    printWindow.document.body.removeChild(loadingIndicator);
+}, 500); 
+    
+}
+
+function getCurrentTemplateId() {
+    var displayedTemplateId = document.querySelector(".debit-wrapper[style='display: block;']").id;
+    var templateId = displayedTemplateId.replace("template", "");
+    return templateId;
+}
    </script>
    
    <script>
@@ -1260,6 +1298,7 @@
                    console.log('Response:', response);
                    if (response.status === 'success') {
                        alert('Email sent successfully.');
+                       $('#gmailModal').hide();
                        $('#recipientEmail').val('');
            $('#optionalMessage').val('');
                    } else {

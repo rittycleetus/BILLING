@@ -182,7 +182,7 @@ class DebitNoteHistory(models.Model):
 class Transactions_party(models.Model):
     user = models.ForeignKey(CustomUser,on_delete=models.CASCADE,null=True,blank=True)
     company = models.ForeignKey(Company,on_delete= models.CASCADE,null=True,blank=True)
-    party = models.OneToOneField(Party,on_delete=models.CASCADE,null=True,blank=True)
+    party = models.ForeignKey(Party,on_delete=models.CASCADE,null=True,blank=True)
     trans_type = models.CharField(max_length=255)
     trans_number = models.CharField(max_length=255)
     trans_date = models.DateTimeField()
@@ -193,6 +193,7 @@ class PartyTransactionHistory(models.Model):
     Transactions_party = models.ForeignKey(Transactions_party,on_delete=models.CASCADE)
     user = models.ForeignKey(CustomUser,on_delete=models.CASCADE,null=True,blank=True)
     company = models.ForeignKey(Company,on_delete= models.CASCADE,null=True,blank=True)
-    party = models.OneToOneField(Party,on_delete=models.CASCADE,null=True,blank=True)
+    party = models.ForeignKey(Party,on_delete=models.CASCADE,null=True,blank=True)
     action = models.CharField(max_length=255)
     transactiondate = models.DateField(auto_now=True)
+
