@@ -435,10 +435,11 @@ def reject_staff(request,id):
   messages.info(request,'Employee Deleted !!')
   return redirect('load_staff_request')
 
+
 def firstdebitnote(request):
     # You may need to fetch data or perform any logic related to the first debit note here
     # For example, check if there are existing debit notes
-    debit_notes_exist = True  # Replace this with your actual logic
+    debit_notes_exist = DebitNote.objects.filter(user=request.user).exists()
 
     context = {
         'usr': request.user,
@@ -448,12 +449,9 @@ def firstdebitnote(request):
     return render(request, 'firstdebitnote.html', context)
 
 
-logger = logging.getLogger(__name__)
-
 def debit_note_redirect(request):
-    # Check if any debit notes exist for the logged-in user or company
-    debit_notes_exist = DebitNote.objects.filter(user=request.user).exists() or \
-                        DebitNote.objects.filter(company=request.user.company).exists()
+    # Check if any debit notes exist for the logged-in user
+    debit_notes_exist = DebitNote.objects.filter(user=request.user).exists()
 
     if debit_notes_exist:
         # Debit notes exist, redirect to the page displaying the debit notes
@@ -461,7 +459,7 @@ def debit_note_redirect(request):
 
     else:
         # No debit notes exist, redirect to the page for creating the first debit note
-        return redirect('firstdebitnote') 
+        return redirect('firstdebitnote')
 
 
 def createdebitnote(request):
@@ -648,6 +646,8 @@ def extract_percentage(vat_string):
     # Return None if the string doesn't match the expected format
     return None
 
+
+
 def item_create(request):
     if request.method == 'POST':
         print('Request received')
@@ -712,10 +712,13 @@ def item_create(request):
         )
         item.save()
 
-        response_data = {'success': True, 'message': 'Item created successfully!'}
-        return render(request, 'createdebitnote.html', response_data)
+       
+        response_data = {'success': True, 'message': 'Item created successfully!', 'item_id': item.id, 'itemName': item.itm_name}
+        return JsonResponse(response_data)
 
+    # Render a response if not a POST request
     return render(request, 'createdebitnote.html')
+
 
 
 def create_unit(request):
@@ -724,7 +727,6 @@ def create_unit(request):
         company_id = request.user.company.id
         print(f"Company ID: {company_id}")
 
-        
         company = Company.objects.get(id=request.user.company.id)
 
         # Create a new Unit instance
@@ -732,11 +734,17 @@ def create_unit(request):
             company=company,
             unit_name=unit_name
         )
-        messages.success(request, 'Unit created successfully')
-        context = {'success': True,'message': 'Unit created successfully!', 'unit_name': unit.unit_name}
-        print("Context:", context)
+        
+        # Prepare the JSON response data
+        response_data = {
+            'success': True,
+            'message': 'Unit created successfully!',
+            'unit_name': unit.unit_name,
+            'unit_id': unit.id
+        }
+        print("Response Data:", response_data)
 
-        return render(request, 'createdebitnote.html', context)
+        return JsonResponse(response_data)
 
     # Handle other HTTP methods if needed
     return JsonResponse({'success': False, 'message': 'Invalid request method'})

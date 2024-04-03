@@ -2,11 +2,12 @@
 {% load static %}
 {% block content %}
 <head>
+
  <!-- Include Select2 CSS -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" integrity="sha384-GLhlTQ8iM4jQqR8r+cktRTt8Zp1eklHfEAg/8mtP1wwj1z9EGg6S5q6Z1PI5piJ6" crossorigin="anonymous">
 
 <!-- Include jQuery (Select2 requires it) -->
-<script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha384-/KJ5oZqUeaOr5b+6S6Zkzep5l+M5R2T/W8C86gN7rqlTzq/WW6C+0cu1hKj2ktWZ" crossorigin="anonymous"></script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
 <!-- Include Select2 JS -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js" integrity="sha384-GLhlTQ8iM4jQqR8r+cktRTt8Zp1eklHfEAg/8mtP1wwj1z9EGg6S5q6Z1PI5piJ6" crossorigin="anonymous"></script>
@@ -455,6 +456,8 @@
                    <button type="button" class="btn-close" data-dismiss="modal" aria-label="Close"></button>
                </div>
                <div class="modal-body">
+                <form id="itemform" >
+                    
                 <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
                    {% if success_message %}
                    <script>
@@ -486,7 +489,7 @@
                                    <div class="p-3" style="border: 2px solid #68020F; border-radius: 2.5vh; background-color: #FFD6D7;">
                                        <div class="d-flex">
                                            <div class="pt-5 w-50">
-                                               <input type="text" name="itm_type" id="itm_type" hidden>
+                                               <input type="hidden" name="itm_type" id="itm_type" >
                                                <label style="user-select: none;" class="fs-4 tb" for="goods">Goods</label>
                                                <input id="goods" class="me-3 " type="radio" name="item_ty" required>
                                                <label style="user-select: none;" class="fs-4 tb" for="service">Services</label>
@@ -554,160 +557,144 @@
                            </div>
                        </div>
                    </div>
-               </div>
-   
-               <div class="row">
-                   <div class="col-sm-12 col-md-1"></div>
-                   <div class="col-sm-12 col-md-5 pb-4">
-                       <div class="me-3 text-center">
-                           <h3><strong class="fw-bolder" style="color: #68020F;">PRICING</strong></h3>
-                       </div>
-                       <div class="p-3" style="border: 2px solid #68020F; border-radius: 2.5vh; background-color: #FFD6D7;">
-                        <div class="pt-5 mb-4">
-                            <input type="text" name="taxable_result" id="taxable_result" hidden>
-                            <label style="user-select: none;" class="fs-4 tb" for="item_tax_1">Tax</label> &nbsp;
-                            <input id="item_tax_1" class="me-3" type="radio" name="item_tax_result" required>
-                            <label style="user-select: none;" class="fs-4 tb" for="item_tax_2">Tax Excempted</label>&nbsp;
-                            <input id="item_tax_2" type="radio" name="item_tax_result" required>
+                   <div class="row">
+                    <div class="col-sm-12 col-md-1"></div>
+                    <div class="col-sm-12 col-md-5 pb-4">
+                        <div class="me-3 text-center">
+                            <h3><strong class="fw-bolder" style="color: #68020F;">PRICING</strong></h3>
                         </div>
-
-                        <div id="vatdiv" class="mb-2 pt-3" hidden>
-                            <label class="fw-bold tb fs-3" for="">VAT</label><br>
-                            <input type="text" class="form-control mt-1 input_border text-black" name="vat" id='vat1'>
-                        </div>
-   
-
-
-
-
-
-                                                 <div class="mb-4 pt-3">
-                               <label class="tb fw-bold" for="pur_price">SALES PRICE</label><br>
-                               <input id="sal_price" class="form-control fw-normal fs-3 mt-1 input_border text-black" type="number" placeholder="Enter Sales Price" name="sale_price" required>
-                           </div>
-   
-                           <div class="mb-4">
-                               <label class="tb fw-bold" for="">PURCHASE PRICE</label><br>
-                               <input id="pur_price" class="form-control fw-normal fs-3 mt-1 input_border text-black" type="number" placeholder="Enter Purchase Price" name="purchase_price" required>
-                           </div>
-                       </div>
-                   </div>
-                   <div class="col-sm-12 col-md-5 pb-4">
-                       <div class="me-3 text-center">
-                           <h3><strong class="fw-bolder" style="color: #68020F;">STOCKS</strong></h3>
-                       </div>
                        <div class="p-3" style="border: 2px solid #68020F; border-radius: 2.5vh; background-color: #FFD6D7;">
-                           <div class="mb-4 pt-4">
-                               <label class="tb fw-bold" for="opn_stock_">STOCK IN HAND</label><br>
-                               <input id="opn_stock_" class="form-control fw-normal fs-3 mt-1 input_border text-black" type="number" placeholder="Enter Opening Stock" name="stock_in_hand" required>
-                           </div>
-                           <div class="mb-4">
-                               <label class="tb fw-bold" for="at_price">AT PRICE</label><br>
-                               <input id="at_price" class="form-control fw-normal fs-3 mt-1 input_border text-black" type="number" placeholder="Enter Price" name="at_price" required>
-                           </div>
-                           <div class="mb-4">
-                               <label class="tb fw-bold" for="date_">DATE</label><br>
-                               <input id="date" class="form-control fw-normal fs-3 mt-1 input_border text-black" type="date" value="{{ tod }}" name="itm_date">
-                           </div>
-                       </div>
-                   </div>
-                   <div class="col-sm-12 col-md-1"></div>
-                   <div class="text-start" style="margin-left: 9%;">
-                       <button class="btn me-3 button_border" type="button" id="itemcreate">Save</button>
-                
-                   </div>
+                         <div class="pt-5 mb-4">
+                             <input type="text" name="taxable_result" id="taxable_result" hidden>
+                             <label style="user-select: none;" class="fs-4 tb" for="item_tax_1">Tax</label> &nbsp;
+                             <input id="item_tax_1" class="me-3" type="radio" name="item_tax_result">
+                             <label style="user-select: none;" class="fs-4 tb" for="item_tax_2">Tax Excempted</label>&nbsp;
+                             <input id="item_tax_2" type="radio" name="item_tax_result">
+                         </div>
+ 
+                         <div id="vatdiv" class="mb-2 pt-3" style="display: none;">
+                             <label class="fw-bold tb fs-3" for="">VAT</label><br>
+                             <input type="text" class="form-control mt-1 input_border text-black" name="vat" id='vat1'>
+                         </div>
+ 
+ 
+ 
+                                                  <div class="mb-4 pt-3">
+                                <label class="tb fw-bold" for="pur_price">SALES PRICE</label><br>
+                                <input id="sal_price" class="form-control fw-normal fs-3 mt-1 input_border text-black" type="number" placeholder="Enter Sales Price" name="sale_price" required>
+                            </div>
+    
+                            <div class="mb-4">
+                                <label class="tb fw-bold" for="">PURCHASE PRICE</label><br>
+                                <input id="pur_price" class="form-control fw-normal fs-3 mt-1 input_border text-black" type="number" placeholder="Enter Purchase Price" name="purchase_price" required>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-12 col-md-5 pb-4">
+                        <div class="me-3 text-center">
+                            <h3><strong class="fw-bolder" style="color: #68020F;">STOCKS</strong></h3>
+                        </div>
+                        <div class="p-3" style="border: 2px solid #68020F; border-radius: 2.5vh; background-color: #FFD6D7;">
+                            <div class="mb-4 pt-4">
+                                <label class="tb fw-bold" for="opn_stock_">STOCK IN HAND</label><br>
+                                <input id="opn_stock_" class="form-control fw-normal fs-3 mt-1 input_border text-black" type="number" placeholder="Enter Opening Stock" name="stock_in_hand" required>
+                            </div>
+                            <div class="mb-4">
+                                <label class="tb fw-bold" for="at_price">AT PRICE</label><br>
+                                <input id="at_price" class="form-control fw-normal fs-3 mt-1 input_border text-black" type="number" placeholder="Enter Price" name="at_price" required>
+                            </div>
+                            <div class="mb-4">
+                                <label class="tb fw-bold" for="date_">DATE</label><br>
+                                <input id="date" class="form-control fw-normal fs-3 mt-1 input_border text-black" type="date" value="{{ tod }}" name="itm_date">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-12 col-md-1"></div>
+                    <div class="text-start" style="margin-left: 9%;">
+                        <button class="btn me-3 button_border" type="button" id="itemcreate">Save</button>
+                 
+                    </div>
+                </div>
+                   </form>
+
                </div>
+
+   
+              
            </div>
        </div>
    </div>
    </div>
 
-   <script>
-    $(document).ready(function () {
-        // Function to validate HSN length
-        function validateHSN(hsn) {
-            if (hsn.length !== 6) {
-                $('#hsnErrorMessage').text('Please provide a 6-digit HSN number.');
-                return false;
-            } else {
-                $('#hsnErrorMessage').text('');
-                return true;
-            }
-        }
+   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
 
-        $(document).on("click", "#itemcreate", function () {
-            // Get CSRF token from the DOM
-            var csrfToken = $('input[name="csrfmiddlewaretoken"]').val();
 
-            // Get item details from the form
-            var itemName = $('#itemName').val();
-            var itemHSN = $('#itemHSN').val();
+<script>
+    $(document).ready(function() {
+    // Listen for click event on radio button with id 'item_tax_1'
+    $('#item_tax_1').click(function() {
+        // Show the vatdiv
+        $('#vatdiv').show();
+        $('#vat1').val('VAT 5%');
+        $('#taxable_result').val('Taxable');
+    });
+    $('#item_tax_2').click(function() {
+        // Show the vatdiv
+        $('#vatdiv').show();
+        $('#vat1').val('VAT 0%');
+        $('#taxable_result').val('Non Taxable');
+    });
+    
+});
+</script>
 
-            // Check if either item name is empty or HSN length is less than 6
-            if (itemName.trim() === '') {
-                alert('Please provide an item name');
-                return;
-            } else if (!validateHSN(itemHSN)) {
-                alert('Please provide a valid 6-digit HSN number.');
-                return;
-            }
-
-        $('#item_tax_1').on('click', function () {
-            $('#vatdiv').removeAttr('hidden'); // Remove the 'hidden' attribute
-            $('#vat1').val('VAT 5%');
-            $('#taxable_result').val('Taxable');
-        });
-
-        $('#item_tax_2').on('click', function () {
-            $('#vatdiv').removeAttr('hidden'); // Remove the 'hidden' attribute
-            $('#vat1').val('VAT 0%');
-            $('#taxable_result').val('Non Taxable');
-        });
-
-        $('#goods').on('click', function () {
-            $('#itm_type').val('Goods');
-        });
-
-        $('#service').on('click', function () {
-            $('#itm_type').val('Service');
-        });
-
-     
-
-    var itemtype = $('#itm_type').val();
-    var itemunit = $('#unit').val();
-    var itemtaxable = $('#taxable_result').val();
-    var itemtax1 = $('#item_tax_1').val();
-    var itemtax2 = $('#item_tax_2').val();
-    var vat1 = $('#vat1').val();
-    var salesprice = $('#sal_price').val();
-    var purprice = $('#pur_price').val();
-    var openstock = $('#opn_stock_').val();
-    var atprice = $('#at_price').val();
-    var dateitem = $('#date').val();
-
-    // Log the data being sent in the AJAX request
-    console.log({
-        itemName: itemName,
-        itemHSN: itemHSN,
-        itm_type: itemtype,
-        unit: itemunit,
-        taxable_result: itemtaxable,
-        tax1: itemtax1,
-        tax2: itemtax2,
-        vat1: vat1,
-        sal_price: salesprice,
-        pur_price: purprice,
-        opn_stock_: openstock,
-        at_price: atprice,
-        date: dateitem,
-        csrfmiddlewaretoken: csrfToken
+<script>
+    $(document).ready(function() {
+    $('#goods').click(function () {
+        $('#itm_type').val('Goods');
     });
 
-    $.ajax({
-        type: 'POST',
-        url: "{% url 'item_create' %}",
-        data: {
+    $('#service').click(function () {
+        $('#itm_type').val('Service');
+    });
+});
+</script>
+
+
+<script>
+    $(document).ready(function() {
+    // Event handler for form submission
+    $(document).on("click", "#itemcreate", function () {
+        // Get CSRF token from the DOM
+        var csrfToken = $('input[name="csrfmiddlewaretoken"]').val();
+
+        // Get item details from the form
+        var itemName = $('#itemName').val().trim();
+        var itemHSN = $('#itemHSN').val().trim();
+        var itemtype = $('#itm_type').val().trim();
+        var itemunit = $('#unit').val().trim();
+        var itemtaxable = $('#taxable_result').val().trim();
+        var itemtax1 = $('#item_tax_1').is(':checked') ? $('#item_tax_1').val() : '';
+        var itemtax2 = $('#item_tax_2').is(':checked') ? $('#item_tax_2').val() : '';
+        var vat1 = $('#vat1').val().trim();
+        var salesprice = $('#sal_price').val().trim();
+        var purprice = $('#pur_price').val().trim();
+        var openstock = $('#opn_stock_').val().trim();
+        var atprice = $('#at_price').val().trim();
+        var dateitem = $('#date').val().trim();
+
+        // Validate item name and HSN
+        if (itemName === '') {
+            alert('Please provide an item name');
+            return;
+        }
+        if (!validateHSN(itemHSN)) {
+            alert('Please provide a valid 6-digit HSN number.');
+            return;
+        }
+        
+        // Log the data being sent in the AJAX request
+        console.log({
             itemName: itemName,
             itemHSN: itemHSN,
             itm_type: itemtype,
@@ -722,42 +709,73 @@
             at_price: atprice,
             date: dateitem,
             csrfmiddlewaretoken: csrfToken
-        },
-        success: function (response) {
-            $('#itemCreateModal').modal('hide');
-            alert('Item added successfully!');
+        });
 
-            // Clear form fields
-            $('#itemName').val('');
-            $('#itemHSN').val('');
-            $('#unit').val('');
-            $('#taxable_result').val('');
-            $('#vat1').val('');
-            $('#opn_stock_').val('');
-            $('#sal_price').val('');
-            $('#pur_price').val('');
-            $('#at_price').val('');
-            $('#date').val('');
-            // Clear radio button selections
-            $('#goods').prop('checked', false);
-            $('#service').prop('checked', false);
-            $('#item_tax_1').prop('checked', false);
-            $('#item_tax_2').prop('checked', false);
+        // AJAX request
+        $.ajax({
+            type: 'POST',
+            url: "{% url 'item_create' %}",
+            data: {
+                itemName: itemName,
+                itemHSN: itemHSN,
+                itm_type: itemtype,
+                unit: itemunit,
+                taxable_result: itemtaxable,
+                tax1: itemtax1,
+                tax2: itemtax2,
+                vat1: vat1,
+                sal_price: salesprice,
+                pur_price: purprice,
+                opn_stock_: openstock,
+                at_price: atprice,
+                date: dateitem,
+                csrfmiddlewaretoken: csrfToken
+            },
+            success: function (response) {
+                alert('Item added successfully!');
+                 // Clear form fields
+                 $('#itemName, #itemHSN, #unit, #taxable_result, #vat1, #opn_stock_, #sal_price, #pur_price, #at_price, #date').val('');
+                
+                $('#itemCreateModal .btn-close').click();
+               
+                // $('#itemform')[0].reset();
 
-            // Append the new item to the dropdown
-            $('#select1').append($('<option>', {
-                value: response.item_id, 
-                text: response.itemName 
-            }));
-            console.log(response);
-},
-        error: function (xhr, errmsg, err) {
-            // Handle error
-            console.log('Error:', errmsg);
-        }
+               
+                // Clear radio button selections
+                $('#goods, #service, #item_tax_1, #item_tax_2').prop('checked', false);
+
+                // Append the new item to the dropdown
+                $('#select1').append($('<option>', {
+                    value: response.item_id, 
+                    text: response.itemName 
+                }));
+                
+                console.log(response);
+            },
+            error: function (xhr, errmsg, err) {
+                console.log('Error:', errmsg);
+            }
+        });
     });
 });
+function validateHSN(hsn) {
+            if (hsn.length !== 6) {
+                $('#hsnErrorMessage').text('Please provide a 6-digit HSN number.');
+                return false;
+            } else {
+                $('#hsnErrorMessage').text('');
+                return true;
+            }
+        }
+</script>
 
+
+
+   <script>
+    $(document).ready(function () {
+        // Function to validate HSN length
+       
+    
 $("#unitmodalsubmit").click(function () {
     // Get the unit name from the input field
     var unitName = $('#unit_name').val();
@@ -1025,7 +1043,7 @@ $("#unitmodalsubmit").click(function () {
            text: data.name
    
        });
-       option.attr('data-address', data.address);
+    //    option.attr('data-address', data.address);
    
        
        dropdown.append(option);
@@ -1374,7 +1392,7 @@ $("#unitmodalsubmit").click(function () {
         // Trigger handlePartySelection on page load to handle default selection
         handlePartySelection($('#party').find(':selected'));
     });
-function handlePartySelection(selectedOption) {
+    function handlePartySelection(selectedOption) {
     var billDropdown = $("#bill");
     var billDateInput = $("#bill_date");
     var addressSection = $("#addressSection");
@@ -1382,36 +1400,41 @@ function handlePartySelection(selectedOption) {
     // Update the "Select Bill" dropdown options
     billDropdown.empty();
 
-    // Check if the selected party has associated bills
-    if (selectedOption.data('billno') !== undefined) {
-        billDropdown.append($('<option>', {
-            value: selectedOption.data('billno'),
-            text: selectedOption.data('billno')
-        }));
+    // Get the array of bills associated with the selected party
+    var bills = selectedOption.data('bills');
+
+    if (bills && bills.length > 0) {
+        // Add each bill number to the dropdown
+        bills.forEach(function(bill) {
+            billDropdown.append($('<option>', {
+                value: bill.billno,
+                text: bill.billno
+            }));
+        });
+
+        // Set the value of the "Bill Date" input field for the first bill
+        billDateInput.val(bills[0].billdate);
     } else {
+        // If no bills available, show appropriate message
         billDropdown.append($('<option>', {
             value: "",
             text: "No bills available for the selected party."
         }));
-    }
 
-    // Set the value of the "Bill Date" input field
-    if (selectedOption.data('billdate') !== undefined) {
-        billDateInput.val(selectedOption.data('billdate'));
-    } else {
+        // Set bill date input to NIL
         billDateInput.val("NIL");
     }
 
     // Check if there's an address associated with the selected party
     var address = selectedOption.data("address");
-            if (address && address.trim() !== "") {
-                // Display the address section
-                addressSection.show();
-            } else {
-                // Hide the address section
-                addressSection.hide();
-            }
-        }
+    if (address && address.trim() !== "") {
+        // Display the address section
+        addressSection.show();
+    } else {
+        // Hide the address section
+        addressSection.hide();
+    }
+}
 function handleBillSelection(selectedOption) {
         var billDropdown = $("#bill");
 
