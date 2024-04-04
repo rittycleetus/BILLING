@@ -7,7 +7,7 @@ import random
 from django.template.loader import get_template
 from django.http import HttpResponse
 from xhtml2pdf import pisa
-from django.conf import settings
+from django.conf import settings      
 from django.core.mail import send_mail
 from django.utils import timezone
 from django.http.response import JsonResponse
@@ -434,6 +434,11 @@ def reject_staff(request,id):
   emp.delete()
   messages.info(request,'Employee Deleted !!')
   return redirect('load_staff_request')
+
+
+
+
+
 
 
 def firstdebitnote(request):

@@ -120,6 +120,7 @@ class PurchaseBill(models.Model):
     grandtotal = models.FloatField(default=0, null=True)
     advance=models.CharField(null=True,blank=True,max_length=255)
     balance=models.CharField(null=True,blank=True,max_length=255)
+    tot_bill_no=models.CharField(default=0, null=True)
     
     
 
@@ -140,6 +141,92 @@ class PurchaseBillItem(models.Model):
 
 #     def __str__(self):
 #         return f"Debit Note {self.id}"
+
+class SalesInvoice(models.Model):
+    user = models.ForeignKey(CustomUser,on_delete=models.CASCADE,null=True,blank=True)
+    company = models.ForeignKey(Company,on_delete= models.CASCADE,null=True,blank=True)
+    employee = models.ForeignKey(Employee, on_delete=models.CASCADE,null=True,blank=True)
+    party = models.ForeignKey(Party,on_delete=models.CASCADE,null=True,blank=True)
+    item=models.ForeignKey(Item, on_delete=models.CASCADE,null=True,blank=True)
+    party_name = models.CharField(max_length=100,null=True,blank=True)
+    contact = models.CharField(max_length=255,null=True,blank=True)
+    address = models.CharField(max_length=255,null=True,blank=True)
+    invoice_no = models.IntegerField(default=0,null=True,blank=True)
+    date = models.DateField()
+    description = models.TextField(max_length=255,null=True,blank=True)
+    subtotal = models.IntegerField(default=0, null=True)
+    vat = models.CharField(max_length=100,default=0, null=True)
+    adjustment = models.CharField(max_length=100,default=0)
+    grandtotal = models.FloatField(default=0, null=True)
+    total_taxamount = models.CharField(max_length=100,default=0)
+    
+class SalesInvoiceItem(models.Model):
+    company = models.ForeignKey(Company, on_delete=models.CASCADE,null=True,blank=True)
+    employee = models.ForeignKey(Employee, on_delete=models.CASCADE,null=True,blank=True)
+    salesinvoice = models.ForeignKey(SalesInvoice, on_delete=models.CASCADE,null=True,blank=True)
+    item = models.ForeignKey(Item, on_delete=models.CASCADE,null=True,blank=True)
+    hsn = models.IntegerField(default=0,null=True,blank=True)
+    quantity = models.IntegerField(default=0,null=True,blank=True)
+    rate = models.DecimalField(max_digits=10, decimal_places=2, default=0.00,null=True,blank=True)
+    discount = models.DecimalField(max_digits=10, decimal_places=2, default=0.00,null=True,blank=True)
+    tax =  models.CharField(max_length=255,null=True,blank=True)
+    totalamount = models.DecimalField(max_digits=20, decimal_places=2, default=0.00,null=True,blank=True)
+    
+    
+class SalesInvoiceTransactionHistory(models.Model):
+    company = models.ForeignKey(Company, on_delete=models.CASCADE,null=True,blank=True)
+    employee = models.ForeignKey(Employee, on_delete=models.CASCADE,null=True,blank=True)
+    salesinvoice = models.ForeignKey(SalesInvoice,on_delete=models.CASCADE,blank=True,null=True)
+    date = models.DateField(auto_now_add=True,null=True)
+    action = models.CharField(max_length=255)
+    done_by_name = models.CharField(max_length=255)
+    
+    
+#Billing software VAT AAMI JAFER
+    
+class CreditNote(models.Model):
+    user = models.ForeignKey(CustomUser,on_delete=models.CASCADE,null=True,blank=True)
+    company = models.ForeignKey(Company,on_delete= models.CASCADE,null=True,blank=True)
+    partystatus=models.CharField(max_length=100,null=True,blank=True)
+    party=models.ForeignKey(Party,on_delete= models.CASCADE,null=True,blank=True)
+    salesinvoice=models.ForeignKey(SalesInvoice,on_delete= models.CASCADE,null=True,blank=True)
+    # reference_no=models.IntegerField(null=True,default="0")
+    returndate=models.DateField()
+    subtotal = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    vat = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    adjustment = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    grandtotal = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    creditnote_date = models.DateTimeField(auto_now_add=True,null=True)
+
+class CreditNoteReference(models.Model):
+    user = models.ForeignKey(CustomUser,on_delete=models.CASCADE,null=True,blank=True)
+    company = models.ForeignKey(Company,on_delete= models.CASCADE,null=True,blank=True)
+    credit_note = models.ForeignKey(CreditNote, related_name='references', on_delete=models.CASCADE)
+    reference_no = models.CharField(max_length=100, blank=True,null=True)
+
+class CreditNoteItem(models.Model):
+    user = models.ForeignKey(CustomUser,on_delete=models.CASCADE,null=True,blank=True)
+    credit_note = models.ForeignKey(CreditNote, related_name='items', on_delete=models.CASCADE)
+    company = models.ForeignKey(Company,on_delete= models.CASCADE,null=True,blank=True)
+    items=models.ForeignKey(Item,on_delete= models.CASCADE,null=True,blank=True)
+    item = models.CharField(max_length=255,null=True)
+    hsn = models.CharField(max_length=100, blank=True)
+    quantity = models.IntegerField(default=0)
+    tax = models.CharField(max_length=100, blank=True)
+    price = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    discount = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    total = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    
+class CreditNoteHistory(models.Model):
+    user = models.ForeignKey(CustomUser,on_delete=models.CASCADE,null=True,blank=True)
+    company = models.ForeignKey(Company,on_delete= models.CASCADE,null=True,blank=True)
+    credit_note_history = models.ForeignKey(CreditNote, related_name='credit_note', on_delete=models.CASCADE)    
+    CHOICES = [
+        ('Created', 'Created'),
+        ('Updated', 'Updated'),
+    ]
+    action = models.CharField(max_length=20, choices=CHOICES)
+    hist_date = models.DateTimeField(auto_now_add=True)
 class DebitNote(models.Model):
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, null=True, blank=True)
     company = models.ForeignKey(Company, on_delete=models.CASCADE, null=True, blank=True)

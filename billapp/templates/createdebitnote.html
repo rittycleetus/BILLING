@@ -335,10 +335,10 @@
                             <td style="color: black;">1</td>
                             <td style="width: 990px;">
                                 <div style="display: flex; position: relative;">
-                                    <select name="selected_item[]" onchange="fillItemDetails1(this)"  class="form-control select2" id="select1">
+                                    <select name="selected_item[]" onchange="fillItemDetails1(this)" class="form-control select2" id="select1">
                                         <option value="">-Select-</option>
                                         {% for item in items %}
-                                            <option value="{{ item.id }}" data-hsn="{{ item.itm_hsn }}" data-price="{{ item.itm_purchase_price }}"  data-tax="VAT {{ item.itm_vat|floatformat:0 }}%" >{{ item.itm_name }}</option>
+                                            <option value="{{ item.id }}" data-hsn="{{ item.itm_hsn }}" data-price="{{ item.itm_purchase_price }}" data-tax="VAT {{ item.itm_vat|floatformat:0 }}%">{{ item.itm_name }}</option>
                                         {% endfor %}
                                     </select>
                             
@@ -744,14 +744,25 @@
                 // Clear radio button selections
                 $('#goods, #service, #item_tax_1, #item_tax_2').prop('checked', false);
 
-                // Append the new item to the dropdown
-                $('#select1').append($('<option>', {
-                    value: response.item_id, 
-                    text: response.itemName 
-                }));
-                
-                console.log(response);
-            },
+              // Append the new item to the dropdown
+            $('#select1').append($('<option>', {
+                value: response.item_id, 
+                text: response.itemName 
+            }));
+
+            // Get the reference to the newly added option
+            var newOption = $('#select1 option[value="' + response.item_id + '"]');
+            console.log("Selected item:", newOption.val()); 
+
+            // Trigger the change event on the select element to ensure that the newly added item is selected
+            newOption.prop('selected', true).trigger('change');
+
+                // Call fillItemDetails1 with the newly added option
+                fillItemDetails1(newOption[0]);
+      
+
+            console.log(response);
+                        },
             error: function (xhr, errmsg, err) {
                 console.log('Error:', errmsg);
             }
@@ -1288,16 +1299,29 @@ $("#unitmodalsubmit").click(function () {
 
 </script>
 
-
-
 <script>
-    $('#select1').on('change', function () {
-        // Your code here
-        var selectedItem = $(this).val();
-        console.log('Selected item:', selectedItem);
+    $(document).ready(function() {
+        $('#select1').on('change', function() {
+            // Get the selected option
+            var selectedOption = $(this).find('option:selected');
+
+            // Extract data attributes from the selected option
+            var hsn = selectedOption.data('hsn') || "";
+            var purchasePrice = selectedOption.data('price') || "";
+            var vat = selectedOption.data('tax') || "";
+
+            // Update the related fields with the extracted data
+            $('#hsn_field').text(hsn);
+            $('#purchase_price_field').text(purchasePrice);
+            $('#vat_field').text(vat);
+
+            console.log('Selected item:', selectedOption.val());
+            console.log('HSN:', hsn);
+            console.log('Purchase price:', purchasePrice);
+            console.log('VAT:', vat);
+        });
     });
 </script>
-
 <script>
     window.onload = function() {
         // Get the value of count dynamically
@@ -1363,6 +1387,7 @@ $("#unitmodalsubmit").click(function () {
                 $('#available_balance').val(selectedOption.data('openingbalance'));
 
                 // Update the bill dropdown based on selected party
+                handlePartySelection(selectedOption);
                 handleBillSelection(selectedOption);
 
                 // Check if it's a newly created party (just added)
@@ -1393,48 +1418,50 @@ $("#unitmodalsubmit").click(function () {
         handlePartySelection($('#party').find(':selected'));
     });
     function handlePartySelection(selectedOption) {
-    var billDropdown = $("#bill");
-    var billDateInput = $("#bill_date");
-    var addressSection = $("#addressSection");
+            var billDropdown = $("#bill");
+            var billDateInput = $("#bill_date");
+            var addressSection = $("#addressSection");
 
-    // Update the "Select Bill" dropdown options
-    billDropdown.empty();
+            // Update the "Select Bill" dropdown options
+            billDropdown.empty();
 
-    // Get the array of bills associated with the selected party
-    var bills = selectedOption.data('bills');
+         // Get the array of bills associated with the selected party
+var bills = selectedOption.data('bills');
 
-    if (bills && bills.length > 0) {
-        // Add each bill number to the dropdown
-        bills.forEach(function(bill) {
-            billDropdown.append($('<option>', {
-                value: bill.billno,
-                text: bill.billno
-            }));
-        });
+console.log('Bills:', bills);
 
-        // Set the value of the "Bill Date" input field for the first bill
-        billDateInput.val(bills[0].billdate);
-    } else {
-        // If no bills available, show appropriate message
+if (bills && bills.length > 0) {
+    // Add each bill number to the dropdown
+    bills.forEach(function(bill) {
         billDropdown.append($('<option>', {
-            value: "",
-            text: "No bills available for the selected party."
+            value: bill.billno,
+            text: bill.billno
         }));
+    });
 
-        // Set bill date input to NIL
-        billDateInput.val("NIL");
-    }
+    // Set the value of the "Bill Date" input field for the first bill
+    billDateInput.val(bills[0].billdate);
+} else {
+    // If no bills available, show appropriate message
+    billDropdown.append($('<option>', {
+        value: "",
+        text: "No bills available for the selected party."
+    }));
 
-    // Check if there's an address associated with the selected party
-    var address = selectedOption.data("address");
-    if (address && address.trim() !== "") {
-        // Display the address section
-        addressSection.show();
-    } else {
-        // Hide the address section
-        addressSection.hide();
-    }
+    // Set bill date input to NIL
+    billDateInput.val("NIL");
 }
+            // Check if there's an address associated with the selected party
+            var address = selectedOption.data("address");
+            if (address && address.trim() !== "") {
+                // Display the address section
+                addressSection.show();
+            } else {
+                // Hide the address section
+                addressSection.hide();
+            }
+        }
+    
 function handleBillSelection(selectedOption) {
         var billDropdown = $("#bill");
 
@@ -1473,28 +1500,36 @@ function handleBillSelection(selectedOption) {
         $('#party').trigger('change');
 
 </script>
+
+
+
+
 <script>
-    function fillItemDetails1(selectElement) {
-        // Get the selected option
-        var selectedOption = selectElement.options[selectElement.selectedIndex];
+function fillItemDetails1(selectElement) {
+    console.log('Select element:', selectElement);
 
-        // Get the associated details
-        var hsn = selectedOption.getAttribute("data-hsn") || "";
-        var purchasePrice = selectedOption.getAttribute("data-price") || "";
-        var vat = selectedOption.getAttribute("data-tax") || "";
-        var vatRate = parseFloat(vat.match(/\d+/)) || 0;
-        
+    var selectedOption = selectElement.options[selectElement.selectedIndex];
+    console.log('Selected option:', selectedOption);
 
-        // Update the elements in the current row with the details
-        var row = selectElement.closest('tr');
+    var hsn = selectedOption.getAttribute("data-hsn") || "";
+    var purchasePrice = selectedOption.getAttribute("data-price") || "";
+    var vat = selectedOption.getAttribute("data-tax") || "";
+    var vatRate = parseFloat(vat.match(/\d+/)) || 0;
+
+    console.log('HSN:', hsn);
+    console.log('Purchase price:', purchasePrice);
+    console.log('VAT:', vat);
+
+    var row = selectElement.closest('tr');
+    console.log('Row:', row);
+
+    if (row) {
         row.querySelector('span[id="hsn"]').textContent = hsn;
         row.querySelector('span[id="purchasePrice"]').textContent = purchasePrice;
         row.querySelector('span[id="vat"]').textContent = vat;
         updateTaxAmount();
-
-      
-
     }
+}
     function updateTotalAmount1(inputElement) {
     // Get the parent row
     var row = inputElement.closest('tr');
