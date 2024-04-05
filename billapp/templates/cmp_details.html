@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {% load static %}
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.js"></script>
+  <title>Multiuser Billing Software Vat</title>
+</head>
+
+<style>
+    #welcome{
+        padding-top: 10%;
+        padding-bottom: 12%;
+        background: linear-gradient(to right, #68020F, #F21137);
+    }
+
+    .navbar{
+        background: linear-gradient(to right, #68020F, #F21137);
+    }
+
+
+    .logo-text {
+      font-family: Arial, sans-serif;
+      font-weight: bold;
+      color: black; 
+    }
+
+    .nav-link{
+        font-size: larger;
+    }
+
+    .navbar-nav .nav-item.active a{
+        background-color: #FFADB0;
+        padding-left: 3vh;
+        padding-right: 3vh;
+    }
+
+    .navbar-nav .nav-item a{
+        padding: 2vh;
+        margin-right: 7vh;
+        border-radius: 1vh;
+    }
+
+    body::-webkit-scrollbar { 
+        display: none;  /* Safari and Chrome */
+    }
+
+    form {
+        width: 100%;
+        position: relative;
+        z-index: 9;
+        padding: 77px 61px 66px;
+        background: #fff;
+ }
+
+        .form-holder {
+  position: relative;
+  margin-bottom: 21px; }
+
+
+
+
+.form-control {
+  border: none;
+  border-bottom: 1px solid #e6e6e6;
+  display: block;
+  width: 100%;
+  height: 38px;
+  background: none;
+  padding: 3px 42px 0px;
+  color: #666;
+  font-size: 16px; }
+
+
+    #register {
+  border: none;
+  width: 100%;
+  height: 49px;
+  margin-top: 50px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  background: #F21137;
+  color: #fff;
+  text-transform: uppercase;
+  font-family: "Muli-SemiBold";
+  font-size: 15px;
+  letter-spacing: 2px;
+  transition: all 0.5s;
+  position: relative;
+  overflow: hidden; 
+}
+
+.woman_arrow{
+    transform: rotate(-10deg);
+    margin-left: -70%;
+    margin-top: 60%;
+}
+
+@media screen and (min-width: 250px) and (max-width: 400px) {
+
+    #welcome{
+        padding-top: 40%;
+        padding-left: 5%;
+        padding-right: 5%;
+    }
+}
+
+@media screen and (min-width: 400px) and (max-width: 600px) {
+
+    #welcome{
+        padding-top: 30%;
+        padding-left: 5%;
+        padding-right: 5%;
+    }
+}
+
+@media screen and (min-width: 600px) and (max-width: 750px) {
+
+    #welcome{
+        padding-top: 20%;
+        padding-left: 5%;
+        padding-right: 5%;
+    }
+}
+
+@media screen and (min-width: 750px) and (max-width: 1000px) {
+    #welcome{
+        padding-top: 20%;
+        padding-left: 20%;
+        padding-right: 20%;
+    }
+}
+
+
+</style>
+
+<body>
+
+    <nav class="navbar navbar-expand-lg navbar-light fixed-top fixed-top" style="border-radius: 1px solid black;">
+    <a class="navbar-brand" href="#">
+        <span class="logo-text text-light">
+            Multiuser Billing <br> Software VAT
+        </span>
+    </a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav mr-auto">
+        <li class="nav-item active">
+            <a class="nav-link" href="{% url 'home' %}" style="color: black; margin-left: 5vh;">Home </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="#" style="color: white;">About</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="#" style="color: white;">Services</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="#" style="color: white;">Contact</a>
+        </li>
+        </ul>
+    </div>
+    </nav>
+
+    <section id="welcome">
+        <div class="container">
+            <div class="row d-flex align-items-center">
+            <div class=" col-lg-3 py-5 py-lg-0 order-2 order-lg-1 text-light" data-aos="fade-right">
+            </div>
+
+            <div class="col-lg-6 order-1 order-lg-2 hero-img" data-aos="fade-left" data-aos-delay="500" data-aos-duration="1000">
+                <div class="position-relative" style="z-index: 99;">
+                    <div class="position-absolute" class="women_arrow_div">
+                      <img src="{% static 'img/woman_arrow.png' %}" class="woman_arrow" draggable="false" alt=""> 
+                   </div>
+                </div>
+                <div class="row">
+                    <form id="form" class="" method="post" action="{% url 'register_company_details' id %}" enctype="multipart/form-data" onsubmit="return validate()" style="border-radius: 3vh;">
+                        <h3 class="text-center mb-5" style="color: rgb(255, 255, 255);text-shadow: 2px 2px 4px #000000;font-weight: bold;">Company Details</h3>
+                        <br>
+                        <div class="form-group ">
+                            {% csrf_token %}
+
+                            {% for message in messages %}
+                            <h5>
+                                <div class="alert alert-danger mt-5 message text-center" style="color: black;">
+                                    {{ message }}
+                                    <a type="button" class="close" data-dismiss="alert" aria-label="Close" style="float: right;">
+                                        <span aria-hidden="true" style="font-size: large; color: #68020F;">&times;</span>
+                                    </a>
+                                </div>
+                            </h5>
+                            {% endfor %}
+
+                            <input type="text" id="cname" name="cname" class="form-control"
+                                placeholder="Enter company name" required><br>
+
+                            <input type="text" id="address" name="address" class="form-control"
+                                placeholder="Enter address" required><br>
+
+
+
+                            <input type="text" id="city" name="city" class="form-control" placeholder="Enter city"
+                                required><br>
+
+
+                            <input type="text" id="state" name="state" class="form-control" placeholder="Enter state"
+                                required><br>
+
+
+
+                            <input type="text" id="country" name="country" class="form-control"
+                                placeholder="Enter country" required><br>
+
+                            <input type="number" id="pincode" name="pincode" class="form-control"
+                                placeholder="Pincode" required><br>
+
+                            <input type="text" id="pannumber" name="pannumber" class="form-control"
+                                placeholder="Pan Number: ABCDE1234A" pattern="[A-Z]{5}[0-9]{4}[A-Z]{1}" required>
+
+
+                            <select class="form-control mt-4 mb-4" name="gsttype" id="gsttype" required>
+                                <option selected hidden value="">Select GST Type</option>
+                                <option value="Registered Business - Regular"> Registered Business - Regular </option>
+                                <option value="Registered Business - Composition"> Registered Business - Composition </option>
+                                <option value="unregistered Business"> Unregistered Business </option>
+                                <option value="Consumer">Consumer</option>
+                                <option value="Overseas">Oversears </option>
+                            </select>
+
+                            <input type="text" name="gstno" id="gstno" placeholder="GST Number: 11AAAAA1111A1Z1"
+                                class="gstno form-control mb-3" style="display: none;" pattern="^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$">
+
+                                <button id="register">
+                                    <span>Register</span>
+                                </button>
+
+                        </div>
+
+                    </form>
+                </div>
+            </div>
+          </div>
+        </div>
+    </section>
+
+
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+
+    <script>
+        AOS.init({
+            once: true,
+        });
+    </script>
+
+    <script>
+        function validate(){
+            type = document.getElementById("gsttype").value;
+            if (type == "Registered Business - Regular" || type == 'Registered Business - Composition') {
+                if (document.getElementById('gstno').value == ''){
+                    return false
+                }
+            }
+        }
+
+        $('#pass, #cpass').on('keyup', function () {
+            if ($('#pass').val() == $('#cpass').val()) {
+                $('#message').html('Password Is Matching').css('color', 'green');
+            } else
+                $('#message').html('Password Is Not Matching').css('color', 'red');
+        });
+
+        $(document).ready(function () {
+            $("#gsttype").change(function () {
+                var x = $('#gsttype').val();
+                if (x == "unregistered Business") {
+                    $(".gstno").removeClass('d-block');
+                    $(".gstno").addClass('d-none');
+                    document.getElementById('gstno').value = ''
+                }
+                else if (x == 'Overseas') {
+                    $(".gstno").removeClass('d-block');
+                    $(".gstno").addClass('d-none');
+                    document.getElementById('gstno').value = ''
+                }
+                else if (x == 'Consumer') {
+                    $(".gstno").removeClass('d-block');
+                    $(".gstno").addClass('d-none');
+                    document.getElementById('gstno').value = ''
+                }
+                else {
+                    $(".gstno").removeClass('d-none');
+                    $(".gstno").addClass('d-block');
+                }
+
+            });
+        });
+  
+    </script>
+
+</body>
+</html>

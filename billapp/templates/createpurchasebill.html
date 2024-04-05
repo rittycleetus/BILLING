@@ -1,0 +1,1588 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="//code.jquery.com/jquery-1.11.1.min.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+
+
+
+
+<style>
+    .card-body{
+        box-shadow: 2px 2px 10px 3px rgba(0, 0, 0, 0.397);
+        border-radius: 1vh;
+    }
+
+    #tab_logic{
+        margin-left: 10px;
+        width: 98%;
+    }
+
+    #tab_logic thead th{
+        border-bottom: 1px solid black;
+        border-top: 1px solid black;
+        border-left: 1px solid black;
+        border-right: 1px solid black;
+        background-color: #FFADB0;
+    }
+    #tab_logic tbody td{
+        border-bottom: 1px solid black;
+        border-top: 1px solid black;
+        border-left: 1px solid black;
+        border-right: 1px solid black;
+    }
+
+    #toPayRadio {
+        accent-color: red;
+    }
+
+    #toReceiveRadio {
+        accent-color: green;
+    }
+
+    .addnewrow:hover{
+        background-color: violet;
+    }
+
+    #modal_closing{
+        height:5vh;
+    }
+    
+    #customer{
+        background-color: white;
+        color: black;
+    }
+
+    .selectize-input {
+        height: 5vh;
+        border-color:#FFADB0;
+        border-radius: 5px;
+    }
+   
+    .select2-search {   height: 5vh;
+        border-color:#FFADB0;
+        border-radius: 5px;
+     }
+     .product{
+        width: 150px !important; 
+        height: 50px !important;
+        
+     }
+     .select2-selection {
+      border-color: #FFADB0 !important;
+     
+    }
+    .option:hover {
+        background-color: #FFADB0;
+        color: white;
+    }   
+
+    ::-webkit-scrollbar {
+        display: none
+    }
+</style>
+
+<div class="body-wrapper">
+    <br><br><br>
+    <div class="row p-0 m-0">
+        <div class="col-12  p-0 m-0">
+            <div class=" bg-light bg-light pb-0 mb-0 p-2" style="height:100%;width:100%">
+               
+                {% for m in messages %}
+                <h5>
+                  <div class="alert alert-danger mt-4" style="width: 100%;">
+                    {{ m }}
+                  </div>
+                </h5>
+                  {% endfor %}
+  
+                <form action="{% url 'createbill' %}" method="post" enctype="multipart/form-data" onsubmit="return validatepurchasebill()" novalidate id="pbillForm">
+                    {% csrf_token %}
+                    <div class="page-content">
+                        <div class="card radius-15">
+                            <div class="card-body bg-light">
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <h3 class="mb-3">ADD &nbsp; PURCHASE &nbsp; BILL</h3>
+                                    </div>
+                                    <div class="col-md-7"></div>
+                                    <div class="col-md-1">
+                                        <a href="{% url 'allbill' %}" style="text-align: right; font-size: large; color: black; margin-left: 8vh;">
+                                            <i class="fa fa-times mt-2" aria-hidden="true"></i>'
+                                        </a>
+                                    </div>
+                                </div>
+                                    <div id="customer_div" style="margin-left: .1px; margin-right: .51px;">
+                                        <div class="row">
+                                            <div class="col-md-4">
+                                                <label class="col-form-label">PARTY</label>
+                                                <div class="d-flex">
+                                                    <select name="customername" id="customer" class="form-control border-danger" >
+                                                        <option value="" selected hidden>Select</option>
+                                                        {% for c in party %}
+                                                            {% if c.cid_id == cmp.cid %}
+                                                                <option value={{c.id}}> {{ c.party_name }}</option>
+                                                            {% endif %}
+                                                        {% endfor %}
+                                                    </select> &nbsp;&nbsp;&nbsp;
+                                                    <button id="modal_closing" type="button" class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#customercreation" data-bs-whatever="@mdo">
+                                                        <span class="fa fa-plus"></span>
+                                                    </button>
+                                                </div>
+                                                <div class="mt-1 d-flex" >
+                                                    &nbsp;<span id="balancediv" style="display: none; color: black;"> Available Balance : <span id="balval"></span></span>
+                                                </div>
+                                                <div class="row">
+                                                <div id="billdiv">
+                                                    <label class="col-form-label">Bill No.</label>
+                                                    <input type="text" class="form-control border-danger" name="bill_no"  id="bill_no" value="{{bill_no}}"  style="color: black;background-color: white;" readonly> <br>
+                                                </div>
+                                                
+                                            </div>
+                                                
+
+                                            </div>
+                                            <div class="col-md-4">
+                                                <div id="phonediv">
+                                                    <label class="col-form-label" >Phone No. </label>
+                                                    <input class="form-control border-danger" name="phno"  id="cust_phno"  style="color: black;background-color: white;" readonly>
+                                                </div>
+                                                <div  style="margin-top: 7%;" >
+                                                    <label class="col-form-label">Bill Date</label>
+                                                    <input type="date" class="form-control border-danger" name="billdate" id="billdate"  style="color: black;background-color: white;" >
+                                                 
+                                                </div>
+                                                <div id="dbilldiv" style="display: none;">
+                                                    <label class="col-form-label">Bill No.</label>
+                                                    <input type="text" class="form-control border-danger" value="{{bill_no}}"  style="color: black;background-color: white;" readonly> <br>
+                                                </div>
+                                           
+                                                <div id="daddressdiv" style="display: none;">
+                                                    <label class="col-form-label">Billing Address</label>
+                                                    <textarea class="form-control border-danger mb-3" name="dbname" id="dbname" rows="6" type="text" style="color: black;background-color: white;" readonly></textarea>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-4" id="addressdiv">
+                                                <label class="col-form-label">Billing Address</label>
+                                                <textarea class="form-control border-danger mb-3" name="bname" id="bname" rows="6" type="text" style="color: black;background-color: white;" readonly></textarea>
+                                            </div>
+                                            <div class="col-md-4" id="ddbilldiv" style="display: none;">
+                                                <label class="col-form-label">Bill No.</label>
+                                                <input type="text" class="form-control border-danger" value="{{bill_no}}"  style="color: black;background-color: white;" readonly> <br>
+                                            </div>
+                                    
+                                        
+                                            
+                                        </div>
+                                        
+                                        
+    
+                                        
+                                    
+
+
+                                
+                                    <div class="row clearfix">
+                                        <div class="col-md-12 table-responsive-md mt-3">
+                                            <table class="table table-bordered table-hover  mt-3" id="tab_logic" >
+                                                <thead>
+                                                    <tr style="color: black;">
+                                                        <th class="text-center">#</th>
+                                                        <th class="text-center">PRODUCT</th>
+                                                        <th class="text-center">HSN</th>
+                                                        <th class="text-center">QTY</th>
+                                                        <th class="text-center">PRICE</th>
+                                                        <th class="text-center">VAT (%)</th>
+                                                        <th class="text-center">DISCOUNT</th>
+                                                        <th class="text-center">TOTAL</th>
+                                                        <th class="text-center">FIELD</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody id="items-table-body">
+                                                    <tr id='addr01'>
+                                                        <td class="nnum" style="text-align: center; color: black; width:2%">1</td>
+    
+                                                        <td style="width:18%">
+                                                            <div class="d-flex">
+                                                                
+                                                                <select name='product[]' id="product" class="form-control  product select2 itemselect"  onchange="changeprd1()" style="color: black; background-color: white; ">
+                                                                    <option value="" selected hidden>Select Product</option>
+                                                                    {% for i in item %}
+                                                                        {% if i.cid_id == cmp.cid %}
+                                                                            <option style="border-color: #FFADB0;" value="{{ i.id }}" >{{ i.itm_name  }} </option>
+                                                                        {% endif %}
+                                                                    {% endfor %}
+                                                                </select> &nbsp;&nbsp;&nbsp;
+                                                            <button id="modal_closing" type="button" class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#newitem" data-bs-whatever="@mdo">
+                                                                <span class="fa fa-plus"></span>
+                                                            </button>
+                                                            </div>
+                                                        </td>
+    
+                                                        <td style="width:15%">
+                                                            <input type="text" name='hsn[]' id="hsn" class="form-control border-danger HSNCODE" style="color: black; background-color: white;" readonly />
+                                                        </td>
+    
+                                                        <td style="width:13%">
+                                                            <input type="number" name='qty[]' id="qty"  class="form-control border-danger qty mb-1" step=0 min=0 style="color: black; background-color: white;" value=0  required />
+                                                        </td>
+                                                    
+                                                        <td style="width:12%">
+                                                            <input type="number" name='price[]' id="unit" class="form-control border-danger price" step="0.00" min="0" style="color: black; background-color: white;" value=0 readonly />
+                                                        </td>
+                                                        <td style="width:12%">
+                                                            <input type="text" name='vat[]' id="Vat" class="form-control border-danger seltax"  step="0.00" min="0" style="color: black; background-color: white;" value=0 readonly />
+                                                        </td>
+                                                       
+    
+                                                        <td style="width: 10%;">
+                                                            <input type="number" name='discount[]'  placeholder='Enter Discount' id="disc" value=0 class="form-control border-danger disc" step=0 min=0 style="  color: black; background-color: white;"  />
+                                                        </td>
+                                    
+                                                        <td style="width:13%">
+                                                            <input type="number" name='total[]' id="total" class="form-control border-danger total" value=0 readonly style="color: black; background-color: white;"  />
+                                                        </td>
+                                                        <td hidden><input type="number" name='taxamount1' id="taxamount" class="taxamount" /></td>
+                                                        
+                                                        <td style="width:5%">
+                                                            
+                                                            <button type="button" id="1" class="btn btn-danger remove_row px-2 py-1 mx-1 fa fa-close" title="Remove Row"> Delete</button>
+                                                        </td>
+                                                    </tr>
+                                                </tbody>
+                                                <tr>
+                                                    <td style="border: none;"><a class="btn btn-outline-danger ml-1" role="button" id="add" ><span class="fa fa-plus"></span></a></td>
+                                                </tr>
+                                            </table>
+                                        </div>
+                                    </div>
+    
+                                    <div class="clearfix" style="margin-top:10px">
+                                        <div class="row" style="margin-left: 2vh;" >
+                                            <div class="col-md-5 table-responsive-md mt-3 " id="tab_logic_total" style=" color: black; border: 1px solid #FFADB0; margin-left: -2vh; background-color: #FFADB0 ">
+                                                <div class="p-3">
+                                                    <div class="row container-fluid p-2 m-0">
+                                                        <div class="col-sm-4 mt-2"><label class="text-center">Sub Total</label></div>
+                                                        <div class="col-sm-1 mt-2">:</div>
+                                                        <div class="col-sm-7">
+                                                            <input type="number" step="any" name='subtotal' value=0.00 readonly style="color: black; background-color: white;" class="form-control border-danger" id="sub_total">
+                                                        </div>
+                                                        <div class="col-sm-4 m-0 p-0"></div>
+                                                    </div>
+        
+                                               
+        
+                                                    <div class="row container-fluid p-2 m-0">
+                                                        <div class="col-sm-4 mt-2"><label for="a" class="text-center">VAT Amount</label></div>
+                                                        <div class="col-sm-1 mt-2">:</div>
+                                                        <div class="col-sm-7">
+                                                        <input type="number" step="any" name='taxamount' id="tax_amount" value=0.00 readonly style="color: black; background-color: white;" class="form-control border-danger"/>
+                                                        </div>
+                                                        <div class="col-sm-4 m-0 p-0"></div>
+                                                    </div>
+        
+                                                    <div class="row container-fluid p-2 m-0">
+                                                        <div class="col-sm-4 mt-2"><label for="a" class="text-center">Adjustment</label></div>
+                                                        <div class="col-sm-1 mt-2">:</div>
+                                                        <div class="col-sm-7">
+                                                        <input type="number" step="any" name='adj' id="adj" value=0.00 class="form-control border-danger" style="color: black; background-color: white;"/>
+                                                        </div>
+                                                        <div class="col-sm-4 m-0 p-0"></div>
+                                                    </div>
+                                                    
+                                                    <div class="row container-fluid p-2 m-0">
+                                                        <div class="col-sm-4 mt-2"><label for="a" class="text-center">Grand Total</label></div>
+                                                        <div class="col-sm-1 mt-2">:</div>
+                                                        <div class="col-sm-7">
+                                                        <input type="number" name='grandtotal' id="grandtotal" value=0.00 readonly style="color: black; background-color: white;" class="form-control border-danger"/>
+                                                        </div>
+                                                        <div class="col-sm-4 m-0 p-0"></div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+    
+                                    </div>
+                            
+                                    <div class="row">
+                                        <div class="col-md-1 mt-4"></div>
+                                        <div class="col-md-5 mt-3 d-flex" style="margin-left:5vh">
+                                            <input type="submit" class="btn btn-danger bg-gradient me-3" name="Next" value="SAVE & NEXT"></input> 
+                                            <input type="submit" class="btn btn-danger bg-gradient" name="Save" value="SAVE"></input>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div> 
+        <div class="modal fade" id="newitem">
+            <div class="modal-dialog modal-xl">
+                <div class="modal-content">
+                    <div class="modal-header" style="background-color: rgba(144, 211, 117, 0.098);">
+                        <h3 class="text-danger ms-3">ADD ITEM</h3>
+                        <button type="button" class="btn-close me-3" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+            
+                    <div class="modal-body" style="background-color: rgba(144, 211, 117, 0.098);" >
+                        <form method="post" enctype="multipart/form-data" id="modalItem">
+                            {% csrf_token %}
+                              <div class="bs p-4 rounded mb-5">
+                                <br>
+                                <div class="row">
+                                  <div class="col-sm-12 col-md-1"></div>
+                                  <div class="col-sm-12 col-md-10 pb-4 ">
+                                    <center>
+                                      <h3><strong class="fw-bolder " style="color: #68020F;">ITEM DETAILS</strong></h3>
+                                    </center>
+                                    <div class="p-3" style="border: 2px solid #68020F; border-radius: 2.5vh; background-color: #FFD6D7;">
+                                      <div class="d-flex">
+                                        <div class="pt-5 w-50">
+                                          <input type="text" name="itm_type" id="itm_type" hidden>
+                                          <label style="user-select: none;" class="fs-4 tb" for="goods">Goods</label>
+                                          <input id="goods" class="me-3 " type="radio" name="item_ty" required>
+                                          <label style="user-select: none;" class="fs-4 tb" for="service">Services</label>
+                                          <input id="service" type="radio" name="item_ty" required>
+                                        </div>
+                                        <div class="mb-3 w-50 mt-3">
+                                          <label class="fw-bold tb fs-3" for="">NAME</label><br>
+                                          <input style="color: black;" class="form-control mt-2 input_border text-black" type="text" placeholder="Enter Item Name" autocomplete="off" name="name" id="item_name" >
+                                        </div>
+                                      </div>
+                  
+                                      <div class="d-flex mt-2">
+                                        <div class=" me-3 w-50">
+                                          <label class="fw-bold tb fs-3 " for="">HSN </label><br>
+                                          <input style="color: black;" class="form-control mt-2 input_border text-black" type="number" placeholder="Enter HSN value" name="hsn" id="hsn1" onchange="checkhsn(this)">
+
+                                          <span id="hsn-validation" style="position: absolute; right: 14px; top: 8px;"></span>
+                                          <div class="text-danger m-2" id="warnhsn"></div>
+                                          <label id="hsnerror" style="color: rgb(101, 3, 3);"></label>
+                                          
+                                        </div>
+                                        <br>
+                                        <div class="mb-3 w-50">
+                                          <label class="fw-bold tb fs-3" for="">UNIT</label><br>
+                                          <div class="d-flex">
+                                            <select style="color: black;" class="form-control me-3 mt-2 input_border text-black" id="unit_list_drp" name="unit" >
+                                              <option value="" hidden>Select an option</option>
+                                              <option value="Numbers">NUMBERS</option>
+                                              <option value="Packages">PACKETS</option>
+                                              <option value="Box">BOX</option>
+                                              {% for i in unit %}
+                                              <option value="{{ i.unit_name }}">{{ i.unit_name }}</option>
+                                              {% endfor %}
+                                            </select>&nbsp;&nbsp;&nbsp;
+                                          <button type="button" class="btn btn-outline-danger " data-toggle="modal" data-target="#createNewUnit">+</button>
+                                            </div>
+                                     
+                                        </div>
+                                      </div>
+                                    </div>
+                                    <br>
+                                  </div>
+                                </div>
+                  
+                                <div class="row">
+                                  <div  class="col-sm-12 col-md-1"></div>
+                                  <div class="col-sm-12 col-md-5 pb-4">
+                                    <div class="me-3 text-center">
+                                      <h3><strong class="fw-bolder" style="color: #68020F;">PRICING</strong></h3>
+                                    </div>
+                                    <div class="p-3" style="border: 2px solid #68020F; border-radius: 2.5vh; background-color: #FFD6D7;">
+                                      <div class="pt-5 mb-4" >
+                                        <input type="text" name="taxable_result" id="taxable_result" hidden>
+                                        <label style="user-select: none;" class="fs-4 tb" for="item_tax_1">VAT</label> &nbsp;
+                                        <input id="item_tax_1" class="me-3" type="radio" name="item_tax_result" required>
+                                        <label style="user-select: none;" class="fs-4 tb" for="item_tax_2">VAT Excempted</label>&nbsp;
+                                        <input id="item_tax_2" type="radio" name="item_tax_result" required>
+                                      </div>
+                  
+                                      <div id="vatdiv" class="mb-2 pt-3" hidden>
+                                          <label class="fw-bold tb fs-3" for="">VAT</label><br>
+                                          <input type="text" class="form-control mt-1 input_border text-black" name="vat" id='vat'>
+                                      </div>
+                                    
+                                      <div class="mb-4 pt-3">
+                                        <label class="tb fw-bold" for="pur_price">SALES PRICE</label><br>
+                                        <input id="sal_price" class="form-control fw-normal fs-3 mt-1 input_border text-black" type="number" placeholder="Enter Sales Price" name="sale_price" required>
+                                      </div>
+                  
+                                      <div class="mb-4">
+                                        <label class="tb fw-bold" for="">PURCHASE PRICE</label><br>
+                                        <input id="pur_price" class="form-control fw-normal fs-3 mt-1 input_border text-black" type="number" placeholder="Enter Purchase Price" name="purchase_price" required>
+                                      </div>
+                                    </div>
+                                  </div>
+                                  <div class="col-sm-12 col-md-5 pb-4">
+                                    <div class="me-3 text-center">
+                                      <h3><strong class="fw-bolder" style="color: #68020F;">STOCKS</strong></h3>
+                                    </div>
+                                    <div class="p-3" style="border: 2px solid #68020F; border-radius: 2.5vh; background-color: #FFD6D7;">
+                                      <div class="mb-4 pt-4">
+                                        <label class="tb fw-bold" for="opn_stock_">STOCK IN HAND</label><br>
+                                        <input id="opn_stock_" class="form-control fw-normal fs-3 mt-1 input_border text-black" type="number" placeholder="Enter Opening Stock" name="stock_in_hand" required >
+                                      </div>
+                                      <div class="mb-4">
+                                        <label class="tb fw-bold" for="at_price">AT PRICE</label><br>
+                                        <input id="at_price" class="form-control fw-normal fs-3 mt-1 input_border text-black" type="number" placeholder="Enter Price" name="at_price" >
+                                      </div>
+                                      <div class="mb-4">
+                                        <label class="tb fw-bold" for="date_">DATE</label><br>
+                                        <input id="date" class="form-control fw-normal fs-3 mt-1 input_border text-black" type="date" name="itm_date">
+                                    </div>
+                                    </div>
+                                  </div>
+                                  <div  class="col-sm-12 col-md-1"></div>
+                                  <div class="text-start" style="margin-left: 9%;">
+         
+                                    <button class="btn me-3 button_border" type="button" value="save" name="save" id="itemsave">Save</button>
+                                  </div>
+                                </div>
+                              </div>
+                              <div class="modal fade" id="createNewUnit">
+                                <div class="modal-dialog">
+                                    <div class="modal-content" style="background-color:#FFADB0;">
+                                        <div class="modal-header">
+                                            <h5 class="m-3">New Item Unit</h5>
+                                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                <span aria-hidden="true">&times;</span>
+                                            </button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <div class="card p-3">
+                                                <form method="post" id="newUnitForm">
+                                                    {% csrf_token %}
+                                                    <div class="row mt-2">
+                                                        <div class="col-12">
+                                                            <label for="name">Unit Name</label>
+                                                            <input name="name" id="unit_name" class="form-control text-uppercase w-100">
+                                                        </div>
+                                                    </div>
+                                                    <div class="row mt-4">
+                                                        <div class="col-12 d-flex justify-content-center">
+                                                            <button class="btn btn-outline-danger text-grey" data-dismiss="modal" type="submit" id="saveItemUnit">Save</button>
+                                                        </div>
+                                                    </div>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </div>   
+                                </div>
+                            </div> 
+                          </form>
+                    </div> 
+                </div> 
+            </div>
+        </div>
+        <div class="modal fade" id="createNewUnit">
+            <div class="modal-dialog">
+                <div class="modal-content" style="background-color:#FFADB0;">
+                    <div class="modal-header">
+                        <h5 class="m-3">New Item Unit</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="card p-3">
+                            <form method="post" id="newUnitForm">
+                                {% csrf_token %}
+                                <div class="row mt-2">
+                                    <div class="col-12">
+                                        <label for="name">Unit Name</label>
+                                        <input name="name" id="unit_name" class="form-control text-uppercase w-100">
+                                    </div>
+                                </div>
+                                <div class="row mt-4">
+                                    <div class="col-12 d-flex justify-content-center">
+                                        <button class="btn btn-outline-info text-grey" data-dismiss="modal" type="submit" id="saveItemUnit">Save</button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>   
+            </div>
+        </div> 
+        
+        <div class="modal fade" id="customercreation">
+            <div class="modal-dialog modal-xl">
+                <div class="modal-content">
+                    <div class="modal-header" style="background-color: rgba(144, 211, 117, 0.098);">
+                        <h3 class=" text-warning">ADD PARTY</h3>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body" style="background-color: rgba(144, 211, 117, 0.098);">
+                        <form method="POST" action="{% url 'save_party1' %}" class="p-5" enctype="multipart/form-data" novalidate
+                        id="forms" >
+                        {% csrf_token %}
+                        
+                        <div class="d-flex" style="background-color: #FFADB0;">
+                            <div class="container" style="background-color: #FFADB0;">
+                                <div class="col-md-2" >
+                                    <a class="text-dark" style="font-size: 1.5rem;color: #68020F;">Add Party</a>
+                                </div>
+                                <div class="col-md-9 row" style="margin-top: 3vw;">
+                                    <div class="col-md-4">
+                                        <input type="text" style="background-color: white;" class="form-control" id="partyname" name="partyname" placeholder="Party Name" required>
+                                    </div>                
+                                    <div class="col-md-4" style="position: relative;">
+                                        <input required type="text" style="background-color: white;" class="form-control" id="trn_no" name="trn_no" placeholder="TRN NO" oninput="validateGSTIN(this)">
+                                        <span id="gstno-validation" style="position: absolute; right: 14px; top: 8px;"></span>
+                                        <label id="trn_no_error" style="color: rgb(101, 3, 3);"></label>
+                                        <label style="color: rgb(101, 3, 3);">* 32AAQFR1222B1ZS</label>
+                                    </div>
+                                    
+                                    <div class="col-md-4" style="position: relative;">
+                                        <input required type="number" style="background-color: white;" class="form-control contact" id="contact" pattern="[0-9]{10}" name="contact" placeholder="Phone Number" oninput="validatePhoneNumber(this)" required>
+                                        <span id="contact-validation" style="position: absolute; right: 15px; top: 8px;"></span>
+                                        <label id="phone_number_error" style="color: rgb(101, 3, 3);"></label>
+                                    </div>
+                                    
+                                    
+                                    <div class="options d-flex" style="margin-top: 5vw;">
+                                        <a href="javascript:void(0);" onclick="toggleSection('GST')" style="color: black;"><b>VAT &
+                                                Address<b></a>
+                                        <a href="javascript:void(0);" onclick="toggleSection('Credit')"
+                                            style="color: black; margin-left: 3vw;"><b>Credit & Balances<b></a>
+                                        <a href="javascript:void(0);" onclick="toggleSection('additionalfield')"
+                                            style="color: black; margin-left: 3vw;">Aditional Field</a>
+                                    </div>
+                                </div>
+                                <fieldset id="GST" class="GST">
+                                    <div style="background-color: white;" class="col-sm-12"><select class="form-control mt-4 " id="trn_type" name="trn_type" onchange="trn()">
+                                            <option disabled selected>Select TRN Type</option>
+                                            <option >Unregistered/Consumers</option>
+                                            <option>Registered Business - Regular</option>
+                                            <option>Registered Business - Composition</option>
+                                        </select>
+                                    </div><br>
+                                    <div class="d-flex ">
+                                        <textarea style="background-color: white;" class="form-control mt-4" name="address" id="" cols="56" rows="3"
+                                            placeholder="&nbsp;Address"></textarea>
+                                    </div><br>
+                            
+                                    
+                                    
+                    
+                            
+                            <div class="d-flex ">
+                                <input style="background-color: white;" type="email" class="form-control mt-4" id="email" name="email" placeholder="Email">
+                            </div>
+                            <br>
+                            <button  type="button" class="btn btn-danger" id="click12"  data-bs-target="#Credit" data-bs-whatever="@mdo"><a href="javascript:void(0);" onclick="toggleSection('Credit')" style="color: rgb(249, 247, 247);"><b>next<b></a>
+                                
+                            </button>
+
+                            </fieldset>
+                            
+                    
+                            <fieldset id="Credit" class="Credit" style="display:none;">
+                                <div class="d-flex">
+                                    <input style="background-color: white;" type="number" class="form-control mt-4" id="balance" name="balance" placeholder="Opening Balance">
+                                </div>
+                            
+                                <div  class="col-sm-7 mt-4">
+                                    <label class="radio-label">To Pay</label>
+                                    <input type="radio" class="radio-input" id="toPayRadio" name="paymentType" value="To Pay" style="margin-right: 2vw; margin-left: 5px;">
+                                    <label class="radio-label">To Receive</label>
+                                    <input type="radio" class="radio-input" id="toReceiveRadio" name="paymentType" value="To Receive" style="margin-right: 2vw; margin-left: 5px;">
+                                </div>
+                       
+                            
+                                <div class="d-flex">
+                                    <input  type="date" class="form-control" id="current-date" name="currentdate" placeholder="Current Date" style="background-color: white;" >
+                                </div>
+                                <br>
+                                <button  type="button" class="btn btn-danger"  data-bs-target="#Credit" data-bs-whatever="@mdo"><a href="javascript:void(0);" onclick="toggleSection('GST')" style="color: rgb(250, 248, 248);"><b> previous <b></a>
+                                
+                                </button>
+                                <button  type="button" class="btn btn-danger"  data-bs-target="#Credit" data-bs-whatever="@mdo"><a href="javascript:void(0);" onclick="toggleSection('additionalfield')" style="color: rgb(247, 243, 243);"><b>next<b></a>
+                                
+                                </button>
+                    
+                            </fieldset>
+                            
+                            <fieldset id="additionalfield" class="additionalfield" style="display:none;">
+                                <div class="d-flex">
+                                    <input type="text" class="form-control" name="additionalfield1" id="additionalfield1" placeholder="Additional Field" style="background-color: white;">
+                                </div><br>
+                        
+                                <div class="d-flex">
+                                    <input type="text" class="form-control" name="additionalfield2" id="additionalfield2" placeholder="Additional Field" style="background-color: white;">
+                                </div><br>
+                        
+                                <div class="d-flex">
+                                    <input type="text" class="form-control" name="additionalfield3" id="additionalfield3" placeholder="Additional Field" style="background-color: white;">
+                                </div>
+                                <br>
+                                
+                                <div class="col-md-5 mt-4">
+                                    <button  type="button" class="btn btn-danger"  data-bs-target="#Credit" data-bs-whatever="@mdo"><a href="javascript:void(0);" onclick="toggleSection('Credit')" style="color: rgb(255, 255, 255);"><b> previous <b></a>
+                                
+                                    </button>
+                               
+                                    <input type="submit" class="btn btn-danger save-button" name="save" value="Save"  id="customersave">
+                                </div><br>
+                            </fieldset>
+                    
+                           
+                           
+                    
+                        </div>
+                        </form>
+                        
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        
+
+  
+
+       
+
+   
+        <script>
+            function validatepurchasebill() {
+                var customer = document.getElementById('customer').value;
+                var qty = document.querySelector('.qty').value;
+                var name = document.querySelector('.product').value;
+                
+                if (customer === '') {
+                    alert('Please select a customer');
+                    return false;
+                } 
+                if (name === '') {
+                    alert('Please select a Item');
+                    return false;
+                }
+
+    
+                return true; 
+          
+            }
+        </script>
+             
+        
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<script>
+    $(document).ready(function() {
+        $('#forms').submit(function(event) {
+            // Prevent the form from submitting by default
+            event.preventDefault();
+            console.log("jjhfgjsgd")
+            
+            // Flag to check if all input fields have values
+            var allFieldsFilled = true;
+            
+            // Iterate over each row in the table
+            $('#forms').each(function() {
+                
+                $(this).find('input.contact').each(function() {
+                    
+                    if (($(this).val() === '')||($(this).val() == 0)) {
+                        // Empty input field found, set flag to false and alert the user
+                        console.log($(this).val())
+                        allFieldsFilled = false;
+                        alert('Please fill contact.');
+                        // Optionally, you can add further validation logic or UI feedback here
+                        return false; // Exit the loop after the first empty input field is found
+                    }
+                });
+                
+                
+                // Exit the loop if any empty input field is found
+                if (!allFieldsFilled) {
+                    return false;
+                }
+            });
+            
+            // If all input fields have values, submit the form
+            if (allFieldsFilled) {
+                this.submit();
+    
+                
+            }
+        });
+    });
+    </script>
+    <script>
+        $(document).ready(function() {
+            $('#modalItem').submit(function(event) {
+                // Prevent the form from submitting by default
+                event.preventDefault();
+                console.log("jjhfgjsgd")
+                
+                // Flag to check if all input fields have values
+                var allFieldsFilled = true;
+                
+                // Iterate over each row in the table
+                $('#modalItem').each(function() {
+                    
+                    $(this).find('input.contact').each(function() {
+                        
+                        if (($(this).val() === '')||($(this).val() == 0)) {
+                            // Empty input field found, set flag to false and alert the user
+                            console.log($(this).val())
+                            allFieldsFilled = false;
+                            alert('Please fill contact.');
+                            // Optionally, you can add further validation logic or UI feedback here
+                            return false; // Exit the loop after the first empty input field is found
+                        }
+                    });
+                    
+                    
+                    // Exit the loop if any empty input field is found
+                    if (!allFieldsFilled) {
+                        return false;
+                    }
+                });
+                
+                // If all input fields have values, submit the form
+                if (allFieldsFilled) {
+                    this.submit();
+        
+                    
+                }
+            });
+        });
+        </script>
+         <script>
+            
+            function trn() {
+                var trn = document.getElementById('trn_type').value;
+                var trnno = document.getElementById('trn_no').value;
+        
+                if ((trn === 'Registered Business - Regular' && trnno === '') || (trn === 'Registered Business - Composition' && trnno === '')) {
+
+                    
+                    alert('Please provide trn no');
+                   
+                }
+            }
+        </script>
+
+
+        <script>
+            // Get today's date
+            var today = new Date();
+        
+            // Format date as YYYY-MM-DD
+            var year = today.getFullYear();
+            var month = (today.getMonth() + 1).toString().padStart(2, '0');
+            var day = today.getDate().toString().padStart(2, '0');
+        
+            // Set the value of the date input field to today's date
+            document.getElementById('date').value = year + '-' + month + '-' + day;
+        </script>
+        <script>
+            // Get today's date
+            var today = new Date();
+        
+            // Format date as YYYY-MM-DD
+            var year = today.getFullYear();
+            var month = (today.getMonth() + 1).toString().padStart(2, '0');
+            var day = today.getDate().toString().padStart(2, '0');
+        
+            // Set the value of the date input field to today's date
+            document.getElementById('billdate').value = year + '-' + month + '-' + day;
+        </script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+                var input = document.querySelector('.dropdown-input');
+                var dropdownList = document.querySelector('#employee');
+        
+                input.addEventListener('focus', function () {
+                    dropdownList.style.display = 'block';
+                });
+        
+                document.addEventListener('mousedown', function (event) {
+                    if (!event.target.closest('.custom-dropdown')) {
+                        dropdownList.style.display = 'none';
+                    }
+                });
+        
+                dropdownList.addEventListener('click', function (event) {
+                    if (event.target.classList.contains('dropdown-item')) {
+                        input.value = event.target.textContent;
+                        dropdownList.style.display = 'none';
+                        fillEmployeeDetails();
+                        clearErrorMessage();
+                    }
+                });
+        
+                input.addEventListener('input', function () {
+                    var filterValue = input.value.toLowerCase();
+                    var items = dropdownList.querySelectorAll('.dropdown-item');
+        
+                    items.forEach(function (item) {
+                        var itemText = item.textContent.toLowerCase();
+                        if (itemText.includes(filterValue)) {
+                            item.style.display = 'block';
+                        } else {
+                            item.style.display = 'none';
+                        }
+                    });
+                });
+});
+$(document).on("click","#saveItemUnit",function(){
+        var name = $("#unit_name").val();
+        if (name !=""){
+            $.ajax({
+                type : 'POST',
+                url:"{% url 'save_unit' %}",
+                data:{
+                    'name' : name,
+                    csrfmiddlewaretoken: '{{ csrf_token }}'
+                },
+                
+                success: function(response) {
+                    if(response.success){
+                        document.getElementById("newUnitForm").reset();
+                        console.log('success')
+                        reloadUnits();
+                    }else{
+                        // alert(response.message)
+                        console.log('error')
+                    }
+                },         
+            });
+        }
+        else{
+            alert('Invalid')
+        }
+    });
+
+    function reloadUnits() {
+    $.ajax({
+        url: "{% url 'unit_reload_modal' %}",
+        type: "GET",
+        dataType: "json",
+        success: function(data) {
+            console.log("AJAX Success - Dropdown Data:", data);
+            var dropdown = $('#unit_list_drp');
+            dropdown.empty();
+            dropdown.append('<option selected disabled value="">Select an option</option>'); // Added quotes around the HTML
+            dropdown.append('<option  value="BOX">BOX</option>'); // Added quotes around the HTML
+            dropdown.append('<option   value="NUMBERS">NUMBERS</option>'); // Added quotes around the HTML
+            dropdown.append('<option   value="PACKETS">PACKETS</option>'); // Added quotes around the HTML
+            console.log(dropdown);
+            if (data.success) {
+                        // Iterate over the units array and append options to the dropdown
+                        data.unitsobj.forEach(function(unit) {
+                            var option = '<option value="' + unit.name + '">' + unit.name + '</option>';
+                            dropdown.append(option); // Assuming 'name' is a field in your model
+                        });
+            } else {
+                console.error("unitsobj data is not an array:", data.unitsobj);
+                // Handle the case when data.unitsobj is not an array
+            }
+        },
+        error: function(xhr, status, error) {
+            console.error("AJAX Error:", xhr.responseText);
+            // Add additional error handling code if needed
+        }
+    });
+}
+$(document).ready(function () {
+        $('#customer').on('change', function() {
+            $.ajax({
+                type : 'POST',
+                url: "{% url 'custdata' %}",
+                data: {
+                    id: $('#customer').val(),
+                    csrfmiddlewaretoken: '{{ csrf_token }}',
+                },
+              
+                success: function(data){
+                    if (data.phno == ''){
+                        if(data.address == ''){
+                            document.getElementById('daddressdiv').style.display = 'none';
+                            document.getElementById('addressdiv').style.display = 'none';
+                            document.getElementById('phonediv').style.display = 'none';
+                            document.getElementById('dbilldiv').style.display = 'block';
+                            document.getElementById('billdiv').style.display = 'none';
+                            document.getElementById('ddbilldiv').style.display = 'none';
+                        }else{
+                            document.getElementById('daddressdiv').style.display = 'block';
+                            document.getElementById('addressdiv').style.display = 'none';
+                            document.getElementById('phonediv').style.display = 'none';
+                            document.getElementById('billdiv').style.display = 'block';
+                            document.getElementById('dbilldiv').style.display = 'none';
+                            document.getElementById('ddbilldiv').style.display = 'none';
+                            document.getElementById('dbname').value = data.address;
+                        }
+                    }else{
+                        if(data.address == ''){
+                            document.getElementById('daddressdiv').style.display = 'none';
+                            document.getElementById('addressdiv').style.display = 'none';
+                            document.getElementById('phonediv').style.display = 'block';
+                            document.getElementById('cust_phno').value = data.phno;
+                            document.getElementById('ddbilldiv').style.display = 'block';
+                            document.getElementById('dbilldiv').style.display = 'none';
+                            document.getElementById('billdiv').style.display = 'none';
+                        }else{
+                            document.getElementById('daddressdiv').style.display = 'none';
+                            document.getElementById('addressdiv').style.display = 'block';
+                            document.getElementById('phonediv').style.display = 'block';
+                            document.getElementById('bname').value = data.address;
+                            document.getElementById('cust_phno').value = data.phno;
+                            document.getElementById('ddbilldiv').style.display = 'none';
+                            document.getElementById('dbilldiv').style.display = 'none';
+                            document.getElementById('billdiv').style.display = 'block';
+                        }
+                    }
+
+                    if(data.pay == 'To Pay'){
+                        document.getElementById('balancediv').style.display = 'block';
+                        document.getElementById('balval').innerText = data.bal;
+                        document.getElementById('balval').style.color = 'red';
+                    }else{
+                        document.getElementById('balancediv').style.display = 'block';
+                        document.getElementById('balval').innerText = data.bal;
+                        document.getElementById('balval').style.color = 'green';
+                    }
+                }
+            });
+        });
+    });
+</script>
+<script>
+    function changeprd(d){
+        const itemselect = document.querySelector(`.itemselect2${d}`)
+        const selectedOption =itemselect.options[itemselect.selectedIndex]
+        const selectedvalue = selectedOption.value
+        console.log(selectedvalue)
+        document.getElementById(`qty${d}`).value = 0
+        document.getElementById(`total${d}`).value = 0
+        document.getElementById(`Vat${d}`).value = 0
+        document.getElementById(`disc${d}`).value = 0
+        document.getElementById(`taxamount${d}`).value = 0
+
+       
+        $.ajax({
+            url: "{% url 'itemdetails' %}",
+            type : 'GET',
+            data:{
+                id : selectedvalue,
+                csrfmiddlewaretoken: '{{ csrf_token }}'
+                },
+            
+            success: function(response) {
+                data = response.hsn
+                data3 = response.price
+                data4 = response.vat
+                
+                
+                document.getElementById(`hsn${d}`).value = data;
+                document.getElementById(`unit${d}`).value = data3;
+                document.getElementById(`Vat${d}`).value = data4;
+                
+
+                
+                
+            },
+        
+        });
+        calc();
+    }
+    function checkhsn(element){
+        var hsninput = element.value;
+        var gstregexp = "[0-9]{6}";
+        if (hsninput.match(gstregexp)) {
+            document.getElementById('warnhsn').innerHTML = '';
+        } else {
+            document.getElementById('warnhsn').innerHTML = 'Please provide a valid HSN Number';
+            alert('Please provide a valid HSN Number');
+           
+        }
+    }
+</script>
+<script>
+    function changeprd1(){
+        const itemselect = document.querySelector(".itemselect")
+        const selectedOption =itemselect.options[itemselect.selectedIndex]
+        const selectedvalue = selectedOption.value
+        console.log(selectedvalue)
+        // id_val = id.slice(7)
+        // console.log(id_val)
+        document.getElementById('qty').value = 0
+        document.getElementById('total').value = 0
+        document.getElementById('Vat').value = 0
+        document.getElementById('disc').value = 0
+        document.getElementById('taxamount').value = 0
+        $.ajax({
+            url: "{% url 'itemdetails' %}",
+            type : 'GET',
+            data:{
+                id : selectedvalue,
+                csrfmiddlewaretoken: '{{ csrf_token }}'
+                },
+            
+            success: function(response) {
+                data = response.hsn
+                data3 = response.price
+                data4 = response.vat
+                
+                
+                document.getElementById('hsn').value = data;
+                document.getElementById('unit').value = data3;
+                document.getElementById('Vat').value = data4;
+                
+
+                
+                
+            },
+        
+        });
+        calc();
+       
+       
+    }
+</script>
+<script>
+    $(document).ready(function() {
+        $("#advance").change(function() {
+            tot_val = parseFloat($('#grandtotal').val())
+            adv_val = parseFloat($('#advance').val())
+            if (tot_val<adv_val){
+                $('#advance').val(0)
+                $('#balance').val(tot_val.toFixed(2));
+                alert("Advance Greater than Total Amount")
+            }else{
+                tot_val = tot_val - adv_val
+                $('#balance').val(tot_val.toFixed(2));
+            }
+        })
+    })
+</script>
+<script>
+$(document).on("click", "#itemsave", function() {
+    var item_name = document.getElementById('item_name').value;
+    var hsn = $("#hsn1").val(); // Get the value of HSN
+
+    // Check if the length of HSN is less than 6
+    if (hsn.length < 6) {
+        alert('HSN must be at least 6 characters long');
+        return; // Exit function to prevent further execution
+    }
+
+    var tax;
+    if ($('#item_tax_1').prop('checked')) {
+        tax = $('#taxable_result').val();
+    } else {
+        tax = $('#taxable_result').val();
+    }
+
+    if (item_name === '') {
+        alert('Please provide an item name');
+    } else {
+        console.log($("#hsn1").val())
+        $.ajax({
+            type: 'POST',
+            url: "save_item", // Replace this with the actual URL path to your save_item view
+            data: {
+                itm_type: $("#itm_type").val(),
+                name: $("#item_name").val(),
+                unit: $("#unit_list_drp").val(),
+                hsn: hsn, // Use the hsn variable here
+                taxref: tax,
+                sell_price: $("#sal_price").val(),
+                cost_price: $("#pur_price").val(),
+                vat: $("#vat").val(),
+                itmdate: $("#date").val(),
+                stock: $("#opn_stock_").val(),
+                itmprice: $("#at_price").val(),
+                csrfmiddlewaretoken: '{{ csrf_token }}',
+            },
+
+            success: function(response) {
+                document.getElementById("modalItem").reset();
+                var today = new Date();
+                // Format date as YYYY-MM-DD
+                var year = today.getFullYear();
+                var month = (today.getMonth() + 1).toString().padStart(2, '0');
+                var day = today.getDate().toString().padStart(2, '0');
+
+                // Set the value of the date input field to today's date
+                document.getElementById('date').value = year + '-' + month + '-' + day;
+                $('#newitem').modal('hide');
+                reloadItem();
+            },
+        });
+    }
+});
+
+
+    function reloadItem() {
+        $.ajax({
+            url: "{% url 'item_dropdown' %}",
+            type: "GET",
+            dataType: "json",
+            data: $(this).serialize(),
+            csrfmiddlewaretoken: '{{ csrf_token }}',
+
+            success: function(data) {
+                $('#tab_logic tbody tr').each(function(){
+                    var row = $(this);
+                    var drop = row.find('.product');
+                    var existingVal = drop.val();
+                    drop.empty();
+                    console.log(row,'sdsg')
+                    // dropdown.append(`<option ${selectedValue} selected hidden>${selectedText}</option>`);
+                    var defaultOption = new Option("Select Item", "", true, true);
+        defaultOption.disabled = true;
+        drop.append(defaultOption);
+                    $.each(data, function(key, value) {
+                        // dropdown.append($('<option></option>').attr('value', key).text(value).val(key));
+                        console.log(value);
+                        var newOption = new Option(value[1], value[0], false, false);
+                        console.log('appended',value[0]);
+                        drop.append(newOption);
+                        console.log('done...');
+                    });
+
+                    if(existingVal != ""){
+                        drop.val(existingVal);
+                    }
+                })
+                
+            },
+            error: function(xhr, status, error) {
+                console.error(xhr.responseText);
+            }
+        });
+    }
+
+</script>
+
+<script>
+
+    $(document).ready(function(){
+        var roinc = 1
+        
+        $('#add').click(function(){
+            var roinc1 = $("#items-table-body tr").length;
+            roinc++
+            roinc1++
+            $('#items-table-body').append(
+                `<tr id='addr0${roinc}'>
+                    <td class = 'nnum  rowinc' style="text-align: center; width:2%"">${roinc1}</td>
+
+                    <td style="width:18%">
+                        <div class="d-flex">
+                            <select name='product[]' id="product${roinc}" class="form-control border-danger product select2 itemselect2${roinc}"  onchange="changeprd(${roinc})" style="color: black; background-color: white;">
+                                <option value="" selected hidden>Select Product</option>
+                                {% for i in item %}
+                                    {% if i.cid_id == cmp.cid %}
+                                        <option value="{{ i.id }}" >{{ i.itm_name  }} </option>
+                                    {% endif %}
+                                {% endfor %}
+                            </select>&nbsp;&nbsp;&nbsp;
+
+                            <button id="modal_closing" type="button" class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#newitem" data-bs-whatever="@mdo">
+                                <span class="fa fa-plus"></span>
+                            </button>
+                        </div>
+                    </td>
+
+                    <td tyle="width:15%">
+                        <input type="text" name='hsn[]' id="hsn${roinc}" class="form-control border-danger px-1 hsn" style="color: black; background-color: white;" readonly />
+                    </td>
+
+                    <td style="width:10%">
+                        <input type="number" name='qty[]' value=0 id="qty${roinc}" class="form-control border-danger qty mb-1" step=0 min=0 style="color: black; background-color: white;" required />
+                    </td>
+
+                    <td tyle="width:12%">
+                        <input type="number" name='price[]' id="unit${roinc}" value=0 class="form-control border-danger price" step="0.00" min="0" style="color: black; background-color: white;" readonly/>
+                    </td>
+
+                    <td tyle="width:12%">
+                        <input type="text" name='vat[]' id="Vat${roinc}" value=0 class="form-control border-danger seltax" value="{{0}}" step="0.00" min="0" style="color: black; background-color: white;" readonly/>
+                    </td>  
+
+                    <td tyle="width:8%">
+                        <input type="number" name='discount[]' placeholder='Enter Discount' value=0 id="disc${roinc}" class="form-control border-danger disc" step=0 min=0 style="color: black; background-color: white;">
+                    </td>
+
+                    <td style="width:10%">
+                        <input type="number" name='total[]' id="total${roinc}" placeholder=0 class="form-control border-danger total" value=0 step="any" style="color: black; background-color: white;" readonly />
+                    </td>
+
+                    <td hidden><input type="number" step="any" name='taxamount1' id="taxamount${roinc}" class=" taxamount" /></td>
+                    
+                    <td style="width:10%">
+                        <button type="button" id="${roinc}" class="btn btn-danger px-2 mx-1 py-1 remove_row fa fa-close">Delete</button>
+                    </td>
+                </tr>`
+            );
+            $(`.itemselect2${roinc}`).select2()
+            reloadItem();
+   
+        });
+        $('#tab_logic').on('change', '.qty, .hsn', function() {
+        validateRows();
+    });
+
+    // Function to validate rows
+    function validateRows() {
+        var isValid = true;
+        $('#tab_logic tbody tr').each(function(index) {
+            var product = $(this).find('.hsn').val();
+            var qty = $(this).find('.qty').val();
+            if (product === '') {
+                alert('Select a product on row ' + (index + 1));
+                isValid = false;
+                return false;
+            }
+            if (qty === '' || qty === '0') {
+                alert('Add quantity in row ' + (index + 1));
+                isValid = false;
+                return false;
+            }
+        });
+        return isValid;
+    }
+
+    // Submit event handler for the form
+    $('#pbillForm').submit(function(e) {
+        if (!validateRows()) {
+            e.preventDefault();
+        }
+    });
+});
+
+    $(document).ready(function(){
+    $('.select2').select2();
+    $(document).on('change', '.itemselect2',function(){ 
+        var n = $(this).attr("id").slice(7);
+        console.log(n,'hhhh')
+        
+    });
+});
+    function  reloadCustomer() {
+        $.ajax({
+            url: "{% url 'cust_dropdown' %}",
+            type: "GET",
+            dataType: "json",
+            data: $(this).serialize(),
+            csrfmiddlewaretoken: '{{ csrf_token }}',
+
+            success: function(response) {
+                id_list = response.id_list
+                party_list = response.party_list
+                console.log(party_list)
+                var $select = $(document.getElementById('customer'));
+                var selectize = $select[0].selectize;
+                for(let i=0; i<id_list.length;i++){
+                    selectize.addOption({value:id_list[i],text:party_list[i]});
+                }
+                selectize.setValue("");
+            },
+        });
+    }
+
+
+
+
+    $(document).on('click','.remove_row',function(){
+        var row_id = $(this).attr("id");
+        $('#addr0'+row_id+'').remove();
+        var table = document.getElementById('tab_logic');
+        var rows = table.getElementsByTagName('tbody')[0].getElementsByTagName('tr');
+        for (var i = 0; i < rows.length; i++) {
+            var cells = rows[i].getElementsByTagName('td');
+            cells[0].innerText = i+1;
+        }
+        calc();
+        console.log()
+    });
+   
+
+    $(document).ready(function(){
+        $('#items-table-body').on('keyup change', function () {
+            calc();
+        });
+
+        $('#tax').on('keyup change', function () {
+            calc_total();
+        });
+    });
+        
+    function calc() {
+        $('#tab_logic tbody tr').each(function () {
+            var html = $(this).html();
+            if (html != '') {
+                var qty = $(this).find('.qty').val();
+                var price = $(this).find('.price').val();
+                var dis = $(this).find('.disc').val();
+                var taxString = $(this).find('.seltax').val(); // Get the value from the input field
+                var tax = parseInt(taxString.replace(/\D/g, ''), 10); // Extract integer part using regular expression
+
+                console.log(taxString)
+                console.log(tax)
+               
+       
+                $(this).find('.total').val((parseFloat(qty) *parseFloat(price))-parseFloat(dis));
+                $(this).find('.taxamount').val(((qty * price)-dis) * (tax / 100));
+                
+                calc_total();
+            }
+        });
+    }
+
+    function calc_total() {
+        total = 0;
+        $('.total').each(function () {
+            total += parseFloat($(this).val());
+        });
+        taxamount = 0;
+        $('.taxamount').each(function () {
+            taxamount += parseFloat($(this).val());
+        });
+        $('#sub_total').val(total.toFixed(2));
+        $('#tax_amount').val(taxamount.toFixed(2));
+        adj_val = parseFloat($('#adj').val())
+        gtot = taxamount + total + adj_val;
+        $('#grandtotal').val(gtot.toFixed(2));
+        $('#baldue').val(gtot.toFixed(2));
+        adv_val = parseFloat($('#advance').val())
+        adv_val = gtot - adv_val
+        $('#balance').val(adv_val.toFixed(2));
+
+    }
+
+        
+
+    $(document).on("change", "#adj", function(){
+        var subtot = $('#sub_total').val();
+        var tax = $('#tax_amount').val();
+        var adj = $("#adj").val();
+        var adv = $("#advance").val();
+        $('#grandtotal').val((parseFloat(subtot)+parseFloat(tax)+parseFloat(adj)).toFixed(2));
+        $('#balance').val((parseFloat(subtot)+parseFloat(tax)+parseFloat(adj)-parseFloat(adv)).toFixed(2));
+    });
+  
+   
+</script>
+
+
+
+  <script>
+    $(document).ready(function(){
+      $('#item_tax_1').on('click',function(){
+          $('#vatdiv').attr('hidden',false)
+          $('#vat').val('VAT 5%')
+      })
+    })
+    $(document).ready(function(){
+      $('#item_tax_2').on('click',function(){
+          $('#vatdiv').attr('hidden',false)
+          $('#vat').val('VAT 0%')
+      })
+    })
+  
+    $(document).ready(function(){
+      $('#item_tax_1').on('click',function(){
+        $('#taxable_result').val('Taxable')
+      })
+    })
+
+    $(document).ready(function(){
+      $('#item_tax_2').on('click',function(){
+        $('#taxable_result').val('Non Taxable')
+      })
+    })
+  
+    $(document).ready(function(){
+      $('#goods').on('click',function(){
+        $('#itm_type').val('Goods')
+      })
+    })
+  
+    $(document).ready(function(){
+      $('#service').on('click',function(){
+        $('#itm_type').val('Service')
+      })
+    })
+    reloadItem();
+  
+   
+  </script>
+   <script>
+    function toggleSection(sectionId) {
+        // Get all the fieldsets
+        const fieldsets = document.querySelectorAll('fieldset');
+
+        // Hide all fieldsets
+        fieldsets.forEach(fieldset => {
+            fieldset.style.display = 'none';
+        });
+
+        // Show the selected fieldset
+        const section = document.getElementById(sectionId);
+        if (section.style.display === 'none') {
+            section.style.display = 'block';
+        } else {
+            section.style.display = 'none';
+        }
+    }
+
+
+// Function to format the date as "YYYY-MM-DD"
+function formatDate(date) {
+    const year = date.getFullYear();
+    const month = (date.getMonth() + 1).toString().padStart(2, '0');
+    const day = date.getDate().toString().padStart(2, '0');
+    return `${year}-${month}-${day}`;
+}
+
+// Get the current date
+const currentDateInput = document.getElementById("current-date");
+const currentDate = new Date();
+
+// Format the date as "YYYY-MM-DD" and set it in the input field
+currentDateInput.value = formatDate(currentDate);
+
+
+function validatePhoneNumber(inputElement) {
+const phoneNumber = inputElement.value;
+
+const validationSpan = document.getElementById("contact-validation");
+
+// Regular expression to check for a 10-digit number
+const regex = /^[0-9]{10}$/;
+
+if (regex.test(phoneNumber)) {
+    // Valid 10-digit number, display a checkmark
+    validationSpan.innerHTML = "&#10004;"; // Checkmark symbol
+    validationSpan.style.color = "green";
+} else {
+    // Not a valid 10-digit number, display a cross mark
+    validationSpan.innerHTML = "&#10060;"; // Cross mark symbol
+    validationSpan.style.color = "red";
+}
+
+}
+
+function validateGSTIN(inputElement) {
+const gstin = inputElement.value;
+const validationSpan = document.getElementById("gstno-validation");
+
+// Regular expression to check for a valid GSTIN pattern
+const regex = /^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z][0-9][A-Z][A-Z0-9]$/;
+
+if (regex.test(gstin)) {
+    // Valid GSTIN format, display a checkmark
+    validationSpan.innerHTML = "&#10004;"; // Checkmark symbol
+    validationSpan.style.color = "green";
+} else {
+    // Not a valid GSTIN format, display a cross mark
+    validationSpan.innerHTML = "&#10060;"; // Cross mark symbol
+    validationSpan.style.color = "red";
+}
+}
+$(document).ready(function() {
+    $('#trn_no').blur(function() {
+        var trn_no = $(this).val();
+        var trn_type = document.getElementById("trn_type").value;
+        $.ajax({
+            url: 'check_trn_no_exists',
+            data: {
+                'trn_no': trn_no,
+                'trn_type':trn_type
+            },
+            dataType: 'json',
+            success: function(data) {
+                if (data.exists) {
+                    $('#trn_no_error').text('TRN number already exists!');
+                } else {
+                    $('#trn_no_error').text('');
+                }
+            }
+        });
+    });
+   
+
+    $('#contact').blur(function() {
+        var phone_number = $(this).val();
+        $.ajax({
+            url: 'check_phone_number_exists',
+            data: {
+                'phone_number': phone_number
+            },
+            dataType: 'json',
+            success: function(data) {
+                if (data.exists) {
+                    $('#phone_number_error').text('Phone number already exists!');
+                } else {
+                    $('#phone_number_error').text('');
+                }
+            }
+        });
+        
+    });
+    
+});
+$('#hsn1').blur(function() {
+        var hsn1 = $(this).val();
+        $.ajax({
+            url: 'check_hsn_number_exists',
+            data: {
+                'hsn1': hsn1
+            },
+            dataType: 'json',
+            success: function(data) {
+                if (data.exists) {
+                    $('#hsnerror').text('HSN number already exists!');
+                } else {
+                    $('#hsnerror').text('');
+                }
+            }
+        });
+        
+    });
+    
+
+
+
+</script>
+<script>
+    $(document).ready(function () {
+        $('#customer').selectize({
+            sortField: 'value',
+            items: [''],
+            render: {
+                item: function (item, escape) {
+                    if (item.value === '') {
+                        return '';
+                    }
+                    return '<div>' + escape(item.text) + '</div>';
+                }
+            }
+
+        });
+    });
+    
+ 
+  
+
+</script>
+
+<link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.1.0-beta.1/css/select2.min.css" rel="stylesheet"  defer/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js" defer></script>
+
+
+{% endblock %}
+

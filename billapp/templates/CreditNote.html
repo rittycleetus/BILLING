@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+{% block content %}
+{% load static %}
+
+
+    <div class="body-wrapper">
+        <div class="container-fluid">
+            <br><br><br>
+                    <div class="card"
+                        style="box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19); background-color: #FFD6D7;width:80%;margin-left: auto; margin-right: auto;">
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-8">
+                                    <img src="{% static 'img/new.jpg' %}" alt="" style="width: 85%;">
+                                </div>
+                                <div class="col-md-4 d-flex justify-content-center align-items-center">
+                                    <a href="{% url 'SalesReturn' %}"><button class="btn" style="color: white; background-color: #68020F;">Create Sales
+                                        Return</button></a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+        {% endblock %}

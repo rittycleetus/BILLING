@@ -1,0 +1,1712 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+<head>
+ <!-- Include Select2 CSS -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" integrity="sha384-GLhlTQ8iM4jQqR8r+cktRTt8Zp1eklHfEAg/8mtP1wwj1z9EGg6S5q6Z1PI5piJ6" crossorigin="anonymous">
+
+<!-- Include jQuery (Select2 requires it) -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha384-/KJ5oZqUeaOr5b+6S6Zkzep5l+M5R2T/W8C86gN7rqlTzq/WW6C+0cu1hKj2ktWZ" crossorigin="anonymous"></script>
+
+<!-- Include Select2 JS -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js" integrity="sha384-GLhlTQ8iM4jQqR8r+cktRTt8Zp1eklHfEAg/8mtP1wwj1z9EGg6S5q6Z1PI5piJ6" crossorigin="anonymous"></script>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.0.1/css/toastr.css" rel="stylesheet"/>
+      
+<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.0.1/js/toastr.js"></script>
+<style>
+        .new-row {
+        background-color: #FFADB0;
+    }
+
+  
+    .new-row:hover {
+        background-color: #E09497; 
+            }
+
+      select.form-control {
+        appearance: none;
+        -webkit-appearance: none;
+        -moz-appearance: none;
+        text-indent: 1px;
+        text-overflow: '';
+    }
+
+    select.form-control::-ms-expand {
+        display: none;
+    }
+
+    /* Use a background image as the custom arrow */
+
+    .form-control {
+        border: 2px solid #FFD6D7;
+        transition: border-color 0.3s;
+    }
+
+    .form-control:focus {
+        border-color: #ffffff;
+    }
+
+    #toPayRadio {
+        accent-color: red;
+    }
+
+    #toReceiveRadio {
+        accent-color: green;
+    }
+
+
+    .switch {
+        position: relative;
+        display: inline-block;
+        width: 38px;
+        height: 22px;
+    }
+
+  
+    .switch input {
+        opacity: 0;
+        width: 0;
+        height: 0;
+    }
+
+    .slider {
+        position: absolute;
+        cursor: pointer;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: #ccc;
+        -webkit-transition: .4s;
+        transition: .4s;
+    }
+
+    .slider:before {
+        position: absolute;
+        content: "";
+        height: 13px;
+        width: 13px;
+        left: 3px;
+        bottom: 5px;
+        background-color: white;
+        -webkit-transition: .4s;
+        transition: .4s;
+    }
+
+    input:checked+.slider {
+        background-color: #2196F3;
+    }
+
+    input:focus+.slider {
+        box-shadow: 0 0 1px #2196F3;
+    }
+
+    input:checked+.slider:before {
+        -webkit-transform: translateX(26px);
+        -ms-transform: translateX(26px);
+        transform: translateX(18px);
+    }
+
+    .custom-width {
+    width: 300px !important;
+    /* Add other styles as needed */
+  }
+    .slider.round {
+        border-radius: 34px;
+    }
+
+    .slider.round:before {
+        border-radius: 50%;
+    }
+
+    .save-button {
+        background-color: #007bff;
+        border-color: #007bff; 
+        color: #fff; 
+        margin-right: 1rem;
+    }
+
+    td{
+    border-right: 1px solid rgb(12, 12, 12);
+    }
+
+  tbody:hover td:not(:last-child){
+    border-right: 1px solid #68020F;
+  }
+    .save-button:hover {
+        background-color: #fff;
+        color: #007bff;
+    }
+    input{
+    background-color: black;
+    color: white;
+  }
+
+  .bs {
+    box-shadow: 2px 2px 10px 3px rgba(0, 0, 0, 0.397);
+  }
+
+  .bs_sm {
+    box-shadow: inset 2px 2px 5px 3px rgba(0, 0, 0, 0.199);
+  }
+
+  .tb {
+    color: black;
+  }
+
+  .tg {
+    color: rgb(0, 140, 7);
+  }
+
+  .tr {
+    color: rgb(218, 0, 0);
+  }
+
+  .btn_add {
+    background-color: orange;
+    color: black;
+  }
+
+  .btn_add:hover {
+    background-color: rgb(234, 152, 0);
+    color: black;
+  }
+
+  ::-webkit-scrollbar {
+    display: none
+  }
+  select option:hover{
+    background-color: black;
+  }
+
+  input[type="radio"]:checked{
+    accent-color: #68020F;
+  }
+
+  .input_border{
+    border: 1px solid #68020F;
+  }
+
+  .button_border{
+    border: 1px solid #68020F;
+    color: #68020F;
+  }
+
+  .button_border:hover{
+    background-color:#68020F;
+    color: white;
+  }
+</style>
+<!-- jQuery -->
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.10.2/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</head>
+
+<div class="body-wrapper">
+    <div class="container-fluid">
+        <form action="{% url 'edit_debit_note' debit_id=debitnote.id %}" method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            <h1 class="mb-4">DEBIT NOTE</h1>
+     
+            {% if messages %}
+            <div class="messages">
+                {% for message in messages %}
+                    <div style="border: 1px solid #000; padding: 10px; margin: 10px 0; background-color: #f8f9fa; color: #000; {% if message.tags == 'success' %}background-color: #d4edda; border-color: #c3e6cb; color: #155724;{% endif %}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+        <div class="row">
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label for="party">Party</label>
+                    <div class="input-group">
+                        <select name="party" id="party" class="form-control" style="width: 450px" onchange="handlePartySelection()">
+                            {% for party in parties %}
+                                {% if debitnote.party and party.id == debitnote.party.id %}
+                                    <option value="{{ party.id }}" 
+                                            data-contact="{{ party.contact }}" 
+                                            data-address="{{ party.address }}" 
+                                            data-openingbalance="{{ party.openingbalance }}"
+                                            {% for bill in bills %}
+                                            {% if party.id == bill.party_id %}
+                                                data-billno="{{ bill.billno }}"
+                                                data-billdate="{{ bill.billdate|date:'d/m/Y' }}"
+                                            {% endif %}
+                                            {% endfor %}
+                                            selected>
+                                        {{ party.party_name }}
+                                    </option>
+                                {% else %}
+                                    <option value="{{ party.id }}" 
+                                            data-contact="{{ party.contact }}" 
+                                            data-address="{{ party.address }}" 
+                                            data-openingbalance="{{ party.openingbalance }}"
+                                            {% for bill in bills %}
+                                            {% if party.id == bill.party_id %}
+                                                data-billno="{{ bill.billno }}"
+                                                data-billdate="{{ bill.billdate|date:'d/m/Y' }}"
+                                            {% endif %}
+                                            {% endfor %}>
+                                        {{ party.party_name }}
+                                    </option>
+                                {% endif %}
+                            {% endfor %}
+                        </select>
+                      
+                            <!-- <div class="input-group-append">
+                                <button type="button" class="btn btn-outline-secondary" style="background-color: maroon;" data-toggle="modal" data-target="#createPartyModal">+</button>
+                            </div> -->
+                        </div>
+                    </div>
+                    <br>
+                    <div class="form-group">
+                        <label for="available_balance">Available Balance</label>
+                        <input type="text" class="form-control" value="{{ debitnote.party.openingbalance }}" readonly id="available_balance">
+                    </div>
+                    <br>
+                    <div class="form-group">
+                        <label for="contact_number">Contact Number</label>
+                        <input type="text" class="form-control" id="contact_number" value="{{ debitnote.party.contact }}" readonly >
+                    </div>
+                    <br>
+                    <div class="form-group" id="partyAddressGroup">
+                        <label for="party_address">Party Address</label>
+                        <input type="text" class="form-control" id="party_address" value="{{ debitnote.party.address }}" readonly>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <!-- Right side of the form -->
+                    <div class="form-group">
+                        <label for="return_no">Return No.</label>
+                        <input type="text" class="form-control" id="return_no" name="return_no" value="{{ debitnote.returnno }}" readonly >
+                        <span id="return-no-message" style="color: red;"></span>
+                    </div>
+              
+                
+                    <br>
+                    <div class="form-group">
+                        <label for="date">Date</label>
+                        <input type="date" class="form-control" id="current-date" name="current-date" value="{{ current_date }}" readonly  >
+                    </div>
+                    <br>
+                  
+                    <div class="form-group">
+                        <label for="bill">Select Bill</label>
+                        <select id="bill" name="bill" class="form-control"  readonly >
+                           
+                                <option value="{{ billno }}">{{ billno }}</option>
+                           
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="billdate">Bill Date</label>
+                        <input type="text" class="form-control" id="bill_date" value="{{ billdate|date:'d / m / Y' }}" disabled style="background-color: white;"  readonly >
+                    </div>
+                    
+                </div>
+                </div>
+                <br><br><br>
+                <div style="overflow-x:auto;">  
+                    <table class="table table-hover  mt-5 " style="background-color: white;box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);">
+                        <thead style="background: #68020F;">
+                          <tr class="text-center text-light" style="font-size: 12px;">
+                            <th scope="col" style="border-right: 1px solid;">#</th>
+                            <th scope="col" style="border-right: 1px solid; width: 300px;">PRODUCT</th>
+                            <th scope="col" style="border-right: 1px solid;">HSN</th>
+                            <th scope="col" style="border-right: 1px solid;">QUANTITY</th>
+                            <th scope="col" style="border-right: 1px solid;">PRICE</th>
+                            <th scope="col" style="border-right: 1px solid;">TAX(%)</th>
+                            <th scope="col" style="border-right: 1px solid;">DISCOUNT</th>
+                            <th scope="col" style="border-right: 1px solid;">TOTAL</th>
+                            <th scope="col"  style="border-right: 1px solid;">ACTION</th>
+                            </tr>
+                        </thead>
+
+                        {% for item in selected_item %}
+                        <tr style="background-color: #FFADB0;">
+                            <td style="color: black;">{{forloop.counter}}</td>
+                            <td style="width: 990px;">
+                                <div style="display: flex; position: relative;">
+                                    <select name="selected_item[]" style="width: 130px;" class="form-control select2" id="select1" onchange="fillItemDetails1(this)">
+                                        <option value="{{ item.id }}" data-hsn="{{ item.itm_hsn }}" data-price="{{ item.purchaseprice }}" data-tax="VAT {{ item.vat }}" selected>{{ item.name }}</option>
+                                         {% for s_item in items %} 
+                                        
+                                           
+                                                <option value="{{ s_item.id }}" data-hsn="{{ s_item.itm_hsn }}" data-price="{{ s_item.itm_purchase_price }}" data-tax="VAT {{ s_item.itm_vat|floatformat:0 }}%">{{ s_item.itm_name }}</option>
+                                                
+                                        {% endfor %} 
+                                    
+                                    </select>
+                                    
+                                </div>
+                            </td>
+                           
+                            <td><span id="hsn" class="form-control" style="height: 40px; width: 90px;">{{ item.itm_hsn }}</span></td>
+                            <td><input type="number" name="item_quantity[]" id="item_quantity[]" style="width: 90px;" class="form-control" value="{{ item.qty }}" oninput="updateTotalAmount1(this);updateTotals(this);updateTaxAmount(this);" required></td>
+                            <td><span id="purchasePrice" style="width: 90px; height: 40px;" class="form-control" name="purchaseprice[]">{{ item.purchaseprice }}</span></td>
+                            <td><span id="vat" style="width: 90px; height: 40px;" class="form-control">VAT {{ item.vat|floatformat:0 }}%</span></td>
+                            <td><input type="number" name="item_discount[]" class="form-control" style="width: 80px;" value="{{ item.discount }}" oninput="updateTotalAmount1(this);updateTotals(this);updateTaxAmount(this);"></td>
+                            <td><input type="number" name="item_total_amount[]" readonly class="form-control" style="width: 100px;" value="{{ item.total_amount }}"></td>
+                            <td><i class="fas fa-trash-alt fa-lg delete-row" style="margin-left: 10px;"></i></td>
+                            {% endfor %}
+                        </tr>
+                    <!-- <ul>
+                        {% for item in selected_item %}
+                        <li>
+                            <strong>ID:</strong> {{ item.id }} <br>
+                            <strong>quantity:</strong> {{ item.qty }} <br>
+                            <strong>HSN:</strong> {{ item.itm_hsn }} <br>
+                            <strong>Purchase Price:</strong> {{ item.purchaseprice }} <br>
+                            <strong>VAT:</strong> {{ item.vat }} <br>
+                            <strong>Subtotal</strong> {{item.subtotal}}
+                        </li>
+                        {% endfor %}
+                    </ul> -->
+                    </table>
+                    <!-- + button to add a new row -->
+                    <button type="button" onclick="addRow()" class="btn btn-outline-secondary" style="background-color: maroon; height: 40px; width: 45px; text-align: center; padding: 2px;font-size: 20px;"><b>+</b></button>
+                </div>
+            </div>
+
+          
+
+
+
+
+
+            <div class="container-fluid">
+                <div class="row justify-content-end">
+                    <div class="col-md-6 text-end">
+            
+                        <!-- Subtotal Input -->
+                        <div class="form-group row">
+                            <label for="subtotal" class="col-sm-4 col-form-label">Subtotal</label>
+                            <div class="col-sm-8">
+                                <input type="text" id="subtotal" name="subtotal" class="form-control" value="{{subtotal}}">
+                            </div>
+                        </div>
+                        <!-- Tax Amount Input -->
+                        <div class="form-group row">
+                            <label for="taxAmount" class="col-sm-4 col-form-label">Tax Amount</label>
+                            <div class="col-sm-8">
+                                <input type="text" id="taxAmount" name="taxAmount" class="form-control" value="{{ taxAmount }}" readonly>
+                            </div>
+                        </div> 
+                        <!-- Adjustment Input -->
+                        <div class="form-group row">
+                            <label for="adjustment" class="col-sm-4 col-form-label">Adjustment</label>
+                            <div class="col-sm-8">
+                                <input type="text" id="adjustment" name="adjustment" class="form-control" value="{{adjustment}}">
+                            </div>
+                        </div>
+                        <!-- Grand Total Input -->
+                        <div class="form-group row">
+                            <label for="grandTotal" class="col-sm-4 col-form-label">Grand Total</label>
+                            <div class="col-sm-8">
+                                <input type="text" id="grandTotal" name="grandTotal" class="form-control" value="{{grandTotal}}">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+ <!-- <a href="{% url 'debitnote2' %}">Submit</button> -->
+    <button type="submit" class="btn-primary"style="background-color: maroon; height: 40px; width: 85px; text-align: center; padding: 2px;font-size: 15px;color:white">EDIT</button>
+
+        </form>
+    </div>
+</div>
+
+
+
+
+
+
+
+
+
+
+<!-- <div> -->
+
+
+<!-- Modal -->
+    <!-- <div class="itemmodal">
+    <div class="modal fade" id="itemCreateModal" tabindex="-1" aria-labelledby="ItemCreateModalLabel" aria-hidden="true">
+       <div class="modal-dialog modal-lg">
+           <div class="modal-content">
+               <div class="modal-header">
+                   <h1 class="modal-title fs-5" id="itemCreateModalLabel" style="color: #68020F; font-weight: 900;">CREATE ITEM</h1>
+                   <button type="button" class="btn-close" data-dismiss="modal" aria-label="Close"></button>
+               </div>
+               <div class="modal-body">
+                   {% if success_message %}
+                   <script>
+                       alert("{{ success_message }}");
+                   </script>
+                   {% endif %}
+   
+                   {% if messages %}
+                   <div class="messages">
+                       {% for message in messages %}
+                       <div style="border: 1px solid #000; padding: 10px; margin: 10px 0; background-color: #f8f9fa; color: #000; {% if message.tags == 'success' %}background-color: #d4edda; border-color: #c3e6cb; color: #155724;{% endif %}">
+                           {{ message }}
+                       </div>
+                       {% endfor %}
+                   </div>
+                   {% endif %}
+   
+                   <div class="bs p-4 rounded mb-5">
+                       <br>
+                       <div class="row">
+                           <div class="col-sm-12 col-md-1"></div>
+                           <div class="col-sm-12 col-md-10 pb-4 ">
+                               <div class=" pb-0 mb-0 p-2" style="height:100%;width:100%">
+                                   <br><br>
+   
+                                   <center>
+                                       <h3><strong class="fw-bolder " style="color: #68020F;">ITEM DETAILS</strong></h3>
+                                   </center>
+                                   <div class="p-3" style="border: 2px solid #68020F; border-radius: 2.5vh; background-color: #FFD6D7;">
+                                       <div class="d-flex">
+                                           <div class="pt-5 w-50">
+                                               <input type="text" name="itm_type" id="itm_type" hidden>
+                                               <label style="user-select: none;" class="fs-4 tb" for="goods">Goods</label>
+                                               <input id="goods" class="me-3 " type="radio" name="item_ty" required>
+                                               <label style="user-select: none;" class="fs-4 tb" for="service">Services</label>
+                                               <input id="service" type="radio" name="item_ty" required>
+                                           </div>
+                                           <div class="mb-3 w-50 mt-3">
+                                               <label class="fw-bold tb fs-3" for="">NAME</label><br>
+                                               <input style="color: black;" class="form-control mt-2 input_border text-black" type="text" placeholder="Enter Item Name" autocomplete="off" name="name"id="itemName">
+                                           </div>
+                                       </div>
+   
+                                       <div class="d-flex mt-2">
+                                           <div class=" me-3 w-50">
+                                               <label class="fw-bold tb fs-3 " for="">HSN </label><br>
+                                               <input style="color: black;" class="form-control mt-2 input_border text-black" type="number" placeholder="Enter HSN value" name="hsn" id="itemHSN">
+                                           </div>
+                                           <br>
+                                           <div class="mb-3 w-50">
+                                               <label class="fw-bold tb fs-3" for="units">UNIT</label><br>
+                                               <div class="d-flex">
+                                                   <select style="color: black;" class="form-control me-3 mt-2 input_border text-black" id="unit" name="unit" >
+                                                       <option value="" hidden>Select an option</option>
+                                                       <option value="Numbers">Numbers</option>
+                                                       <option value="Packages">Packages</option>
+                                                       <option value="Box">Box</option>
+                                                       {% for i in units %}
+                                                       <option value="{{ i.unit_name }}">{{ i.unit_name }}</option>
+                                                       {% endfor %}
+                                                   </select>
+                                                   <button type="button" class="btn mt-2 button_border" data-toggle="modal" data-target="#unitmodal" data-whatever="@mdo">
+                                                       <span class="fa fa-plus"></span>
+                                                   </button>
+                                               </div>
+                                               <div class="modal fade" id="unitmodal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+                                                   <div class="modal-dialog">
+                                                       <div class="modal-content">
+                                                           <div class="modal-header">
+                                                               <h1 class="modal-title fs-5" id="exampleModalLabel" style="color: #68020F; font-weight: 900;">ADD UNIT</h1>
+                                                               <button type="button" class="btn-close" data-dismiss="modal" aria-label="Close"></button>
+                                                           </div>
+                                                           <div class="modal-body mb-1 pb-1">
+                                                               <form class="mb-0" id="unitmodal">
+                                                                   <div class="mb-3">
+                                                                       <label for="unit_name" class="col-form-label">UNIT</label>
+                                                                       <input type="text" class="form-control _border" id="unit_name" placeholder="Enter Unit" style="border: 2px solid #68020F;" name='unit_name'>
+                                                                   </div>
+                                                                   <div class="m-0 text-center">
+                                                                       <label for="message-text" class="col-form-label text-danger fw-lighter">Example : PCS/BOX/LITER</label>
+                                                                   </div>
+                                                               </form>
+                                                           </div>
+                                                           <div class="modal-footer d-flex justify-content-center mt-1">
+                                                               <button type="button" class="btn ps-5 pe-5 button_border" data-dismiss="modal">Close</button>
+                                                               <button type="button" class="btn ps-5 pe-5 button_border" id="unitmodalsubmit">ADD</button>
+                                                           </div>
+                                                       </div>
+                                                   </div>
+                                               </div>
+                                           </div>
+                                       </div>
+                                       <br>
+                                   </div>
+                               </div>
+                           </div>
+                       </div>
+                   </div>
+               </div>
+   
+               <div class="row">
+                   <div class="col-sm-12 col-md-1"></div>
+                   <div class="col-sm-12 col-md-5 pb-4">
+                       <div class="me-3 text-center">
+                           <h3><strong class="fw-bolder" style="color: #68020F;">PRICING</strong></h3>
+                       </div>
+                       <div class="p-3" style="border: 2px solid #68020F; border-radius: 2.5vh; background-color: #FFD6D7;">
+                        <div class="pt-5 mb-4">
+                            <input type="text" name="taxable_result" id="taxable_result" hidden>
+                            <label style="user-select: none;" class="fs-4 tb" for="item_tax_1">Tax</label> &nbsp;
+                            <input id="item_tax_1" class="me-3" type="radio" name="item_tax_result" required>
+                            <label style="user-select: none;" class="fs-4 tb" for="item_tax_2">Tax Excempted</label>&nbsp;
+                            <input id="item_tax_2" type="radio" name="item_tax_result" required>
+                        </div>
+
+                        <div id="vatdiv" class="mb-2 pt-3" hidden>
+                            <label class="fw-bold tb fs-3" for="">VAT</label><br>
+                            <input type="text" class="form-control mt-1 input_border text-black" name="vat" id='vat1'>
+                        </div>
+   
+
+
+
+
+
+                                                 <div class="mb-4 pt-3">
+                               <label class="tb fw-bold" for="pur_price">SALES PRICE</label><br>
+                               <input id="sal_price" class="form-control fw-normal fs-3 mt-1 input_border text-black" type="number" placeholder="Enter Sales Price" name="sale_price" required>
+                           </div>
+   
+                           <div class="mb-4">
+                               <label class="tb fw-bold" for="">PURCHASE PRICE</label><br>
+                               <input id="pur_price" class="form-control fw-normal fs-3 mt-1 input_border text-black" type="number" placeholder="Enter Purchase Price" name="purchase_price" required>
+                           </div>
+                       </div>
+                   </div>
+                   <div class="col-sm-12 col-md-5 pb-4">
+                       <div class="me-3 text-center">
+                           <h3><strong class="fw-bolder" style="color: #68020F;">STOCKS</strong></h3>
+                       </div>
+                       <div class="p-3" style="border: 2px solid #68020F; border-radius: 2.5vh; background-color: #FFD6D7;">
+                           <div class="mb-4 pt-4">
+                               <label class="tb fw-bold" for="opn_stock_">STOCK IN HAND</label><br>
+                               <input id="opn_stock_" class="form-control fw-normal fs-3 mt-1 input_border text-black" type="number" placeholder="Enter Opening Stock" name="stock_in_hand" required>
+                           </div>
+                           <div class="mb-4">
+                               <label class="tb fw-bold" for="at_price">AT PRICE</label><br>
+                               <input id="at_price" class="form-control fw-normal fs-3 mt-1 input_border text-black" type="number" placeholder="Enter Price" name="at_price" required>
+                           </div>
+                           <div class="mb-4">
+                               <label class="tb fw-bold" for="date_">DATE</label><br>
+                               <input id="date" class="form-control fw-normal fs-3 mt-1 input_border text-black" type="date" value="{{ tod }}" name="itm_date">
+                           </div>
+                       </div>
+                   </div>
+                   <div class="col-sm-12 col-md-1"></div>
+                   <div class="text-start" style="margin-left: 9%;">
+                       <button class="btn me-3 button_border" type="button" id="itemcreate">Save</button>
+                
+                   </div>
+               </div>
+           </div>
+       </div>
+   </div>
+   </div> --> 
+
+
+   <!-- <script>
+    window.addEventListener('DOMContentLoaded', (event) => {
+        var partyAddress = document.getElementById('party_address').value.trim();
+        console.log('hai',partyAddress);
+        var partyAddressGroup = document.getElementById('partyAddressGroup');
+        
+        // if (partyAddress === '') {
+        //     partyAddressGroup.style.display = 'none'; // Hide the entire form group
+        // }
+    });
+</script> -->
+   <!-- <script>
+    $(document).ready(function () {
+        $('#item_tax_1').on('click', function () {
+            $('#vatdiv').attr('hidden', false);
+            $('#vat1').val('VAT 5%');
+        });
+
+        $('#item_tax_2').on('click', function () {
+            $('#vatdiv').attr('hidden', false);
+            $('#vat1').val('VAT 0%');
+        });
+
+        $('#item_tax_1').on('click', function () {
+            $('#taxable_result').val('Taxable');
+        });
+
+        $('#item_tax_2').on('click', function () {
+            $('#taxable_result').val('Non Taxable');
+        });
+
+        $('#goods').on('click', function () {
+            $('#itm_type').val('Goods');
+        });
+
+        $('#service').on('click', function () {
+            $('#itm_type').val('Service');
+        });
+   
+       
+    $(document).on("click", "#itemcreate", function(){
+        // Get item details from the form
+        var itemName = $('#itemName').val();
+        var itemHSN = $('#itemHSN').val();
+        var itemunit = $('#unit').val();
+        var itemtax1 = $('#item_tax_1').val();
+        var itemtax2 = $('#item_tax_2').val();
+        var vat1= $('#vat1').val();
+        var salesprice = $('#sal_price').val();
+        var purprice = $('#pur_price').val();
+        var openstock= $('#opn_stock').val();
+        var atprice = $('#at_price').val();
+        var dateitem = $('#date').val();
+        
+
+       
+        $.ajax({
+            type : 'POST',
+            url: "{% url 'item_create' %}",
+            data: {
+                name: itemName,          
+        hsn: itemHSN,           
+        unit: itemunit,          
+        tax1: itemtax1,          
+        tax2: itemtax2,          
+        vat1: vat1,              
+        sales_price: salesprice, 
+        pur_price: purprice,     
+        open_stock: openstock,   
+        at_price: atprice,       
+        date: dateitem,         
+        csrfmiddlewaretoken: '{{ csrf_token }}', 
+    }, function(response) {
+                
+                $('#itemCreationForm').trigger("reset");
+                $('#itemCreationModal').modal('hide');
+                
+                reloadItems();
+            },
+            error: function(xhr, errmsg, err) {
+                // Handle error
+                console.log(errmsg);
+            }
+        });
+    }); -->
+
+<!--    
+       $("#unitmodalsubmit").click(function () {
+    $.ajax({
+        type: "POST",
+        url: "{% url 'create_unit' %}",
+        data: {
+            unit_name: $('#unit_name').val() // Use jQuery to get the value of unit_name
+        },
+        beforeSend: function (xhr, settings) {
+            xhr.setRequestHeader("X-CSRFToken", "{{ csrf_token }}");
+        },
+        success: function (response) {
+            // Close the modal
+            $('#unitmodal').hide();
+            $(".modal-backdrop").remove();
+            // Clear the input field
+            $('#unit_name').val('');
+            // Add the new unit to the dropdown
+            $('#unit').append($('<option>', {
+                value: response.id,
+                text: response.unit_name
+            }));
+            
+     
+          
+  
+   
+   
+            // Provide feedback to the user
+            console.log("Unit added successfully!");
+            alert("Unit added successfully!");
+        },
+        error: function (xhr, textStatus, errorThrown) {
+            console.error("Error adding unit:", errorThrown);
+        }
+    });
+});
+                 </script>
+               </div>
+             </div>
+           </div>
+         </div>
+       </div>
+     </div>
+   
+   
+   
+   
+   
+                 
+                   
+   </div>
+    
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   <div class="modal fade" id="createPartyModal" tabindex="-1" role="dialog" aria-labelledby="createPartyModalLabel" aria-hidden="true" >
+       <div class="modal-dialog modal-lg">
+           <div class="modal-content" style="background-color: #FFD6D7;">
+               <div class="modal-header">
+                   <h2 class="modal-title" style="font-size: 2.5rem;"><b>Create New Party</b></h2>
+                   <button type="button" class="close" data-dismiss="modal" aria-label="Close" id="close-btn" style="background-color:  #68020F;width: 30px;color: white;font-size: 20px;">
+                       <span aria-hidden="true">&times;</span>
+                   </button>
+               </div>
+               <div class="modal-body">
+                  
+                
+   
+                 
+                       <div class="container-fluid">
+                           <div class="col-md-3">
+          
+                           </div>
+                           <div class="col-md-9 row" style="margin-top: 3vw;">
+                               <div class="col-md-4">
+                                   <input type="text" style="background-color: white;" class="form-control" id="partyname" name="partyname" placeholder="Party Name" required>
+                               </div>                
+                               <div class="col-md-4" style="position: relative;">
+                                   <input type="text" style="background-color: white;" class="form-control" id="trn_no" name="trn_no" placeholder="TRN NO" oninput="validateGSTIN(this)">
+                                   <span id="gstno-validation" style="position: absolute; right: 14px; top: 8px;"></span>
+                                   <label style="color: rgb(101, 3, 3);">* 32AAQFR1222B1ZS</label>
+                               </div>
+                               
+                               <div class="col-md-4" style="position: relative;">
+                                   <input required type="number" style="background-color: white;" class="form-control" id="contact" pattern="[0-9]{10}" name="contact" placeholder="Phone Number" oninput="validatePhoneNumber(this)">
+                                   <span id="contact-validation" style="position: absolute; right: 15px; top: 8px;"></span>
+                               </div>  
+                               
+                               
+                               <div class="options" style="margin-top: 5vw;">
+                                   <a href="javascript:void(0);" onclick="toggleSection('GST')" style="color: black;"><b>GST &
+                                           Address<b></a>
+                                   <a href="javascript:void(0);" onclick="toggleSection('Credit')"
+                                       style="color: black; margin-left: 3vw;"><b>Credit & Balances<b></a>
+                                   <a href="javascript:void(0);" onclick="toggleSection('additionalfield')"
+                                       style="color: black; margin-left: 3vw;">Additional Fields</a>
+                               </div>
+                           </div>
+                           <fieldset id="GST" class="GST">
+                               <div style="background-color: white;" class="col-sm-5"><select class="form-control mt-4 " id="trn_type" name="trn_type">
+                                       <option disabled selected>Select TRN Type</option>
+                                       <option >Unregistered/Consumers</option>
+                                       <option>Registered Business - Regular</option>
+                                       <option>Registered Business - Composition</option>
+                                   </select>
+                               </div>
+                               <div class="col-sm-5">
+                                  
+                                   <textarea style="background-color: white;" class="form-control mt-4" name="address1" id="address1" cols="56" rows="3"
+                                       placeholder="&nbsp;Address"></textarea>
+                               </div>
+                               <div class="col-sm-5">
+                                  
+                                   <select class="form-control mt-4" id="state" name="state" style="background-color: white;">
+                                     
+                                   </select>
+                               </div>
+                               
+               
+                       
+                       <div class="col-sm-5 ">
+                           <input style="background-color: white;" type="email" class="form-control mt-4" id="email" name="email" placeholder="Email">
+                       </div>
+                       </fieldset>
+               
+                       <fieldset id="Credit" class="Credit" style="display:none;">
+                           <div class="col-sm-5">
+                               <input style="background-color: white;" type="number" class="form-control mt-4" id="balance" name="balance" placeholder="Opening Balance">
+                           </div>
+                       
+                           <div  class="col-sm-7 mt-4">
+                               <label class="radio-label">To Pay</label>
+                               <input type="radio" class="radio-input" id="toPayRadio" name="paymentType" value="To Pay" style="margin-right: 2vw; margin-left: 5px;">
+                               <label class="radio-label">To Receive</label>
+                               <input type="radio" class="radio-input" id="toReceiveRadio" name="paymentType" value="To Receive" style="margin-right: 2vw; margin-left: 5px;">
+                           </div>
+                       
+                          
+                       
+                           <div class="col-md-5 mt-4">
+                               <input type="date" class="form-control" id="current-date1" name="currentdate" placeholder="Current Date" style="background-color: white;">
+                           </div>
+                       
+               
+                       </fieldset>
+                       
+                       <fieldset id="additionalfield" class="additionalfield" style="display:none;">
+                           <div class="col-md-5 mt-4">
+                               <input type="text" class="form-control" name="additionalfield1" id="additionalfield1" placeholder="Additional Field" style="background-color: white;">
+                           </div>
+                   
+                           <div class="col-md-5 mt-4">
+                               <input type="text" class="form-control" name="additionalfield2" id="additionalfield2" placeholder="Additional Field" style="background-color: white;">
+                           </div>
+                   
+                           <div class="col-md-5 mt-4">
+                               <input type="text" class="form-control" name="additionalfield3" id="additionalfield3" placeholder="Additional Field" style="background-color: white;">
+                           </div>
+                       </fieldset>
+               
+                      
+                       <div class="modal-footer">
+                           <button type="button" class="btn btn-primary save-button" onclick="saveParty()" style="background-color: #68020F; ;">Save</button>
+                      
+                  
+                       </div>
+                       </div>
+                   </div>
+             
+           </div>
+       </div>
+   </div>
+   </div>
+   <script>
+       
+   function saveParty() {
+   
+       const partyName = document.getElementById('partyname').value;
+       const trnNo = document.getElementById('trn_no').value;
+       const contact = document.getElementById('contact').value;
+       const trnType = document.getElementById('trn_type').value;
+       const address = document.getElementById('address1').value;
+       const state = document.getElementById('state').value;
+       const email = document.getElementById('email').value;
+       const balance = document.getElementById('balance').value;
+       const paymentType = document.querySelector('input[name="paymentType"]:checked').value;
+       const currentDate = document.getElementById('current-date1').value;  
+       const additionalField1 = document.getElementById('additionalfield1').value;
+       const additionalField2 = document.getElementById('additionalfield2').value;
+       const additionalField3 = document.getElementById('additionalfield3').value;
+   
+   
+       const data = {
+           partyname: partyName,
+           trn_no: trnNo,
+           contact: contact,
+           trn_type: trnType,
+           address: address,
+           state: state,
+           email: email,
+           balance: balance,
+           paymentType: paymentType,
+           currentdate: currentDate, 
+           additionalfield1: additionalField1,
+           additionalfield2: additionalField2,
+           additionalfield3: additionalField3,
+      
+       };
+   
+       
+           
+       $.ajax({
+           url: "{% url 'create_party' %}",
+           type: 'POST',
+           data: data,
+           processData: true,
+      
+          
+           success: function (response) {
+              console.log('New party created successfully!');
+              console.log('Success:', response);
+               
+               toastr.success('New party created successfully!');
+               // $('#createPartyModal').modal('hide');
+               
+               clearFormFields();
+               $('#close-btn').click();
+               console.log(response.parties);
+               
+               addToDropdown(response.parties);
+   
+              
+              
+           },
+           error: function (error) {
+               console.error('Error:', error);
+           }
+       });
+       function addToDropdown(data) {
+       // console.log(data.name,'gee');
+   
+       var dropdown = $('#party');
+   
+      
+       var option = $('<option>', {
+           value: data.id,
+           text: data.name
+   
+       });
+       option.attr('data-address', data.address);
+   
+       
+       dropdown.append(option);
+       handlePartySelection();
+       }
+   } -->
+       
+<!--    $.ajax({
+//     url: "{% url 'create_party' %}",
+//     type: 'POST',
+//     data: data,
+//     processData: true,
+//     success: function (response) {
+//         console.log('New party created successfully!');
+//         console.log('Success:', response);
+
+//         toastr.success('New party created successfully!');
+//         // $('#createPartyModal').modal('hide');
+
+//         clearFormFields();
+//         $('#close-btn').click();
+//         console.log(response.parties);
+
+//         addToDropdown(response.parties);
+        
+//         // Update fields when party is selected
+//         $('#party').change(function() {
+//             var selectedPartyId = $(this).val();
+//             var selectedParty = response.parties.find(party => party.id == selectedPartyId);
+//             if (selectedParty) {
+//                 $('#contact').val(selectedParty.contact);
+//                 $('#address1').val(selectedParty.address);
+//                 // Update other fields as needed
+//             }
+//         });
+//     },
+//     error: function (error) {
+//         console.error('Error:', error);
+//     }
+// });
+
+// function addToDropdown(parties) {
+//     var dropdown = $('#party');
+//     dropdown.empty(); // Clear existing options
+//     parties.forEach(function(party) {
+//         var option = $('<option>', {
+//             value: party.id,
+//             text: party.name
+//         });
+//         dropdown.append(option);
+//     });
+//     handlePartySelection();
+// }
+
+   function clearFormFields() {
+   
+       $('#partyname').val('');
+       $('#trn_no').val('');
+       $('#contact').val('');
+       $('#trn_type').prop('selectedIndex', 0);
+       $('#address1').val('');
+       $('#state').val('');
+       $('#email').val('');
+       $('#balance').val('');
+       $('input[name="paymentType"]').prop('checked', false);
+       $('#current-date1').val('');
+       $('#additionalfield1').val('');
+       $('#additionalfield2').val('');
+       $('#additionalfield3').val('');
+   
+   $('input[name="paymentType"]').prop('checked', false);
+   }
+   </script> -->
+   <!-- <script>
+   $(document).ready(function () {
+       // Function to populate Indian states in the dropdown
+       function populateIndianStates() {
+           const indianStates = [
+               "Andhra Pradesh", "Arunachal Pradesh", "Assam", "Bihar", "Chhattisgarh", "Goa", "Gujarat",
+               "Haryana", "Himachal Pradesh", "Jharkhand", "Karnataka", "Kerala", "Madhya Pradesh", "Maharashtra",
+               "Manipur", "Meghalaya", "Mizoram", "Nagaland", "Odisha", "Punjab", "Rajasthan", "Sikkim", "Tamil Nadu",
+               "Telangana", "Tripura", "Uttar Pradesh", "Uttarakhand", "West Bengal"
+           ];
+   
+           const dropdown = $('#state');
+   
+           // Clear existing options
+           dropdown.empty();
+   
+           // Add a default option (optional)
+           dropdown.append('<option value="">Select State</option>');
+   
+           // Populate the dropdown with Indian states
+           indianStates.forEach(function (state) {
+               const option = $('<option>', {
+                   value: state,
+                   text: state
+               });
+   
+               dropdown.append(option);
+           });
+       }
+   
+       // Call the populateIndianStates function to populate the dropdown on page load
+       populateIndianStates();
+   });
+   </script>
+   <script>
+   
+       function clearFieldsOnLoad() 
+       {
+        clearFormFields();
+           document.getElementById("return_no").value = "";
+           
+           document.getElementById("bill").value = "";
+           document.getElementById("bill_date").value = "";
+           document.getElementById("address1").value = "";
+           document.getElementById("available_balance").value = "";
+     
+           document.getElementById("party").value = "";
+           document.getElementById("contact_number").value = "";
+       }
+   
+       window.onload = clearFieldsOnLoad;
+   </script> -->
+
+                <!-- <script>
+                    function toggleSection(sectionId) {
+                        // Get all the fieldsets
+                        const fieldsets = document.querySelectorAll('fieldset');
+            
+                        // Hide all fieldsets
+                        fieldsets.forEach(fieldset => {
+                            fieldset.style.display = 'none';
+                        });
+            
+                        // Show the selected fieldset
+                        const section = document.getElementById(sectionId);
+                        if (section.style.display === 'none') {
+                            section.style.display = 'block';
+                        } else {
+                            section.style.display = 'none';
+                        }
+                    }
+            
+            
+                // Function to format the date as "YYYY-MM-DD"
+                function formatDate(date) {
+                    const year = date.getFullYear();
+                    const month = (date.getMonth() + 1).toString().padStart(2, '0');
+                    const day = date.getDate().toString().padStart(2, '0');
+                    return `${year}-${month}-${day}`;
+                }
+            
+             
+    // Get the current date
+    let currentDate = new Date();
+
+    // Format the date to 'YYYY-MM-DD'
+    let formattedDate = currentDate.toISOString().split('T')[0];
+
+    // Set the formatted date as the default value for the input field
+    document.getElementById('current-date1').value = formattedDate;
+  
+            function validatePhoneNumber(inputElement) {
+                const phoneNumber = inputElement.value;
+                const validationSpan = document.getElementById("contact-validation");
+            
+                // Regular expression to check for a 10-digit number
+                const regex = /^[0-9]{10}$/;
+            
+                if (regex.test(phoneNumber)) {
+                    // Valid 10-digit number, display a checkmark
+                    validationSpan.innerHTML = "&#10004;"; // Checkmark symbol
+                    validationSpan.style.color = "green";
+                } else {
+                    // Not a valid 10-digit number, display a cross mark
+                    validationSpan.innerHTML = "&#10060;"; // Cross mark symbol
+                    validationSpan.style.color = "red";
+                }
+            }
+            
+            function validateGSTIN(inputElement) {
+                const gstin = inputElement.value;
+                const validationSpan = document.getElementById("gstno-validation");
+            
+                // Regular expression to check for a valid GSTIN pattern
+                const regex = /^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z][0-9][A-Z][A-Z0-9]$/;
+            
+                if (regex.test(gstin)) {
+                    // Valid GSTIN format, display a checkmark
+                    validationSpan.innerHTML = "&#10004;"; // Checkmark symbol
+                    validationSpan.style.color = "green";
+                } else {
+                    // Not a valid GSTIN format, display a cross mark
+                    validationSpan.innerHTML = "&#10060;"; // Cross mark symbol
+                    validationSpan.style.color = "red";
+                }
+            }
+            
+            </script>
+           <script>
+            // Function to format the date as "YYYY-MM-DD"
+            function formatDate(date) {
+                const year = date.getFullYear();
+                const month = (date.getMonth() + 1).toString().padStart(2, '0');
+                const day = date.getDate().toString().padStart(2, '0');
+                return `${year}-${month}-${day}`;
+            }
+        
+            // Get the current date
+            const currentDateInput = document.getElementById("current-date");
+            const currentdate = new Date();
+        
+            // Format the date as "YYYY-MM-DD" and set it in the input field
+            currentDateInput.value = formatDate(currentDate);
+        </script>
+        <script>
+            $(document).ready(function () {
+                // Handle change event when a party is selected
+                $('#party').change(function () {
+                    // Get the selected party option
+                    var selectedOption = $(this).find(':selected');
+        
+                    // Update the input fields with the data attributes of the selected party
+                    $('#contact_number').val(selectedOption.data('contact'));
+                    $('#address').val(selectedOption.data('address'));
+                    $('#available_balance').val(selectedOption.data('openingbalance'));
+                    var billno=selectedOption.data('billno');
+                    console.log(billno)
+                    $('#bill').empty();
+                    $('#bill').append(`<option selected>${billno}</option> `)
+                });
+            });
+        </script>
+        <script>
+            
+    // Function to format the date as "YYYY-MM-DD"
+    function formatDate(date) {
+        const year = date.getFullYear();
+        const month = (date.getMonth() + 1).toString().padStart(2, '0');
+        const day = date.getDate().toString().padStart(2, '0');
+        return `${year}-${month}-${day}`;
+    }
+
+            const currentDateInput = document.getElementById("current-date");
+            currentDate = new Date();
+        
+            // Format the date as "YYYY-MM-DD" and set it in the input field
+            currentDateInput.value = formatDate(currentDate);
+        </script>
+            
+       </div>
+   </div>
+
+</script>
+<script>
+    $('#select1').on('change', function () {
+        // Your code here
+        var selectedItem = $(this).val();
+        console.log('Selected item:', selectedItem);
+    });
+</script>
+<script>
+    $(document).ready(function () {
+        // Get the initial pattern
+        var initialPattern = /^JK\d+$/i;
+
+        // Listen for changes in the "Return No." field
+        $('#return_no').change(function () {
+            // Get the entered return number
+            var returnNo = $(this).val();
+
+            // Check if the pattern is followed (e.g., JK1, JK2, JK3, ...)
+            if (!initialPattern.test(returnNo)) {
+                // Display a confirmation message
+                var confirmed = confirm('Changing the pattern will reset the return number. Are you sure you want to change the pattern?');
+
+                if (!confirmed) {
+                    // Revert to the previous value
+                    $(this).val('');
+                    return;
+                }
+
+                // Update the initial pattern if confirmed
+                initialPattern = new RegExp("^" + returnNo + "$", "i");
+            }
+
+            // Check if the pattern is followed (e.g., JK1, JK2, JK3, ...)
+            if (!initialPattern.test(returnNo)) {
+                // Display an error message
+                $('#return-no-message').text('Return No. should follow the pattern JK1, JK2, JK3, ...');
+            } else {
+                // Clear the error message
+                $('#return-no-message').text('');
+
+                // You can perform additional logic if needed
+            }
+        });
+
+        // Automatically generate and set the initial return number on form load
+        var lastReturnNo = getLastReturnNo(); // You need to implement this function
+        var newReturnNo = generateNextReturnNo(lastReturnNo);
+        $('#return_no').val(newReturnNo);
+    });
+
+    // Function to get the last return number from the database or any other source
+    function getLastReturnNo() {
+        // Implement logic to get the last return number
+        // For now, let's assume it returns the last stored return number
+        return "JK2";
+    }
+
+    // Function to generate the next return number based on the last return number
+    function generateNextReturnNo(lastReturnNo) {
+        var match = lastReturnNo.match(/(\D+)(\d+)/);
+        var prefix = match[1];
+        var number = parseInt(match[2]);
+        return prefix + (number + 1);
+    }
+</script>
+
+<script>
+    $(document).ready(function() {
+        $('#party').select2({
+            width: '450px',
+            placeholder: '-- Select/Search Party --',
+            allowClear: true // Adds a clear button to the dropdown
+        });
+    });
+</script> -->
+// <!-- <script>
+// function closeAndOpenUnitModal() {
+//     // Close the first modal
+//     $('#itemCreateModal').modal('hide');
+
+//     // Open the second modal
+//     $('#unitmodal').modal('show');
+    
+//     // Attach an event handler to unitmodal's hidden.bs.modal event
+//     $('#unitmodal').on('hidden.bs.modal', function () {
+//         // Show the first modal when the second modal is hidden
+//         $('#itemCreateModal').modal('show');
+
+//         // Remove the event handler to avoid interference
+//         $('#unitmodal').off('hidden.bs.modal');
+//     });
+// }
+//     }
+// </script> -->
+<script>
+    // Get current date in the format YYYY-MM-DD
+    var currentDate = new Date().toISOString().split('T')[0];
+    
+    // Set the value of the input field to the current date
+    document.getElementById("current-date").value = currentDate;
+</script>
+<script>
+    $(document).ready(function () {
+        // Function to handle party selection
+        function handlePartySelection(selectedOption) {
+            var addressSection = $("#partyAddressGroup");
+            var billDropdown = $("#bill");
+            var billDateInput = $("#bill_date");
+
+            // Update the "Select Bill" dropdown options
+            billDropdown.empty();
+            if (selectedOption.data('billno') !== undefined) {
+                billDropdown.append($('<option>', {
+                    value: selectedOption.data('billno'),
+                    text: selectedOption.data('billno')
+                }));
+            } else {
+                billDropdown.append($('<option>', {
+                    value: "",
+                    text: "No bills available for the selected party."
+                }));
+            }
+            
+            // Set the value of the "Bill Date" input field
+            if (selectedOption.data('billdate') !== undefined) {
+                billDateInput.val(selectedOption.data('billdate'));
+            } else {
+                billDateInput.val("No bill date available");
+            }
+
+            var address = selectedOption.data("address");
+            if (address && address.trim() !== "") {
+                // Display the address section
+                addressSection.show();
+            } else {
+                // Hide the address section
+                addressSection.hide();
+            }
+        }
+
+        // Trigger party selection on page load and change
+        $('#party').change(function () {
+            var selectedOption = $(this).find(':selected');
+     
+            $('#contact_number').val(selectedOption.data('contact'));
+            $('#party_address').val(selectedOption.data('address'));
+            $('#available_balance').val(selectedOption.data('openingbalance'));
+            handlePartySelection(selectedOption);
+        });
+
+        // Trigger party selection when the page loads initially
+        $('#party').trigger('change');
+    });
+</script>
+
+
+
+
+<script>
+    // Get all input fields with the readonly attribute
+    var readonlyFields = document.querySelectorAll('input[readonly], textarea[readonly]');
+
+    // Add a click event listener to each readonly field
+    readonlyFields.forEach(function(field) {
+        field.addEventListener('click', function() {
+            // Display a message or information to the user
+            alert('This field cannot be edited.');
+        });
+    });
+</script>
+<script>
+    function fillItemDetails1(selectElement) {
+        var selectedOption = selectElement.options[selectElement.selectedIndex];
+    
+        // Update the associated details in the row
+        var row = selectElement.closest('tr');
+        row.querySelector('span[id="hsn"]').textContent = selectedOption.getAttribute("data-hsn") || "";
+        row.querySelector('span[id="purchasePrice"]').textContent = selectedOption.getAttribute("data-price") || "";
+        row.querySelector('span[id="vat"]').textContent = selectedOption.getAttribute("data-tax") || "";
+    
+        // Reset quantity, discount, and total amount fields
+        row.querySelector('[name="item_quantity[]"]').value = 0; 
+        row.querySelector('[name="item_discount[]"]').value = 0;
+        row.querySelector('[name="item_total_amount[]"]').value = 0;
+        
+        // Reset subtotal, adjustment, and grand total fields
+        document.getElementById('subtotal').value = '0.00';
+        document.getElementById('adjustment').value = '0.00';
+        document.getElementById('grandTotal').value = '0.00';
+    
+        // Update total amount and tax amount
+        updateTotalAmount1(row.querySelector('[name="item_quantity[]"]'));
+        updateTaxAmount();
+    }
+    
+    // Function to update total amount based on quantity and discount
+    function updateTotalAmount1(inputElement) {
+        var row = inputElement.closest('tr');
+        var quantity = parseFloat(row.querySelector('[name="item_quantity[]"]').value) || 0;
+        var price = parseFloat(row.querySelector('span[id="purchasePrice"]').textContent) || 0;
+        var discount = parseFloat(row.querySelector('[name="item_discount[]"]').value) || 0;
+        
+        var totalAmount = (quantity * price) - discount;
+        row.querySelector('[name="item_total_amount[]"]').value = totalAmount.toFixed(2);
+        
+        // Update the tax amount and totals
+        updateTaxAmount();
+        updateTotals();
+    }
+    
+    document.getElementById('adjustment').addEventListener('input', function () {
+        updateTotals(); // Call the function to update Grand Total and Tax Amount
+        updateTaxAmount();
+    });
+    
+    // Function to update totals including subtotal, tax amount, and grand total
+    function updateTotals() {
+        var totalAmountFields = document.querySelectorAll('[name="item_total_amount[]"]');
+        var subtotal = 0;
+    
+        totalAmountFields.forEach(function (element) {
+            subtotal += parseFloat(element.value) || 0;
+        });
+    
+        document.getElementById('subtotal').value = subtotal.toFixed(2);
+        
+        var adjustment = parseFloat(document.getElementById('adjustment').value) || 0;
+        var taxAmount = parseFloat(document.getElementById('taxAmount').value) || 0;
+        var grandTotal = subtotal + adjustment + taxAmount;
+    
+        document.getElementById('grandTotal').value = grandTotal.toFixed(2);
+    }
+    
+    // Call the function to calculate totals when the page loads
+    document.addEventListener('DOMContentLoaded', function () {
+        // Make an AJAX request to fetch the subtotal, tax amount, and grand total from the backend
+        var xhr = new XMLHttpRequest();
+        xhr.open('GET', '/your-backend-endpoint', true); // Replace '/your-backend-endpoint' with the actual endpoint URL
+        xhr.onreadystatechange = function () {
+            if (xhr.readyState === XMLHttpRequest.DONE) {
+                if (xhr.status === 200) {
+                    var responseData = JSON.parse(xhr.responseText);
+                    // Extract subtotal, tax amount, and grand total from the response data
+                    var subtotalValueFromServer = parseFloat(responseData.subtotal) || 0;
+                    var taxAmountValueFromServer = parseFloat(responseData.taxAmount) || 0;
+                    var grandTotalValueFromServer = parseFloat(responseData.grandTotal) || 0;
+    
+                    // Set subtotal, tax amount, and grand total input field values
+                    document.getElementById('subtotal').value = subtotalValueFromServer.toFixed(2);
+                    document.getElementById('taxAmount').value = taxAmountValueFromServer.toFixed(2);
+                    document.getElementById('grandTotal').value = grandTotalValueFromServer.toFixed(2);
+                    
+                    // Trigger any necessary calculations or updates dependent on these values
+                    updateTotals(); // Assuming this function recalculates totals based on the fetched values
+                } else {
+                    console.error('Failed to fetch data from the backend');
+                }
+            }
+        };
+        xhr.send();
+    
+        // Add event listeners to quantity and discount inputs for dynamic updating
+        document.querySelectorAll('[name="item_quantity[]"], [name="item_discount[]"]').forEach(function(element) {
+            element.addEventListener('input', function () {
+                updateTotalAmount1(this);
+            });
+        });
+    });
+    
+    function updateTaxAmount() {
+    var rows = document.querySelectorAll('.table tbody tr');
+    var taxAmount = 0;
+
+    rows.forEach(function (row) {
+        var quantityInput = row.querySelector('[name="item_quantity[]"]');
+        var discountInput = row.querySelector('[name="item_discount[]"]');
+        var vatSpan = row.querySelector('span[id^="vat"]');
+        var priceSpan = row.querySelector('span[id^="purchasePrice"]');
+
+        if (quantityInput && discountInput && vatSpan && priceSpan) {
+            var quantity = parseFloat(quantityInput.value);
+            var discount = parseFloat(discountInput.value);
+            var vatText = vatSpan.textContent.trim();
+            var itmVat = parseFloat(vatText.match(/\d+/)) || 0; // Extract the numeric part from the VAT text
+            var priceText = priceSpan.textContent.trim();
+            var price = parseFloat(priceText) || 0;
+
+            var rowTaxAmount = (quantity * price - discount) * (itmVat / 100);
+            taxAmount += rowTaxAmount;
+
+            console.log("Quantity:", quantity);
+            console.log("VAT for Row:", itmVat);
+            console.log("Price for Row:", price);
+            console.log("Discount for Row:", discount);
+            console.log("Row Tax Amount:", rowTaxAmount);
+        } else {
+            console.error("One or more elements not found in row:", row);
+        }
+    });
+
+    document.getElementById('taxAmount').value = taxAmount.toFixed(2);
+    console.log("Tax Amount Value Set:", taxAmount.toFixed(2));
+    updateTotals();
+}
+// Add event listeners to quantity inputs for dynamic updating
+document.querySelectorAll('[name="item_quantity[]"]').forEach(function(element) {
+    element.addEventListener('input', function () {
+        console.log("Quantity changed");
+        updateTotalAmount1(this);
+        updateTaxAmount();
+        updateTotals();
+    });
+});
+    </script>
+ <script>
+    // Initialize select2 after the page loads
+    $(document).ready(function() {
+        $('#select1').select2({
+            placeholder: 'Another Select Product',
+            allowClear: true,
+            width: '100%',
+        });
+        $('.#select1').val(null).trigger('change');
+    });
+</script>
+
+<script>
+    function addRow() {
+        // Get the table body
+        var tableBody = document.querySelector('.table tbody');
+
+        // Create a new row
+        var newRow = tableBody.insertRow();
+        newRow.classList.add('new-row')
+        
+        // Cell 1: Counter
+        var cell1 = newRow.insertCell(0);
+        cell1.innerHTML = tableBody.rows.length; // Set the row number
+
+        // Cell 2: Product Dropdown
+        var cell2 = newRow.insertCell(1);
+        cell2.innerHTML = '<div style="display: flex; position: relative;">' +
+            '<select name="selected_item[]" onchange="fillItemDetails(this, this.parentNode.parentNode)" style="width: 120px;" class="form-control select2" id="select1">' +
+            '<option value="">-Select-</option>' +
+            '{% for item in items %}' +
+            '<option value="{{ item.id }}" data-hsn="{{ item.itm_hsn }}" data-price="{{ item.itm_purchase_price }}" data-tax="VAT {{ item.itm_vat|floatformat:0 }}%">{{ item.itm_name }}</option>' +
+            '{% endfor %}' +
+            '</select>' +
+            '<a href="#" class="btn btn-outline-secondary" style="background-color: maroon; height: 40px; width: 30px; text-align: center; padding: 2px; position: absolute; right: 0; font-size: 20px; margin-left: 280px;" data-toggle="modal" data-target="#itemCreateModal"><b>+</b></a>'+
+            '</div>';
+
+        // Cell 3: HSN
+        var cell3 = newRow.insertCell(2);
+        cell3.innerHTML = '<span id="hsn' + tableBody.rows.length + '" class="form-control" style="height: 40px; width: 90px;"></span>';
+
+        // Cell 4: Quantity
+        var cell4 = newRow.insertCell(3);
+        cell4.innerHTML = '<input type="number" name="item_quantity[]" required style="width: 90px;" class="form-control" value="0" oninput="updateTotalAmount(this); updateTotals(this); updateTaxAmount(this);">';
+
+        // Cell 5: Purchase Price
+        var cell5 = newRow.insertCell(4);
+        cell5.innerHTML = '<span id="purchasePrice' + tableBody.rows.length + '" style="width: 90px; height: 40px;" class="form-control" name="purchaseprice[]"></span>';
+
+        // Cell 6: VAT
+        var cell6 = newRow.insertCell(5);
+        cell6.innerHTML = '<span id="vat' + tableBody.rows.length + '" style="width: 90px; height: 40px;" class="form-control"></span>';
+
+        // Cell 7: Discount
+        var cell7 = newRow.insertCell(6);
+        cell7.innerHTML = '<input type="number" name="item_discount[]" class="form-control" style="width: 80px;" value="0" oninput="updateTotalAmount(this); updateTotals(this); updateTaxAmount(this);">';
+
+        // Cell 8: Total Amount
+        var cell8 = newRow.insertCell(7);
+        cell8.innerHTML = '<input type="number" name="item_total_amount[]" readonly class="form-control" style="width: 100px;" value="0">';
+
+        var cell9 = newRow.insertCell(8);
+        cell9.innerHTML = '<i class="fas fa-trash-alt fa-lg delete-row" style="margin-left: 10px;"></i>';
+
+        // Add an event listener to the new product dropdown for dynamic updates
+        var newSelect = cell2.querySelector('select[name="selected_item[]"]');
+        newSelect.addEventListener('change', function() {
+            fillItemDetails(newSelect, newRow);
+        });
+                // Add an event listener to the new discount input for dynamic updating
+        var newDiscountInput = cell7.querySelector('[name="item_discount[]"]');
+        newDiscountInput.addEventListener('input', function () {
+            updateTotalAmount1(newDiscountInput);
+            updateTotals();
+            updateTaxAmount();
+        });
+
+
+     
+       // Increment IDs and update the new row
+    updateRowIds(newRow);
+
+// Call updateTaxAmount() after adding a new row
+updateTaxAmount();
+
+// Log the values for the new row
+console.log("New Row:", tableBody.rows.length);
+console.log("Purchase Price:", newRow.querySelector('span[id^="purchasePrice"]').textContent);
+console.log("Discount:", newRow.querySelector('[name="item_discount[]"]').value);
+console.log("Item VAT:", newRow.querySelector('span[id^="vat"]').textContent);
+}
+
+   // Function to increment IDs and update the new row
+    function updateRowIds(row) {
+        var rowCount = document.querySelectorAll('.table tbody tr').length;
+
+        // Update IDs for the new row
+        row.querySelector('span[id^="hsn"]').id = 'hsn' + rowCount;
+        row.querySelector('span[id^="purchasePrice"]').id = 'purchasePrice' + rowCount;
+        row.querySelector('span[id^="vat"]').id = 'vat' + rowCount;
+        row.classList.add('new-row');
+
+        updateTotals();
+        updateTaxAmount();
+    }
+ </script>
+<script>
+    function fillItemDetails(selectElement, row) {
+        // Get the selected option
+        var selectedOption = selectElement.options[selectElement.selectedIndex];
+
+        // Get the associated details
+        var hsn = selectedOption.getAttribute("data-hsn") || "";
+        var purchasePrice = selectedOption.getAttribute("data-price") || "";
+        var vat = selectedOption.getAttribute("data-tax") || "";
+        var vatRate = parseFloat(vat.match(/\d+/)) || 0;
+
+        // Update the elements in the current row with the details
+        row.querySelector('span[id^="hsn"]').textContent = hsn;
+        row.querySelector('span[id^="purchasePrice"]').textContent = purchasePrice;
+        row.querySelector('span[id^="vat"]').textContent = vat;
+
+        // Calculate and update Tax Amount
+        var quantity = parseFloat(row.querySelector('[name="item_quantity[]"]').value) || 0;
+        var price = parseFloat(purchasePrice) || 0;
+        var discount = parseFloat(row.querySelector('[name="item_discount[]"]').value) || 0;
+
+        updateTotals();
+        updateTaxAmount();
+        
+    
+
+      
+    }
+
+    function updateTotalAmount(inputElement) {
+    // Get the parent row
+    var row = inputElement.closest('tr');
+
+    // Get the quantity, price, and discount values
+    var quantity = parseFloat(row.querySelector('[name="item_quantity[]"]').value) || 0;
+    var price = parseFloat(row.querySelector('#purchasePrice' + row.rowIndex).innerText) || 0;
+    var discount = parseFloat(row.querySelector('[name="item_discount[]"]').value) || 0;
+
+    // Calculate the total amount
+    var totalAmount = (quantity * price) - discount;
+
+    // Update the total amount input field
+    row.querySelector('[name="item_total_amount[]"]').value = totalAmount.toFixed(2);
+updateTotals();
+    }
+
+
+
+
+$(document).ready(function () {
+    // Delete row when delete icon is clicked
+    $(document).on('click', '.delete-row', function () {
+        // Find the closest 'tr' (table row) and remove it
+        $(this).closest('tr').remove();
+
+        // Update the row numbers after deletion
+        updateRowNumbers();
+        updateTotals();
+        updateTaxAmount();
+    });
+}); 
+
+
+ function updateRowNumbers() {
+    // Get all rows in the table body
+    var rows = document.querySelectorAll('.table tbody tr');
+
+    // Loop through each row and update the first cell with the correct index
+    rows.forEach(function (row, index) {
+        row.cells[0].innerText = index + 1;
+    });
+  }
+ </script> 
+
+
+
+
+   </body>   
+
+{% endblock %}

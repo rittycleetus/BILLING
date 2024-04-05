@@ -1,0 +1,922 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+
+<style>
+    .bs{
+        box-shadow: 2px 2px 10px 3px rgba(0, 0, 0, 0.397);
+    }
+
+    .tb{
+        color: black;
+    }
+    .tg{
+        color: white;
+    }
+    .tr{
+        color: rgb(218, 0, 0);
+    }
+    .btn_add{
+        background-color: #FFADB0;
+        color: black;
+    }
+    .btn_add:hover{
+        background-color: #FFADB0;
+        color: black;
+    }
+
+    #add_btn{
+        border: 2px solid #68020F;
+        color: black;
+    }
+
+    #add_btn:hover{
+        background-color: #68020F;
+        color: white;
+    }
+
+    ::-webkit-scrollbar{
+        display: none
+    }
+
+    @media screen and (max-width:575px) {
+        #searchdiv{
+            width: 10%;
+        }
+    }
+
+    #itemtable tr:hover td:not(:last-child){
+        border-right: 1px solid #044A42;
+    }
+
+    #itemtable tr:hover td{
+        cursor: pointer;
+    }
+
+    input[type="checkbox"]:checked{
+        background-color: #68020F;
+    }
+
+    .clickable-row{
+        cursor: pointer;
+    }
+
+    .input_border{
+        border: 2px solid #68020F;
+        color: black;
+        font-weight: 900;
+    }
+
+    .button_border{
+        border: 1px solid #68020F;
+        color: #68020F;
+    }
+
+    .button_border:hover{
+        background-color:#68020F;
+        color: white;
+    }
+
+    .dropdown {
+        position: relative;
+        display: inline-block;
+    }
+
+    .dropdown-content {
+        display: none;
+        position: absolute;
+        background-color: #fff;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+        border-radius: 5px;
+        padding: 10px;
+        z-index: 1;
+        width: 15%;
+    }
+
+    .dropdown-content label {
+        display: block;
+        margin-bottom: 5px;
+    }
+
+    .dropdown-content input {
+        width: 100%;
+        padding: 5px;
+        box-sizing: border-box;
+        margin-bottom: 10px;
+    }
+
+    #emptyMessage {
+        display: none;
+        font-size: x-large;
+        font-weight: bold;
+        color: red;
+    }
+
+    
+    @media print{
+        .extra{
+            display: none !important;
+        }
+    }
+
+</style>
+
+{% if itm %}
+    <div class="body-wrapper">
+        <br><br><br><br><br><br>
+        <div class="row ps-3 pe-3 m-0">
+            <div class="col-sm-12 col-lg-3  ps-2 pe-3 pb-2" style="height: 50rem;">
+                <div class="card bg-light bs"style="height:100%;">
+                    <div class="row m-0">
+                        <div class="col-12 p-4 pt-3" style="z-index:2">
+                            <form action="" method="post">
+                                {% csrf_token %}
+                                <div class="d-flex justify-content-between">
+                                    <span id="search_item" class="fa fa-search tb ms-2 mt-1" style="border-radius: 50%;padding: 0.77rem; background-color: #FFADB0; color: black;"></span>
+                                    <a id="add_item_btn" class="btn btn-sm rounded p-2 mt-1 btn_add" href="{% url 'load_item_create' %}"><span class="fa fa-plus"></span> Add Item</a>
+                                </div>
+                                <input id="search_item_input" class="form-control border-dark text-dark mt-2" type="text" placeholder="search here.." name="searching_item" style="display: none;">
+                            </form>
+                        </div>
+                        <div class="ps-3 pe-3">
+                            <hr class="p-0 m-0">
+                        </div>
+                        <div class="col-12 p-3 pt-0">
+                            <div id="item_search_filter_target">
+                                <form action="" method="post">
+                                    {% csrf_token %}
+                                    <div style="overflow: auto;height: 42rem;">
+                                        <table class="table w-100 table-hover" id="sidetable">
+                                            <thead style="background: #68020F;">
+                                                <th class="text-start fs-2 tb text-light">ITEM</th>
+                                                <th class="text-end fs-2 tb text-light text-center">QUANTITY</th>
+                                            </thead>
+                                            <tbody >
+                                                {% for i in itm_list %}
+                                                <tr class="item_lists_hide" style="background-color: #FFD6D7;" >
+                                                    <td style="cursor:pointer" class="text-start fs-2 fw-bold text-dark clickable-row" data-href="/item_list/{{ i.id }}">{{ i.itm_name|capfirst }}</td>
+                                                    <td class="text-end fs-2 fw-bolder" style="color: green;">
+                                                        <span class="clickable-row" data-href="/item_list/{{ i.id }}">{{ i.itm_stock_in_hand }}</span>
+                                                        <div class="btn-group mb-1">
+                                                            <button style="border: none;background: none;" type="button" class="ropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-expanded="false">
+                                                                <span class="fa fa-ellipsis-v text-dark fs-1 ps-2"></span>
+                                                            </button>
+                                                            <ul class="dropdown-menu">
+                                                                <li>
+                                                                    <a class="dropdown-item fw-bold tb" href="{% url 'load_item_edit' i.id %}">
+                                                                        <i class="material-icons text-primary" style="font-size: 15px; padding-inline-start: 0.1rem;padding-inline-end:0.7rem ;">edit</i> View / Edit
+                                                                    </a>
+                                                                </li>
+                                                                <li>
+                                                                    <a class="dropdown-item fw-bold tb" href="{% url 'delete_item' i.id %}" type="button">
+                                                                        <span class="fa fa-trash-alt tr" style="padding-inline-start: 0.1rem;padding-inline-end:0.7rem ;"></span> Delete
+                                                                    </a>
+                                                                </li>
+                                                            </ul>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                                {% endfor %}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-12 col-lg-9  ps-2 pe-3" style="height: 80%;">
+                <div id="item_get_detail_target">
+                    {% for message in messages %}
+                    <h5>
+                        <div class="alert alert-danger mt-5 message text-center" style="color: black;">
+                            {{ message }}
+                            <a type="button" class="close" data-dismiss="alert" aria-label="Close" style="float: right;">
+                                <span aria-hidden="true" style="font-size: large; color: #68020F;">&times;</span>
+                            </a>
+                        </div>
+                    </h5>
+                    {% endfor %}
+                    <div class="row m-0" style="height:20%">
+                        <div class="p-3 mb-3">
+                            <div class="p-4" style="background-color: #FFADB0; border-radius: 1vh;">
+                                <div class="d-flex justify-content-between">
+                                    <h4 class="tb text-capitalize" style="color: black;">{{ itm.itm_name }}</h4>
+                                    <button class="btn btn-sm fs-2" data-toggle="modal" data-target="#stockmodal" style="background-color: #68020F; color: white;" id="adjustbtn">
+                                        <span class="fa fa-sliders-h pe-1" ></span> ADJUST  STOCK
+                                    </button>
+                                </div>
+                                <p></p>
+                                <div class="d-flex justify-content-between" style="color: black;">
+                                    <p class="tb fw-bolder fs-2">SALE PRICE  <span class="ps-2 tg" style="color: black;"> - &nbsp;&nbsp;  ₹{{ itm.itm_sale_price }}</span></p>
+                                    <p class="tb fw-bolder fs-2">STOCK QUANTITY  <span class="ps-2 tg" style="color: black;"> - &nbsp;&nbsp; {{ itm.itm_stock_in_hand }} {{itm.itm_unit}}</span></p>
+                                </div>
+                                <div class="d-flex justify-content-between">
+                                    <p class="tb fw-bolder fs-2">PURCHASE PRICE  <span class="ps-2 tg" style="color: black;"> - &nbsp;&nbsp; ₹{{ itm.itm_purchase_price }}</span></p>
+                                    <p class="tb fw-bolder fs-2">STOCK VALUE  <span class="ps-2 tg" style="color: black;"> - &nbsp;&nbsp; ₹ <span id="stock_val"></span></span></p>
+                                </div>
+                            </div>
+                            <hr style="height: .5%;">
+                            <div class="row m-0 p-0 pt-3">
+                                <div class="col-sm-12 col-lg-12" id="pdfexclude">
+                                    <h4> ITEM &nbsp;&nbsp; TRANSACTIONS</h4>
+                                    <div class="d-flex justify-content-between"  >
+                                        <div id="searchdiv">
+                                            <div class="position-relative">
+                                                <div class="position-absolute" style="margin-top:0.4rem;margin-left: 0.5rem;">
+                                                    <span class="fa fa-search fs-5 text-danger"></span>
+                                                </div>
+                                            </div>
+                                            <input id="search_input1" style="padding-inline-start: 2rem; width:200%; border: 1px solid #062925;" class="text-dark pt-1 pb-1 pe-1 rounded" type="text" placeholder=" search here..">
+                                        </div>
+                                        <div>
+                                            <button class="btn p-0 ps-2 pe-2 ms-2" type="button" onclick="export_as_excel()" style="color: #FF474D;">
+                                                <i class="fas fa-file-excel" style="font-size:175%;"></i><br>EXCEL
+                                            </button>
+                                            <button class="btn p-0 ps-2 pe-2 ms-2" type="button" onclick="export_as_pdf()" style="color: #FF474D;">
+                                                <i class="fas fa-file-pdf" style="font-size:175%;"></i><br>PDF
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-sm-12 col-lg-6 pt-1"></div>
+                                <div class="mt-3" style="overflow: scroll;height: 31rem;">
+                                    <table id="itemtable" class="table table-bordered  tb table-responsive w-100">
+                                        <thead style="background: #68020F; color: white;">
+                                            <th>#</th>
+                                            <th class="text-center fs-2">TYPE
+                                                <a class="extra text-white" onclick="toggleDropdown(1)">&nbsp;<i class="fa fa-filter" aria-hidden="true"></i></a>
+                                                <div class="dropdown-content" id="dropdownContent1">
+                                                    <label for="filterInput1" style="color: black; text-align: left;">Equal To</label>
+                                                    <input type="text" id="filterInput1"  />
+                                                    <a class="btn btn-info" onclick="cleardropdown(1)">Clear</a> 
+                                                    &nbsp;<a class="btn btn-info" onclick="filterTable(1)">Apply</a>
+                                                </div>
+                                            </th>
+                                            <th class="text-center fs-2">INVOICE
+                                                <a class="extra text-white" onclick="toggleDropdown(2)">&nbsp;<i class="fa fa-filter" aria-hidden="true"></i></a>
+                                                <div class="dropdown-content" id="dropdownContent2">
+                                                    <label for="filterInput2" style="color: black; text-align: left;">Equal To</label>
+                                                    <input type="text" id="filterInput2"  />
+                                                    <a class="btn btn-info" onclick="cleardropdown(2)">Clear</a> 
+                                                    &nbsp;<a class="btn btn-info" onclick="filterTable(2)">Apply</a>
+                                                </div>
+                                            </th>
+                                            <th class="text-center fs-2">NAME
+                                                <a class="extra text-white" onclick="toggleDropdown(3)">&nbsp;<i class="fa fa-filter" aria-hidden="true"></i></a>
+                                                <div class="dropdown-content" id="dropdownContent3">
+                                                    <label for="filterInput3" style="color: black; text-align: left;">Equal To</label>
+                                                    <input type="text" id="filterInput3"  />
+                                                    <a class="btn btn-info" onclick="cleardropdown(3)">Clear</a> 
+                                                    &nbsp;<a class="btn btn-info" onclick="filterTable(3)">Apply</a>
+                                                </div>
+                                            </th>
+                                            <th class="text-center fs-2">DATE
+                                                <a class="extra text-white" onclick="toggleDropdown(4)">&nbsp;<i class="fa fa-filter" aria-hidden="true"></i></a>
+                                                <div class="dropdown-content" id="dropdownContent4">
+                                                    <label for="filterInput4" style="color: black; text-align: left;">Equal To</label>
+                                                    <input type="date" id="filterInput4"  />
+                                                    <a class="btn btn-info" onclick="cleardropdown(4)">Clear</a> 
+                                                    &nbsp;<a class="btn btn-info" onclick="filterTable(4)">Apply</a>
+                                                </div>
+                                            </th>
+                                            <th class="text-center fs-2">QUANTITY
+                                                <a class="extra text-white" onclick="toggleDropdown(5)">&nbsp;<i class="fa fa-filter" aria-hidden="true"></i></a>
+                                                <div class="dropdown-content" id="dropdownContent5">
+                                                    <label for="filterInput5" style="color: black; text-align: left;">Equal To</label>
+                                                    <input type="text" id="filterInput5"  />
+                                                    <a class="btn btn-info" onclick="cleardropdown(5)">Clear</a> 
+                                                    &nbsp;<a class="btn btn-info" onclick="filterTable(5)">Apply</a>
+                                                </div>
+                                            </th>
+                                            <th class="text-center fs-2">PRICE
+                                                <a class="extra text-white" onclick="toggleDropdown(6)">&nbsp;<i class="fa fa-filter" aria-hidden="true"></i></a>
+                                                <div class="dropdown-content" id="dropdownContent6">
+                                                    <label for="filterInput6" style="color: black; text-align: left;">Equal To</label>
+                                                    <input type="text" id="filterInput6"  />
+                                                    <a class="btn btn-info" onclick="cleardropdown(6)">Clear</a> 
+                                                    &nbsp;<a class="btn btn-info" onclick="filterTable(6)">Apply</a>
+                                                </div>
+                                            </th>
+                                            <th class="text-center fs-2 extra" id="extra">STATUS</th>
+                                        </thead>
+                                        <tbody>
+                                            {% for f in trans %}
+                                            <tr style="background-color: #FFD6D7;">
+                                                <td class="text-center">{{forloop.counter}}</td>
+                                                <td class="text-center">{{ f.trans_type }}</td>
+                                                <td class="text-center"></td>
+                                                <td class="text-center"></td>
+                                                <td class="text-center">{{  f.trans_date | date:'d-m-Y'}}</td>
+                                                <td class="text-center">{{ f.trans_qty }}</td>
+                                                <td class="text-center">{{ f.trans_price }}</td>
+                                                {% if f.trans_type == 'Stock Open' %}
+                                                <td class="p-0 pt-1 m-0 extra" style="text-align: center;">
+                                                    <div class="btn-group mb-1">
+                                                        <button style="border: none;background: none;" type="button" class="ropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-expanded="false">
+                                                            <span class="fa fa-ellipsis-v text-dark fs-1 ps-"></span>
+                                                        </button>
+                                                        <ul class="dropdown-menu">
+                                                            <li>
+                                                                <a type="button" class="dropdown-item fw-bold tb" href="{% url 'load_itm_trans_history' f.id %}" >
+                                                                    <i class="fa fa-history" style="padding-inline-start: 0.1rem;padding-inline-end:0.7rem ; color: green;"></i>History
+                                                                </a>
+                                                            </li>
+                                                            <li>
+                                                                <a type="btn" class="dropdown-item fw-bold tb hide_table_text_v" href="{% url 'load_first_trans_edit' f.id %}">
+                                                                    <i class="material-icons text-primary" style="font-size: 15px; padding-inline-start: 0.1rem;padding-inline-end:0.7rem ;">edit</i>
+                                                                    View / Edit
+                                                                </a>
+                                                            </li>
+                                                        </ul>
+                                                    </div>
+                                                </td>
+                                                {% else %}
+                                                <td class="p-0 pt-1 m-0 extra" style="text-align: center;">
+                                                    <div class="btn-group mb-1">
+                                                        <button style="border: none;background: none;" type="button" class="dropdown-toggle-split" data-bs-toggle="dropdown" aria-expanded="false">
+                                                            <span class="fa fa-ellipsis-v text-dark fs-1 ps-"></span>
+                                                        </button>
+                                                        <ul class="dropdown-menu">
+                                                            <li>
+                                                                <a type="button" class="dropdown-item fw-bold tb" href="{% url 'load_itm_trans_history' f.id %}" >
+                                                                    <i class="fa fa-history" style="padding-inline-start: 0.1rem;padding-inline-end:0.7rem ; color: green;"></i>History
+                                                                </a>
+                                                            </li>
+                                                            <li>
+                                                                <button type="button" data-bs-toggle="modal" data-bs-target="#editstockmodal" class="dropdown-item fw-bold tb hide_table_text_v"  onclick="trans_details('{{f.id}}')" >
+                                                                    <i class="material-icons text-primary" style="font-size: 15px; padding-inline-start: 0.1rem;padding-inline-end:0.7rem ;">edit</i>View / Edit
+                                                                </button>
+                                                            </li>
+                                                            <li>
+                                                                <a type="button" class="dropdown-item fw-bold tb hide_table_text_d" href="{% url 'delete_transaction' f.id %}">
+                                                                    <span class="fa fa-trash-alt tr" style="padding-inline-start: 0.1rem;padding-inline-end:0.7rem ;"></span> Delete
+                                                                </a>
+                                                            </li>
+                                                        </ul>
+                                                    </div>
+                                                </td>
+                                                {% endif %}
+                                            </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+
+                                    
+                                <p id="emptyMessage" style="text-align: center;">
+                                    <br><br><br>
+                                    No Transactions to Show
+                                </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="stockmodal">
+        <div class="modal-dialog modal-dialog-centered modal-lg" role="document" >
+            <div class="modal-content" >
+                <div class="modal-header">
+                    <h5 class="modal-title" id="stockmodalLabel" style="color: #68020F; font-weight: 900;">STOCK ADJUSTMENT</h5>
+                </div>
+                <div class="modal-body">
+                    <form action="{% url 'adjust_stock' itm.id %}" method="post">
+                        {% csrf_token %}
+                        <div class="modal-header ps-4 pe-4 m-0">
+                            <div class="form-check form-switch d-lg-flex d-sm-flex mt-2">
+                                <label id="lbl1" class="form-check-label fw-bolder text-black" for="flexSwitchCheckChecked">ADD STOCK</label>
+                                <input class="form-check-input fs-5 ms-2 me-2" type="checkbox" role="switch" id="flexSwitchCheckChecked" name="trans_type" style="border: 1px solid #68020F;">
+                                <label id="lbl2" class="form-check-label fw-bolder text-black" for="flexSwitchCheckChecked">REDUCE STOCK</label>
+                            </div>
+                        </div>
+                        <div class="modal-body">
+                            <hr class="mt-0 pt-0 ms-3 me-3">
+                            <div class="ps-3 pe-3">
+                                <div class="row">
+                                    <div class="col-sm-12 col-lg-4">
+                                        <label for="" class="text-black">ITEM NAME</label>
+                                        <h5 style="font-weight: 900; " class="pt-2 text-black">{{ itm.itm_name|upper }}</h3>
+                                    </div>
+                                    <div class="col-sm-12 col-lg-4"></div>
+                                    <div class="col-sm-12 col-lg-4">
+                                        <label for="" class="text-black">ADJUSTMENT DATE</label>
+                                        <input id="adj_date" class="form-control input_border" type="date" value="" name="trans_date">
+                                    </div>
+                                </div>
+                                <hr>
+                                <div class="row">
+                                    <div class="col-sm-12 col-lg-4">
+                                        <label for="" class="text-black">ITEM QUANTITY</label>
+                                        <input id="item_quantity" value="{{ itm.itm_stock_in_hand }}" class="form-control fs-5 input_border" name="item_qty" readonly>
+                                    </div>
+                                    <div id="add__qty" class="col-sm-12 col-lg-4">
+                                        <label for="" class="text-black">ADD QUANTITY</label>
+                                        <input id="add_quantity" min="0" class="form-control fs-5 input_border" type="number" value="0" name="added_qty" required>
+                                    </div>
+                                    <div id="red__qty" class="col-sm-12 col-lg-4">
+                                        <label for="" class="text-black">REDUCE QUANTITY</label>
+                                        <input id="reduce_quantity" max="{{ itm.itm_stock_in_hand }}" class="form-control fs-5 input_border" type="number" value="0" name="reduced_qty" required>
+                                    </div>
+                                    <div class="col-sm-12 col-lg-4">
+                                        <label for="" class="text-black">ADJUSTED QUANTITY</label>
+                                        <input id="adj_quantity" class="form-control fs-5 input_border" type="number" value="0" name="adjusted_qty" readonly>
+                                    </div>
+                                </div>
+                            </div>
+                            <hr class="m-0 mt-4 p-0  ms-3 me-3">
+                        </div>
+                        <div class="modal-footer ps-4 pe-4 ">
+                            <button id="cls_btn" type="button" class="btn button_border" data-dismiss="modal" aria-label="Close">Close</button>
+                            <button type="submit" class="btn button_border" onclick="submit_function()">Save Changes</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="editstockmodal">
+        <div class="modal-dialog modal-dialog-centered modal-lg" role="document" >
+            <div class="modal-content" >
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editstockmodalLabel" style="color: #68020F; font-weight: 900;">STOCK ADJUSTMENT</h5>
+                </div>
+                <div class="modal-body">
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="modal-header ps-4 pe-4 m-0">
+                            <div class="form-check form-switch d-lg-flex d-sm-flex mt-2">
+                                <label id="lbl1" class="form-check-label fw-bolder text-black" for="trans_stock_change">ADD STOCK</label>
+                                <input class="form-check-input fs-5 ms-2 me-2" type="checkbox" role="switch" id="trans_stock_change" name="trans_type" style="border: 1px solid #68020F;">
+                                <label id="lbl2" class="form-check-label fw-bolder text-black" for="trans_stock_change">REDUCE STOCK</label>
+                            </div>
+                        </div>
+                        <div class="modal-body">
+                            <hr class="mt-0 pt-0 ms-3 me-3">
+                            <div class="ps-3 pe-3">
+                                <div class="row">
+                                    <div class="col-sm-12 col-lg-4">
+                                        <label for="" class="text-black">ITEM NAME</label>
+                                        <h5 style="font-weight: 900; " class="pt-2 text-black" id="trans_itm_name"></h3>
+                                        <input type="text" id="trans_id" hidden>
+                                    </div>
+                                    <div class="col-sm-12 col-lg-4"></div>
+                                    <div class="col-sm-12 col-lg-4">
+                                        <label for="" class="text-black">ADJUSTMENT DATE</label>
+                                        <input id="trans_itm_date" class="form-control input_border" type="date" name="trans_itm_date">
+                                    </div>
+                                </div>
+                                <hr>
+                                <div class="row">
+                                    <div class="col-sm-12 col-lg-4">
+                                        <label for="" class="text-black">ITEM QUANTITY</label>
+                                        <input id="trans_item_quantity" class="form-control fs-5 input_border" name="trans_item_quantity" readonly>
+                                    </div>
+                                    <div id="trans_add_qty" class="col-sm-12 col-lg-4">
+                                        <label for="" class="text-black">ADD QUANTITY</label>
+                                        <input id="trans_add_quantity" min="0" class="form-control fs-5 input_border" type="number" name="trans_add_quantity" required>
+                                    </div>
+                                    <div id="trans_red_qty" class="col-sm-12 col-lg-4">
+                                        <label for="" class="text-black">REDUCE QUANTITY</label>
+                                        <input id="trans_reduce_quantity" max="{{ itm.itm_stock_in_hand }}" class="form-control fs-5 input_border" type="number" name="trans_reduce_quantity" required>
+                                    </div>
+                                    <div class="col-sm-12 col-lg-4">
+                                        <label for="" class="text-black">ADJUSTED QUANTITY</label>
+                                        <input id="trans_adj_quantity" class="form-control fs-5 input_border" type="number" name="trans_adj_quantity" readonly>
+                                    </div>
+                                </div>
+                            </div>
+                            <hr class="m-0 mt-4 p-0  ms-3 me-3">
+                        </div>
+                        <div class="modal-footer ps-4 pe-4 ">
+                            <button id="cls_btn" type="button" class="btn button_border" data-bs-dismiss="modal">Close</button>
+                            <button type="button" class="btn button_border" id="transmodalsubmit">Update</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+{% else %}
+    <div class="body-wrapper" >
+        <br><br><br>
+        <div class="p-5 text-center" style="display: flex;justify-content: center;">
+            <div class="card " style="background-color: #FFD6D7;width:50rem;box-shadow: 5px 5px 10px 5px rgba(0, 0, 0, 0.249);">
+                <div class="row">
+                    <div class="col-sm-12 col-md-12">
+                        <div class="rounded pt-3" style="border: 1px solid rgba(0, 0, 0, 0);border-bottom: none;">
+                            <h1 style="font-weight:900;color:rgba(0, 0, 0, 0.644);font-size: 1.5rem;">MULTIUSER BILLING SOFTWARE - VAT</h1>
+                            <p class="card-text pt-2">Welcome to Multiuser Billing Software-VAT, Our platform offers a range of features.</p>
+                            <p style="color: rgb(0, 89, 10);font-weight: light;" class="card-text">You can manage all you items here.</p>
+                        </div>
+                    </div>
+                    <div class="col-md-3"></div>
+                    <div class="col-sm-12 col-md-6 pb-3">
+                        <img  src="{% static 'img/item-empty.jpg' %}" class="card-img" alt="no img">
+                        <a class="btn btn-lg" href="{% url 'load_item_create' %}" id="add_btn">Add Your First Item</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endif %} 
+
+
+
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+    <script type="text/javascript" src="https://unpkg.com/xlsx@0.15.1/dist/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.3/html2pdf.bundle.min.js"></script>
+
+    <script>
+        function cleardropdown(index){
+            if(index == 4){
+                document.getElementById('filterInput'+index).value = '';
+            }else{
+                document.getElementById('filterInput'+index).value = null;
+            }
+        }
+    
+        function toggleDropdown(index) {
+            var dropdownContent = document.getElementById('dropdownContent' + index);
+            var isVisible = dropdownContent.style.display === 'block';
+            var allDropdowns = document.querySelectorAll('.dropdown-content');
+            allDropdowns.forEach(function (dropdown) {
+                dropdown.style.display = 'none';
+            });
+            dropdownContent.style.display = isVisible ? 'none' : 'block';
+        }
+    
+        function filterTable(index) {
+            var input;
+            document.getElementById('dropdownContent' + index).style.display = 'none';
+            if (index === 4) {
+                input = document.getElementById('filterInput' + index).value;
+            } else {
+                input = document.getElementById('filterInput' + index).value.toUpperCase();
+            }
+            var table = document.getElementById('itemtable');
+            var rows = table.getElementsByTagName('tr');
+            var emptyMessage = document.getElementById('emptyMessage');
+            var isEmpty = true;
+            for (var i = 1; i < rows.length; i++) {
+                var cells = rows[i].getElementsByTagName('td');
+                var cell = cells[index];
+                if (cell) {
+                    var textValue = cell.textContent || cell.innerText;
+                    if (index === 4) {
+                        if (input==''){
+                            rows[i].style.display = 'table-row';
+                                isEmpty = false;
+                        }else{
+                            dateval  = textValue.replace(/(\d{2})-(\d{2})-(\d{2})/, "$2-$1-$3");
+                            inputval  = input.replace(/(\d{2})-(\d{2})-(\d{2})/, "$2-$1-$3");
+                            const formattedDate = formatDateString(input);
+                            if (dateval === formattedDate) {
+                                rows[i].style.display = 'table-row';
+                                isEmpty = false;
+                            } else {
+                                rows[i].style.display = 'none';
+                            }
+                        }
+                    } else {
+                        if (textValue.toUpperCase().includes(input)) {
+                            rows[i].style.display = 'table-row';
+                            isEmpty = false;
+                        } else {
+                            rows[i].style.display = 'none';
+                        }
+                    }
+                }
+            }
+            emptyMessage.style.display = isEmpty ? 'block' : 'none';
+        }
+    
+        function formatDateString(inputDate) {
+            const parsedDate = new Date(inputDate);
+            const day = parsedDate.getDate();
+            const month = parsedDate.getMonth() + 1;
+            const year = parsedDate.getFullYear();
+            const formattedDate = `${month < 10 ? '0' : ''}${month}-${day < 10 ? '0' : ''}${day}-${year}`;
+            return formattedDate;
+        }
+    </script>
+
+    <script>
+        $(document).ready(function() {
+            sval = '{{itm.itm_purchase_price}}' * '{{itm.itm_at_price }}'
+            var spn = document.getElementById('stock_val')
+            spn.textContent = sval
+        });
+    </script>
+
+    <script>
+        function trans_details(id) {
+            $.ajax({
+                type: "POST", 
+                url: "{% url 'load_trans_details' %}",
+                data: {
+                    'id':id
+                },
+                beforeSend: function (xhr, settings) {
+                    xhr.setRequestHeader("X-CSRFToken", "{{ csrf_token }}");
+                },
+                success: function (response) {
+                    document.getElementById('trans_itm_name').innerText = response.name
+                    $('#trans_id').val(response.trans_id)
+                    $('#trans_itm_date').val(response.date)
+                    $('#trans_item_quantity').val(response.current_qty)
+                    if(response.trans_type == 'Stock Reduction'){
+                        document.getElementById('trans_stock_change').checked = true
+                        $('#trans_add_qty').attr('hidden',true)
+                        $('#trans_red_qty').attr('hidden',false)
+                        $('#trans_reduce_quantity').val(response.qty)
+                    }else{
+                        $('#trans_add_qty').attr('hidden',false)
+                        $('#trans_red_qty').attr('hidden',true)
+                        $('#trans_add_quantity').val(response.qty)
+                    }
+                    $('#trans_adj_quantity').val(response.adj_qty)
+                },
+            });
+        }
+    </script>
+
+    <script>
+        $("#transmodalsubmit").click(function () {
+            if($('#trans_stock_change').prop('checked')){
+                stock_change = 'Stock Reduction'
+                stock_value = document.getElementById('trans_reduce_quantity').value
+            }else{
+                stock_change = 'Stock Addition'
+                stock_value = document.getElementById('trans_add_quantity').value
+            }
+
+            $.ajax({
+                type: "POST", 
+                url: "{% url 'edit_transactions' %}",
+                data: {
+                    id : document.getElementById('trans_id').value,
+                    trans_stock_change : stock_change,
+                    trans_itm_date : document.getElementById('trans_itm_date').value,
+                    trans_item_quantity : document.getElementById('trans_item_quantity').value,
+                    stock_value : stock_value,
+                    trans_adj_quantity : document.getElementById('trans_adj_quantity').value,
+                },
+                beforeSend: function (xhr, settings) {
+                    xhr.setRequestHeader("X-CSRFToken", "{{ csrf_token }}");
+                },
+                success: function (response) {
+                    // location.reload(true);
+                        window.location.href = `/item_list/${response.id}`
+                },
+            });
+        });
+    </script>
+
+    <script>
+        $(document).ready(function() {
+            $("#search_input1").on("keyup", function() {
+                var value = $(this).val().toLowerCase();
+                $("#itemtable tbody tr").filter(function() {
+                    $(this).toggle($(this).text().toLowerCase().indexOf(value)>-1);
+                });
+            });
+        });
+        $(document).ready(function(){
+            $('#search_item').click(function(){
+                $('#search_item_input').toggle()
+            })
+        })
+    </script>
+
+    <script>
+        function submit_function(){  
+            $('#adj_quantity').attr('disabled',false)    
+            $('#item_quantity').attr('disabled',false)  
+            $('#cls_btn').click()
+            setInterval(function(){
+                $('#sbmt_btn').click()
+            },200)
+        }
+
+        $(document).ready(function(){
+            var currentDate = new Date();
+            var year = currentDate.getFullYear();
+            var month = String(currentDate.getMonth() + 1).padStart(2, "0");
+            var day = String(currentDate.getDate()).padStart(2, "0");
+            var formattedDate = year + "-" + month + "-" + day;
+            $("#adj_date").val(formattedDate);
+        })
+
+        $(document).ready(function(){
+            $('#add_quantity').on('input',function(){
+                var a = $('#add_quantity').val()
+                var b = $('#item_quantity').val()
+                if(a<0)
+                {
+                    $('#add_quantity').val(0)
+                    $('#adj_quantity').val(parseInt(b))
+                }
+                else{
+                    $('#adj_quantity').val(parseInt(a)+parseInt(b))
+                }
+            })
+        })
+
+        $(document).ready(function(){
+            $('#reduce_quantity').on('input',function(){
+                var a = $('#reduce_quantity').val()
+                var b = $('#item_quantity').val()
+                if(a<0)
+                {
+                    $('#reduce_quantity').val(0)
+                    $('#adj_quantity').val(b)
+                }
+                if(parseInt(a)>parseInt(b))
+                {
+                    $('#reduce_quantity').val(b)
+                    $('#adj_quantity').val(0)
+                }
+                else{
+                    $('#adj_quantity').val(parseInt(b)-parseInt(a))
+                }
+            })
+        })
+
+        $(document).ready(function(){
+            if(!$('#flexSwitchCheckChecked').prop('checked'))
+            {
+                $('#red__qty').attr('hidden',true)
+                $('#add__qty').attr('hidden',false)
+                $('#reduce_quantity').val(0)
+                $('#add_quantity').val(0)
+            }
+            else{
+                $('#add__qty').attr('hidden',true)
+                $('#red__qty').attr('hidden',false)
+                $('#add_quantity').val(0)
+                $('#reduce_quantity').val(0)
+            }
+            $('#flexSwitchCheckChecked').on('change',function(){
+                if(!$('#flexSwitchCheckChecked').prop('checked'))
+                {
+                    $('#red__qty').attr('hidden',true)
+                    $('#add__qty').attr('hidden',false)
+                    $('#reduce_quantity').val(0)
+                    $('#add_quantity').val(0)
+                    $('#adj_quantity').val(0)
+                }
+                else{
+                    $('#add__qty').attr('hidden',true)
+                    $('#red__qty').attr('hidden',false)
+                    $('#add_quantity').val(0)
+                    $('#reduce_quantity').val(0)
+                    $('#adj_quantity').val(0)
+                }
+            })
+        })
+
+        $(document).ready(function(){
+            $('#trans_add_quantity').on('input',function(){
+                var a = $('#trans_add_quantity').val()
+                var b = $('#trans_item_quantity').val()
+                if(a<0)
+                {
+                    $('#trans_add_quantity').val(0)
+                    $('#trans_adj_quantity').val(parseInt(b))
+                }
+                else{
+                    $('#trans_adj_quantity').val(parseInt(a)+parseInt(b))
+                }
+            })
+        })
+        $(document).ready(function(){
+            $('#trans_reduce_quantity').on('input',function(){
+                var a = $('#trans_reduce_quantity').val()
+                var b = $('#trans_item_quantity').val()
+                if(a<0)
+                {
+                    $('#trans_reduce_quantity').val(0)
+                    $('#trans_adj_quantity').val(b)
+                }
+                if(parseInt(a)>parseInt(b))
+                {
+                    $('#trans_reduce_quantity').val(b)
+                    $('#trans_adj_quantity').val(0)
+                }
+                else{
+                    $('#trans_adj_quantity').val(parseInt(b)-parseInt(a))
+                }
+            })
+        })
+
+        $(document).ready(function(){
+            if(!$('#trans_stock_change').prop('checked'))
+            {
+                $('#trans_red_qty').attr('hidden',true)
+                $('#trans_add_qty').attr('hidden',false)
+                $('#trans_reduce_quantity').val(0)
+                $('#trans_add_quantity').val(0)
+            }
+            else{
+                $('#trans_add_qty').attr('hidden',true)
+                $('#trans_red_qty').attr('hidden',false)
+                $('#trans_add_quantity').val(0)
+                $('#trans_reduce_quantity').val(0)
+            }
+            $('#trans_stock_change').on('change',function(){
+                if(!$('#trans_stock_change').prop('checked'))
+                {
+                    $('#trans_red_qty').attr('hidden',true)
+                    $('#trans_add_qty').attr('hidden',false)
+                    $('#trans_reduce_quantity').val(0)
+                    $('#trans_add_quantity').val(0)
+                    $('#trans_adj_quantity').val(0)
+                }
+                else{
+                    $('#trans_add_qty').attr('hidden',true)
+                    $('#trans_red_qty').attr('hidden',false)
+                    $('#trans_add_quantity').val(0)
+                    $('#trans_reduce_quantity').val(0)
+                    $('#trans_adj_quantity').val(0)
+                }
+            })
+        })
+    </script>
+
+    <script>
+        jQuery(document).ready(function($) {
+            $(".clickable-row").click(function() {
+            window.location = $(this).data("href");
+            });
+        });
+    </script>
+
+    <script>
+        function export_as_excel(){
+            const table = document.querySelector('#itemtable');
+            const clonedTable = table.cloneNode(true);
+            clonedTable.querySelectorAll('tr').forEach(row => {
+                const lastCell = row.lastElementChild;
+                if (lastCell) {
+                    row.removeChild(lastCell);
+                }
+            });
+            clonedTable.querySelectorAll('th').forEach(row => {
+                const lastCell = row.lastElementChild;
+                if (lastCell) {
+                    row.removeChild(lastCell);
+                }
+            });
+            const ws = XLSX.utils.table_to_sheet(clonedTable);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, 'Sheet1');
+            XLSX.writeFile(wb, 'ItemTransactions.xlsx');
+        }
+
+            
+        function export_as_pdf() {
+            document.getElementById('pdfexclude').style.display = 'none'
+            document.getElementById('adjustbtn').style.display = 'none'
+            const content = document.getElementById('item_get_detail_target');
+            const table = document.querySelector('#itemtable');
+            table.querySelectorAll('tr').forEach(row => {
+                const lastCell = row.lastElementChild;
+                if (lastCell) {
+                    lastCell.style.display='none';
+                }
+            });
+            html2pdf().from(content).save('ItemDetails.pdf');
+            setTimeout(function() {
+                document.getElementById('pdfexclude').style.display = 'block'
+                document.getElementById('adjustbtn').style.display = 'block'
+                table.querySelectorAll('tr').forEach(row => {
+                const lastCell = row.lastElementChild;
+                if (lastCell) {
+                    lastCell.style.display = 'block';
+                }
+            });
+            }, .01);
+        }
+
+        
+    </script>
+
+    <script>
+        var $rows = $('#sidetable tbody tr');
+        $('#search_item_input').keyup(function () {
+            var val = $.trim($(this).val()).replace(/ +/g, ' ').toLowerCase();
+            $rows.hide().filter(function () {
+            var text = $(this).text().replace(/\s+/g, ' ').toLowerCase();
+            return ~text.indexOf(val);
+            }).show();
+        });
+    </script>
+
+{% endblock content %}

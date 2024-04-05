@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debit Note Report</title>
+</head>
+<body>
+   
+    <h1 style="text-align: center;">DEBIT NOTE REPORT</h1>
+   
+    <p>Debit Note Number: {{ debit_note.returnno }}</p>
+    <p>Date: {{debit_note.created_at|date:'d-m-Y' }}</p>
+ 
+
+    <div style="display: flex; justify-content: space-between;">
+        <div style="flex: 1;">
+            <h2>TO</h2>
+            <p>{{ company.company_name }},</p>
+           
+        </div>
+        <div style="flex: 0.2;text-align: right;">
+            <h2>FROM</h2>
+            <p>{{ party.party_name }},</p>
+            <p>{{ party.address }}</p>
+            <p>{{ party.contact }}</p>
+
+        </div>
+    </div>
+    <h2>Items</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Item Name</th>
+                <th>Quantity</th>
+                <th>Total</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for debit_note_item in debit_note_items %}
+            <tr>
+                <td>{{ debit_note_item.items.itm_name }}</td>
+                <td>{{ debit_note_item.qty }}</td>
+                <td>{{ debit_note_item.total }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>

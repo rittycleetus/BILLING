@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load social_share %}
+{% block content %}
+<style>
+    .table{
+        border:1px solid #000;
+    }
+
+    thead {
+            background-color: #68020F; 
+            color: #fff; 
+        }
+</style>
+<div class="body-wrapper">
+    <br><br><br><br><br><br>
+    <div class="row ps-3 pe-3 m-0">
+        <div class="col-sm-12 col-lg-12  ps-2 pe-3 pb-2">
+            <div class="card bg-light bs"style="height:100%;padding:50px;">
+                <h5 style="color: #68020F;">Reference No: {{reference.reference_no}}</h5>
+                <div class="table-responsive">
+                    <table id="credittable" class="table table-bordered table-sm mt-3" style="text-align: center;">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>
+                                    DATE
+                                   
+                                </th>
+                                <th>NAME</th>
+                                <th>ACTION</th>
+                              
+                            </tr>
+                        </thead>
+                        <tbody style="background-color: #FFD6D7;">
+                            {% for c in credit_hist %}
+                            <tr>
+                                <td>{{forloop.counter}}</td>
+                                <td>{{c.hist_date|date:'Y-m-d'}}</td>
+                                <td>{{c.company.company_name}}</td>
+                                <td style="color: red;">{{c.action}}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>    
+
+{% endblock %}

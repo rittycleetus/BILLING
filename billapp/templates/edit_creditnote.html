@@ -1,0 +1,1413 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+<link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.1.0-beta.1/css/select2.min.css" rel="stylesheet" />
+
+<style>
+    input {
+        background-color: black;
+        color: white;
+    }
+
+    .input_border {
+        border: 1px solid #68020F;
+    }
+    .form-control{
+        border:1px solid #68020F;
+    }
+    a {
+        text-decoration: none;
+    }
+
+    .nav {
+        background-color: rgba(241, 210, 210, 0.5);
+    }
+
+    .nav-link {
+        font-size: 15px;
+        margin-right: 19px;
+        color: rgb(130, 127, 127);
+        margin-left: -3%;
+        font-weight: bold;
+    }
+
+    .tab-pan {
+        background-color: rgb(130, 127, 127);
+    }
+
+    .button_border {
+        border: 1px solid #68020F;
+        color: #68020F;
+    }
+
+    .button_border:hover {
+        background-color: #68020F;
+        color: white;
+    }
+    .table{
+        border:1px solid #000;
+    }
+
+    thead {
+            background-color: #68020F; 
+            color: #fff; 
+        }
+
+    .tab-pane{
+        display: none;
+    }
+
+    .tabContainer .tab-pane{
+        display: none;
+    }
+
+    .tabContainer .nav .nav-item button {
+    background-color: transparent;
+    color: #000; /* Change the color to your desired color */
+    border: none;
+    cursor: pointer;
+    }
+
+    .tabContainer .nav .nav-item button.active {
+    background-color: #68020F;
+    color: #fff;
+    }
+
+    .tabContainer2 .nav .nav-item button {
+    background-color: transparent;
+    color: #000; /* Change the color to your desired color */
+    border: none;
+    cursor: pointer;
+    }
+
+    .tabContainer2 .nav .nav-item button.active {
+    background-color: #68020F;
+    color: #fff;
+    }
+
+
+
+    .myDropDown{
+        flex: 1;
+    }
+    .select2-container--default .select2-selection--single {
+
+        height: 39px;
+        border: 1px solid #68020F;  /* Add border style */
+        background-color: #FFD6D7;
+        color: white;  /* Add text color */
+        display: flex; /* Use Flexbox */
+        align-items: center; /* Align vertically in the center */
+        padding: 0 2px;
+        
+    }
+  
+    .select2-container--default .select2-search--dropdown .select2-search__field {
+    color:black;
+    background-color: white;
+    }
+
+    .small-input{
+        width: 90px;
+        margin-left: 8px;
+    }
+    
+
+    input[type="radio"]:checked{
+    accent-color: #68020F;
+  }
+
+  .input_border{
+    border: 1px solid #68020F;
+  }
+
+  .tb {
+    color: black;
+  }
+
+  ::-webkit-scrollbar {
+    display: none
+  }
+  select option:hover{
+    background-color: black;
+  }
+
+  input[type="radio"]:checked{
+    accent-color: #68020F;
+  }
+
+  .input_border{
+    border: 1px solid #68020F;
+  }
+  #toPayRadio {
+        accent-color: red;
+    }
+
+    #toReceiveRadio {
+        accent-color: green;
+    }
+
+</style>
+<div class="body-wrapper">
+    <div class="container">
+        <br><br><br><br><br><br><br>
+        <div class="p-3 mb-5" style="border: 2px solid #68020F; border-radius: 2.5vh; background-color: #FFD6D7;">
+            <div class="card-body">
+                <h1 class="modal-title fs-5 p-1" id="exampleModalLabel"
+                                    style="color: #68020F; font-weight: 900;">EDIT CREDITNOTE</h1>
+                <form class="row g-3 " method="post" action="{% url 'updateCreditnote' credit_note.id %}" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <div class="form-group row g-3">
+                        <div class="col-md-6" style="display: flex; margin-top: 10px; margin-left: 10px;">
+                            <input type="text" name="partystatus" id="partystatus" hidden>
+                            <div class="form-check">  
+                                <label style="user-select: none;" class="fs-4 tb" for="partyRadio">
+                                    Party ON
+                                </label>
+                                <input class="me-1" type="radio" name="partyStatusGroup" id="partyonRadio" required>
+                            </div>
+                            <div class="form-check" style="margin-left: 30px;">
+                                
+                                <label style="user-select: none;" class="fs-4 tb" for="partyRadio">
+                                    Party OFF
+                                </label>
+                                <input class="me-1" type="radio" name="partyStatusGroup" id="partyoffRadio" required>
+                            </div>
+                        </div><br>  
+                    </div>
+                    <div class="row mt-4">
+                        <div class="col-md-4">
+                            <label for="validationDefaultUsername" class="form-label">Reference Number</label>
+                            <input type="text" class="form-control" id="refnum" name="refnum" value="{{reference.reference_no }}" readonly>
+                        </div>
+                    </div>
+                    <div class="row mt-3">
+                        <div class="col-md-8">
+                            <div class="row">
+                                <div class="col-md-6 partyonfield" hidden>
+                                    <label for="" class="form-label">Party Name</label>
+                                    <div style="display: flex;">
+                                        <div class="myDropDown">
+                                            <select id="party_details" class="form-control" name="party_details" style="width: 100%;">      
+                                                <option value=""disabled>Select a party name</option>
+                                                <option selected value="{{ credit_note.party.id }} {{ credit_note.party.contact }} {{ credit_note.party.salesinvoice.invoice_no }} {{ credit_note.party.salesinvoice.date|date:'Y-m-d' }} {{ credit_note.party.openingbalance }} {{ credit_note.party.salesinvoice.address }} {{ credit_note.party.payment }} {{ credit_note.party.address }}">
+                                                    {{ credit_note.party.party_name }}
+                                                </option>
+                                                {% for party in parties %}
+                                                    {% if party.id != credit_note.party.id %}
+                                                        <option value="{{ party.id }} {{ party.contact }} {{ party.salesinvoice.invoice_no }}
+                                                        {{ party.salesinvoice.date|date:'Y-m-d' }}
+                                                        {{party.openingbalance}} {{ party.salesinvoice.address }} {{ party.payment }}">
+                                                        {{ party.party_name }}</option>
+                                                    {% endif %}
+                                                {% endfor %}            
+                                            </select>
+                                        </div>
+                                        <div class="btn-group" role="group" aria-label="Third group" style="margin-left: 5px;">
+                                            <button type="button" class="btn button_border" id="unitmodalBtn" data-bs-toggle="modal"
+                                                data-bs-target="#unitModal" data-bs-whatever="@mdo"
+                                                >
+                                                <span class="fa fa-plus"></span>
+                                            </button>
+                                        </div>
+                                
+                                    </div>
+                                    <div id="balance"></div>
+                                </div>
+                                <div class="col-md-6 partyonfield" hidden>
+                                    <label for="" class="form-label">Phone Number</label>
+                                    <input type="text" class="form-control" id="party_phone" name="party_phone" value="{{credit_note.party.contact}}" readonly>  
+                                </div>
+                            </div>
+                            <div class="row mt-3">
+                                <div class="col-md-6">
+                                    <label for="validationDefaultUsername" class="form-label">Return Date</label>
+                                    <input type="date" class="form-control" id="returndate" name="returndate" value="{{credit_note.returndate|date:'Y-m-d' }}">
+                                </div>
+                                <!-- <div class="col-md-4 partyonfield" hidden>
+                                    <label for="validationDefaultUsername" class="form-label">Place of Supply</label>
+                                    <input type="text" class="form-control" id="placesupply" name="placesupply" value="{{credit_note.salesinvoice.address}}">
+                                </div> -->
+                                <div class="col-md-6 partyonfield" hidden>
+                                    <label for="validationDefaultUsername" class="form-label">Payment method</label>
+                                    <input type="text" class="form-control" id="paymethod" name="paymethod" value="{{credit_note.party.payment}}" readonly>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4 partyonfield" hidden>
+                            <label for="" class="form-label">Address</label>
+                            <textarea class="form-control" id="address" name="address" rows="5" readonly>{{ credit_note.party.address }}</textarea>
+                        </div>
+                    </div>    
+                    <div class="row mt-3 partyonfield" id="salesinvoiceid" hidden>
+                        <div class="col-md-4">
+                            <label for="validationDefaultUsername" class="form-label">Invoice Number</label>
+                            <input type="text" class="form-control" id="invoiceno" name="invoiceno" value="{{credit_note.salesinvoice.invoice_no}}" readonly>
+                        </div>
+
+                        <div class="col-md-4">
+                            <label for="validationDefaultUsername" class="form-label">Invoice Date</label>
+                            <input type="date" class="form-control" id="invoicedate" name="invoicedate" value="{{ credit_note.salesinvoice.date|date:'Y-m-d' }}" readonly>
+                        </div>
+                    </div>
+                    
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-sm mt-3" style="text-align: center;">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>PRODUCT</th>
+                                    <th>HSN</th>
+                                    <th>QTY</th>
+                                    <th>PRICE</th>
+                                    <th>TAX</th>
+                                    <th>DISCOUNT</th>
+                                    <th>TOTAL</th>
+                                    <th>FIELD</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for i in creditnoteitem_curr %}
+                                <tr>
+                                    <td class="p-3">{{forloop.counter}}</td>
+                                    <td class="p-3">
+                                        <div style="display: flex;">
+                                            <div class="myDropDown">
+                                                <select id="item_name_{{forloop.counter}}" class="form-control item-name" name="item_name" required>      
+                                                    <option disabled>Select Item</option>
+                                                    <option selected value="{{ i.items.id }} {{ i.hsn }} {{ i.price }} {{ i.tax }}">
+                                                        {{ i.item }}
+                                                    </option>
+                                                    {% for item in items %}
+                                                        {% if item.id != i.items.id %}
+                                                        <option value="{{ item.id }} {{ item.itm_hsn }} {{ item.itm_sale_price }} {{ item.itm_vat }}">{{ item.itm_name }}</option>
+                                                        {% endif %}   
+                                                    {% endfor %}         
+                                                </select>
+                                            </div>
+                                            <div class="btn-group" role="group" aria-label="Third group" style="margin-left: 5px;">
+                                                <button type="button" class="btn button_border" id="itmodalBtn" data-bs-toggle="modal"
+                                                    data-bs-target="#itModal" data-bs-whatever="@mdo">
+                                                    <span class="fa fa-plus"></span>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="p-3"><input type="text" class="form-control small-input hsn-input" id="hsn" name="hsn" value="{{i.hsn}}"></td>
+                                    <td class="p-3"><input type="number" class="form-control small-input qty-input" id="qty" name="qty" value="{{i.quantity}}"></td>
+                                    <td class="p-3"><input type="text" class="form-control small-input price-input" id="price" name="price" value="{{i.price}}"></td>
+                                    <td class="p-3"><input type="text" class="form-control small-input tax-input" id="tax" name="tax" value="{{i.tax}}">
+                                    <input type="text" class="form-control small-input vatper-input" id="vatper" name="vatper" hidden></td>
+                                    <td class="p-3"><input type="number" class="form-control small-input discount-input" id="discount" name="discount" value="{{i.discount}}"></td>
+                                    <td class="p-3"><input type="text" class="form-control small-input total-input" id="total" name="total" value="{{i.total}}"></td>
+                                    <td class="p-3"><button type="button" class="btn button_border delete-row-button">
+                                        <span class="fa fa-minus"></span>
+                                    </button></td>
+                                </tr>
+                                {% endfor %}
+                                
+                            </tbody>
+                            
+                        </table>
+                        <div class="col-md-4">
+                            <button type="button" class="btn button_border add-row-button">
+                                        <span class="fa fa-plus"></span>
+                                    </button>
+                        </div>
+                    </div>
+                    <input type="text" id="total_items" name="total_items" value="1" hidden>
+                    <div class="row p-5 g-3" style="width: 450px; border:1px solid #68020F;margin-left: 10px;">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <label for="validationDefaultUsername" class="form-label">Sub Total</label>
+                            
+                            </div>
+                            <div class="col-md-6">
+                                <input type="text" class="form-control subtotal" id="subtotal" name="subtotal" value="{{credit_note.subtotal}}">
+                            </div>
+                        </div>
+                        <div class="row mt-3">
+                            <div class="col-md-6">
+                                <label for="validationDefaultUsername" class="form-label">VAT</label>
+                            
+                            </div>
+                            <div class="col-md-6">
+                                <input type="text" class="form-control disvatper" id="disvatper" name="disvatper" value="{{credit_note.vat}}">
+                            </div>
+                        </div>
+                        <div class="row mt-3">
+                            <div class="col-md-6">
+                                <label for="validationDefaultUsername" class="form-label">Tax Amount</label>
+                            
+                            </div>
+                            <div class="col-md-6">
+                                <input type="text" class="form-control tax_amnt" id="tax_amnt" name="tax_amnt" value="{{credit_note.vat}}">
+                            </div>
+                        </div>
+                        <div class="row mt-3">
+                            <div class="col-md-6">
+                                <label for="validationDefaultUsername" class="form-label">Adjustment</label>
+                            
+                            </div>
+                            <div class="col-md-6">
+                                <input type="number" class="form-control adjustment" id="adjustment" name="adjustment" value="{{credit_note.adjustment}}">
+                            </div>
+                        </div>
+                        <div class="row mt-3">
+                            <div class="col-md-6">
+                                <label for="validationDefaultUsername" class="form-label">Grand Total</label>
+                            
+                            </div>
+                            <div class="col-md-6">
+                                <input type="text" class="form-control grandTotal" id="grandTotal" name="grandTotal" value="{{credit_note.grandtotal}}">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-12 d-flex mt-3">
+                        <button type="submit" id="save-button" class="btn button_border me-3">SAVE</button>
+
+                    </div>
+
+                </form>
+                <div class="modal fade" id="unitModal" tabindex="-1" aria-labelledby="exampleModalLabel"aria-hidden="true">
+                    <div class="modal-dialog modal-lg">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h1 class="modal-title fs-5" id="exampleModalLabel"
+                                    style="color: #68020F; font-weight: 900;">ADD PARTY</h1>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                    aria-label="Close"></button>
+                            </div>
+                            <div class="container">
+                                <div class="modal-body mb-1 pb-1">
+                                    <div class="container-fluid">
+                                        <form id="unitmodalform" action="" method="post">
+                                            {% csrf_token %}
+
+                                            <div class="form-group row">
+                                                <div class="col-md-4">
+                                                        <label for="party_name" class="col-form-label">PARTY
+                                                            NAME</label>
+                                                        <input type="text" class="form-control" id="party_name"
+                                                            placeholder="Enter Party Name" name='party_name'>
+                                                </div>
+                                                <div class="col-md-4" style="position: relative;">
+                                                    <label for="party_address"
+                                                        class="col-form-label">TRN NO</label>
+                                                    <input type="text" class="form-control" id="gst_no"
+                                                        placeholder="TRN NO"
+                                                        name='gst_no' oninput="validateGSTIN(this)" required>
+                                                        <span id="gstno-validation" style="position: absolute; right: 14px; top: 8px;"></span>
+                                                        <label style="color: rgb(101, 3, 3);">* 32AAQFR1222B1ZS</label>
+                                            </div>
+                                            <div class="col-md-4" style="position: relative;">
+                                                    <label for="party_name" class="col-form-label">MOBILE</label>
+                                                    <input type="text" class="form-control" id="party_num"
+                                                        placeholder="Phone Number"  pattern="[0-9]{10}" oninput="validatePhoneNumber(this)"
+                                                        name='party_num' required>
+                                                    <span id="contact-validation" style="position: absolute; right: 15px; top: 8px;"></span>
+
+                                            </div>
+                                        </div>
+                                            <div class="tabContainer">
+                                                <ul class="nav nav-pills nav-fill mt-3" id="myTabs">
+                                                        <li class="nav-item">
+                                                            <button type="button" class="nav-link" id="defaultOpen"
+                                                                onclick="showPanel(0)">TRN & Address</button>
+
+                                                        </li>
+                                                        <li class="nav-item">
+                                                            <button type="button" class="nav-link" id="creditTab"
+                                                            onclick="showPanel(1)">CREDIT & BALANCES</button>
+
+                                                        </li>
+                                                        <li class="nav-item">
+                                                            <button type="button" class="nav-link" id="balancesTab"
+                                                            onclick="showPanel(2)">ADDITIONAL FIELD</button>
+                                                        </li>
+                                                </ul>
+                                                <div id="transactionForm" class="tab-pane p-3" style="margin-top: 3%;">
+                                                    <div class="form-group row">
+                                                        <div class="col-md-6">
+                                                            <div>
+                                                                <label for="state" class="col-form-label">TRN Type</label>
+
+                                                                <select class="form-control" name="gsttype" id="gsttype" required>
+                                                                    <option selected hidden value="">Select TRN Type</option>
+                                                                    <option value="Registered Business - Regular"> Registered Business - Regular </option>
+                                                                    <option value="Registered Business - Composition"> Registered Business - Composition </option>
+                                                                    <option value="Unregistered/Consumers"> Unregistered/Consumers</option>
+                                                                </select>
+                                                            </div><br>
+                                                            <div>
+                                                                <label for="state" class="col-form-label">Supply State</label>
+                                                                <input type="text" class="form-control" id="supp_state"
+                                                                    placeholder="State"
+                                                                    name='supp_state'>
+                                                            </div><br>
+                                                            <div>
+                                                                <label for="email" class="col-form-label">Email</label>
+                                                                <input type="email" class="form-control" id="email"
+                                                                    placeholder="Email"
+                                                                    name='email'>
+                                                            </div>
+
+                                                        </div>
+                                                        <div class="col-md-6">
+                                                            <div>
+                                                                <label for="address" class="col-form-label">Billing Address</label>
+                                                                <textarea class="form-control" id="party_addr" placeholder="Enter Party Address"
+                                                                    rows="6" name="party_addr"></textarea>
+                                                            </div>
+                                                        </div>
+                                                    </div>   
+                                        
+                                                    <div class="col-md-12 d-flex justify-content-start mt-5">
+
+                                                        <button type="button" class="btn button_border me-3 next-btn" onclick="showPanel(1)">NEXT</button>
+
+
+                                                    </div>
+
+                                                </div>
+
+                                                <div id="creditForm" class="tab-pane p-3" style="margin-top: 3%;">
+                                                    <div class="row">
+                                                        <div class="col-md-6">
+                                                            <Label for="bal" class="col-form-label">Opening Balance</label>
+                                                                <input type="number" class="form-control" id="creditamt"
+                                                                placeholder="Opening Balance"name='creditamt'>
+                                                        </div>
+                                                        <!-- <div class="col-md-6">
+                                                            <label for="creditLimit" class="col-form-label">Credit Limit</label>
+                                                            <input type="number" class="form-control" id="crLimit"
+                                                                placeholder=""
+                                                                name='crLimit'>
+                                                        </div> -->
+                                                    </div><br>
+
+                                                    <div class="row">
+                                                        <div class="col-md-4 mt-2">
+                                                            <input type="radio" name="paymentType" value="To Receive" id="toReceiveRadio">
+                                                                To Receive
+                                                        </div>
+                                                        <div class="col-md-4 mt-2">
+                                                            <input type="radio" name="paymentType" value="To Pay" id="toPayRadio">
+                                                                To Pay
+                                                        </div>
+                                                    </div><br>
+
+                                                    
+                                                    <div class="row">
+                                                        <div class="col-md-6">
+                                                            <label for="date" class="col-form-label">Date</label>
+                                                            <input type="date" class="form-control" id="credit_date"
+                                                                placeholder=""
+                                                                name='credit_date'>
+                                                        </div>
+                                                    </div><br>
+                                                    <div class="col-md-12 d-flex justify-content-start mt-3">
+
+                                                        <button type="button" class="btn button_border me-3 prev-btn" onclick="showPanel(0)">PREVIOUS</button>
+                                                        <button type="button" class="btn button_border me-3 next-btn" onclick="showPanel(2)">NEXT</button>
+
+                                                    </div>
+                                                </div>
+
+                                                <div id="balancesForm" class="tab-pane p-3" style="margin-top: 3%;">
+                                                    <div class="row">
+                                                        <div class="col-md-4">
+                                                            <label for="add1" class="col-form-label">Additional Field1</label>
+                                                            <input type="text" class="form-control" id="addField1"
+                                                                placeholder=""
+                                                                name='addField1'>
+                                                        </div>
+                                                        <div class="col-md-4">
+                                                            <label for="add2" class="col-form-label">Additional Field2</label>
+                                                            <input type="text" class="form-control" id="addField2"
+                                                                placeholder=""
+                                                                name='addField2'>
+                                                        </div>
+                                                        <div class="col-md-4">
+                                                            <label for="add3" class="col-form-label">Additional Field3</label>
+                                                            <input type="text" class="form-control" id="addField3"
+                                                                placeholder=""
+                                                                name='addField3'>
+                                                        </div>
+                                                        <div class="col-md-12 d-flex justify-content-start mt-5">
+
+                                                            <button type="button" class="btn button_border me-3 prev-btn" onclick="showPanel(1)">PREVIOUS</button>
+                                                            <button type="submit" class="btn button_border me-3" data-dismiss="modal" id="saveparty">SAVE</button>
+    
+                                                        </div>
+
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </form>
+                                    </div>
+                                    
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal fade" id="itModal" tabindex="-1" aria-labelledby="exampleModalLabel2"
+                    aria-hidden="true">
+                    <div class="modal-dialog modal-lg">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h1 class="modal-title fs-5" id="exampleModalLabel"
+                                    style="color: #68020F; font-weight: 900;">ADD ITEM</h1>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                    aria-label="Close"></button>
+                            </div>
+                            <div class="container">
+                                <div class="modal-body mb-1 pb-1">
+                                    <div class="container-fluid">
+                                        <form id="itmodalform" action="" method="post">
+                                            {% csrf_token %}
+
+                                            <div class="form-group row">
+                                                <div class="d-flex">
+                                                    <div class="pt-3 w-50">
+                                                      <input type="text" name="itm_type" id="itm_type" hidden>
+                                                      <label style="user-select: none;" class="fs-4 tb" for="goods">Goods</label>
+                                                      <input id="goods" class="me-3 " type="radio" name="item_ty" required>
+                                                      <label style="user-select: none;" class="fs-4 tb" for="service">Services</label>
+                                                      <input id="service" type="radio" name="item_ty" required>
+                                                    </div>
+                                                    <div class="mb-3 w-50">
+                                                      <label class="fw-bold tb fs-3" for="">NAME</label><br>
+                                                      <input style="color: black;" class="form-control mt-2 input_border text-black" type="text" placeholder="Enter Item Name" autocomplete="off" name="name" id="name">
+                                                    </div>
+                                                  </div>
+                                                <div class="col-md-6">
+                                                    <label for="item_hsn" class="col-form-label">ITEM HSN</label>
+                                                    <input type="number" class="form-control" id="item_hsn" name='item_hsn' onchange="checkhsn(this)">
+                                                    <span id="hsn-validation" style="position: absolute; right: 14px; top: 8px;"></span>
+                                                    <div class="text-danger m-2" id="warnhsn"></div>
+                                                    <label id="hsnerror" style="color: rgb(101, 3, 3);"></label>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <label class="col-form-label" for="item_unit">UNIT</label>
+                                                    <div style="display: flex;">
+                                                        <div class="myDropDown">
+                                                            <select class="form-control" id="item_unit" name="item_unit">
+                                                                <option value="" selected disabled>Select an option</option>
+                                                                <option value="Numbers">Numbers</option>
+                                                                <option value="Packages">Packages</option>
+                                                                <option value="Box">Box</option>
+                                                                {% for i in unit %}
+                                                                <option value="{{ i.unit_name }}">{{ i.unit_name }}</option>
+                                                                {% endfor %}
+                                                            </select>
+                                                        </div>
+                                                        <div class="btn-group" role="group" aria-label="Third group" style="margin-left: 5px;">
+                                                            <button type="button" class="btn button_border" data-bs-toggle="modal" data-bs-target="#unitsModal" data-bs-whatever="@mdo">
+                                                            <span class="fa fa-plus" ></span>
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="tabContainer2">
+                                                <ul class="nav nav-pills nav-fill mt-3" id="myTabs2">
+                                                        <li class="nav-item">
+                                                            <button type="button" class="nav-link" id="defaultOpen2"
+                                                                onclick="showPanel2(0)">PRICING</button>
+
+                                                        </li>
+                                                        <li class="nav-item">
+                                                            <button type="button" class="nav-link" id="stockTab"
+                                                            onclick="showPanel2(1)">STOCKS</button>
+
+                                                        </li>
+                                            
+                                                </ul>
+                                                <div id="pricingForm" class="tab-pane p-3" style="margin-top: 3%;">
+                                                    <div class="form-group row">
+                                                        <div class="col-md-6">
+                                                            <div class="pt-1 mb-4" >
+                                                                <input type="text" name="taxable_result" id="taxable_result" hidden>
+                                                                <label style="user-select: none;" class="fs-4 tb" for="item_tax_1">Tax</label> &nbsp;
+                                                                <input id="item_tax_1" class="me-3" type="radio" name="item_tax_result" required>
+                                                                <label style="user-select: none;" class="fs-4 tb" for="item_tax_2">Tax Excempted</label>&nbsp;
+                                                                <input id="item_tax_2" type="radio" name="item_tax_result" required>
+                                                              </div>
+                                          
+                                                              <div id="vatdiv" class="mb-2 pt-3" hidden>
+                                                                  <label class="fw-bold tb fs-3" for="">VAT</label><br>
+                                                                  <input type="text" class="form-control mt-1 input_border text-black" name="vat" id="vat">
+                                                              </div>
+                                                        </div><br>  
+                                                    </div>
+                                                    <div class="taxable-fields">
+                                                    <div class="form-group row mt-3">    
+                                                        <div class="col-md-6">
+                                                            <div>
+                                                                <label for="saleprice" class="col-form-label">SALES PRICE</label>
+                                                                <input type="number" class="form-control" id="item_slprice" name='item_slprice'>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-6">
+                                                            <div>
+                                                                <label for="purchase" class="col-form-label">PURCHASE PRICE</label>
+                                                                <input type="number" class="form-control" id="item_prprice" name='item_prprice'>
+                                                            </div>
+                                                        </div>
+                                                    </div>    
+                                                    </div>
+                                                    <div class="col-md-12 d-flex justify-content-start mt-5">
+                                                        <button type="button" class="btn button_border me-3 next-btn-2" onclick="showPanel2(1)">NEXT</button>
+                                                    </div>
+                                                </div>
+
+                                                <div id="stockForm" class="tab-pane p-3" style="margin-top: 3%;">
+                                                    <div class="form-group row">    
+                                                        <div class="col-md-6">
+                                                            <div>
+                                                                <label for="opstock" class="col-form-label">OPENING STOCK</label>
+                                                                <input type="number" class="form-control" id="item_opstock" name='item_opstock'>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-6">
+                                                            <div>
+                                                                <label for="atprice" class="col-form-label">AT PRICE</label>
+                                                                <input type="number" class="form-control" id="item_atprice" name='item_atprice'>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="form-group row mt-3">    
+                                                        <div class="col-md-6">
+                                                            <div>
+                                                                <label for="stdate" class="col-form-label">DATE</label>
+                                                                <input type="date" class="form-control" id="item_stdate" name='item_stdate' value="{% now 'Y-m-d' %}">
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-12 d-flex justify-content-start mt-5">
+
+                                                        <button type="button" class="btn button_border me-3 prev-btn-2" onclick="showPanel2(0)">PREVIOUS</button>
+                                                        <button type="submit" class="btn button_border me-3" data-dismiss="modal" id="itemSave">SAVE</button>
+
+                                                    </div>
+                                                </div>
+
+                                            
+                                            </div>
+                                        </form>
+                                    </div>
+                                    
+                                </div>
+                            </div>
+                        </div>
+                    </div> 
+                  
+                </div>
+                <div class="modal fade" id="unitsModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                    <div class="modal-dialog">
+                      <div class="modal-content">
+                        <div class="modal-header">
+                          <h1 class="modal-title fs-5" id="exampleModalLabel" style="color: #68020F; font-weight: 900;">ADD UNIT</h1>
+                          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body mb-1 pb-1">
+                          <form class="mb-0" id="unitsModal">
+                            <div class="mb-3">
+                              <label for="unit_name" class="col-form-label">UNIT</label>
+                              <input type="text" class="form-control _border" id="unit_name" placeholder="Enter Unit" style="border: 2px solid #68020F;" name='unit_name'>
+                            </div>
+                            <div class="m-0 text-center">
+                              <label for="message-text" class="col-form-label  text-danger fw-lighter">Example : PCS/BOX/LITER</label>
+                            </div>
+                          </form>
+                        </div>
+                        <div class="modal-footer d-flex justify-content-center mt-1">
+                          <button type="button" class="btn ps-5 pe-5 button_border" data-bs-dismiss="modal">Close</button>
+                          <button type="button" class="btn ps-5 pe-5 button_border" id="unitmodalsubmit">ADD</button>
+                        </div>
+                      </div>
+                    </div>
+                  
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.1.0-beta.1/js/select2.min.js"></script>
+<script>
+    // Get all input fields with the readonly attribute
+    var readonlyFields = document.querySelectorAll('input[readonly], textarea[readonly]');
+
+    // Add a click event listener to each readonly field
+    readonlyFields.forEach(function(field) {
+        field.addEventListener('click', function() {
+            // Display a message or information to the user
+            alert('This field cannot be edited.');
+        });
+    });
+</script>
+<script>
+    function validatecreditnote() {
+        var partystatus = document.querySelector('input[name="partyStatusGroup"]:checked');
+        console.log("partystatus:", partystatus);
+
+        if (!partystatus) {
+            alert('Please select Party Status');
+            return false;
+        }
+
+        var partystatusId = partystatus.id;
+        console.log("partystatus id is:", partystatusId);
+
+        if (partystatusId === "partyonRadio") {
+            var party = document.getElementById('party_details');
+            if (!party.value || party.value.trim() === '' || party.value === 'Select a party name') {
+                alert('Please select Party');
+                return false;
+            }
+        }
+
+        var itemInputs = document.querySelectorAll('.item-name');
+        var qtyInputs = document.querySelectorAll('.qty-input');
+
+        for (var i = 0; i < itemInputs.length; i++) {
+            var item = itemInputs[i];
+            var qty = qtyInputs[i];
+            var rowNumber = i + 1;
+
+            if (!item.value || item.value.trim() === '' || item.value === 'Select Item') {
+                alert('Please select an Item in row ' + rowNumber);
+                return false;
+            }
+
+            if (isNaN(qty.value) || qty.value.trim() === '' || parseFloat(qty.value) <= 0) {
+                alert("Please enter valid quantity in row " + rowNumber);
+                return false;
+            }
+        }
+        return true; 
+        }
+    function checkhsn(element){
+        var hsninput = element.value;
+        var gstregexp = "[0-9]{6}";
+        if (hsninput.match(gstregexp)) {
+            document.getElementById('warnhsn').innerHTML = '';
+        } else {
+            document.getElementById('warnhsn').innerHTML = 'Please provide a valid HSN Number';
+            alert('Please provide a valid HSN Number');   
+        }
+    }
+</script>
+<script>
+    $(document).ready(function() {
+        // Check if there is a sales invoice number and date associated with the credit note
+        var invoiceNo = document.getElementById("invoiceno").value;
+        var invoiceDate = document.getElementById("invoicedate").value;
+
+        if (invoiceNo && invoiceDate) {
+            // Show the fields associated with the sales invoice
+            $('#salesinvoiceid').removeAttr('hidden');
+        } else {
+            // Hide the fields associated with the sales invoice if no valid data is available
+            $('#salesinvoiceid').hide();
+        }
+    });
+</script>
+
+
+<script>
+    $(document).ready(function () {
+
+        var partyStatus = "{{ credit_note.partystatus }}"; 
+        console.log("Initial party status:", partyStatus); // Check initial party status
+        function togglePartyFields() {
+            if (partyStatus === "partyon") {
+                console.log("Party is on. Showing party fields.");
+                $('#partyonRadio').prop('checked', true);
+                $('#partystatus').val('partyon');
+                $('.partyonfield').removeAttr('hidden');
+            } else {
+                console.log("Party is off. Showing party fields.");
+                $('#partyoffRadio').prop('checked', true);
+                $('#partystatus').val('partyoff');
+                $('.partyonfield').attr('hidden', true);
+            }
+        }
+        togglePartyFields();
+
+        $(document).ready(function(){
+            $('#partyonRadio').on('click',function(){
+                $('#partystatus').val('partyon');
+                $('.partyonfield').removeAttr('hidden');
+            })
+        });
+        $(document).ready(function(){
+            $('#partyoffRadio').on('click',function(){
+                $('#partystatus').val('partyoff')
+                $('.partyonfield').attr('hidden', true);
+
+            })
+        });
+        
+        $(document).ready(function() {
+            $('.item-name').each(function() {
+                $(this).select2();
+            });
+        });
+
+        $('#party_details').select2();
+        
+        
+
+        $('#balance').hide();
+
+        $(document).on("click","#saveparty",function(){
+            $.ajax({
+                type:"POST",
+                url:"{% url 'saveParty' %}",
+                data:{
+                    party_name:$("#party_name").val(),
+                    gst_no:$("#gst_no").val(),
+                    mob:$("#party_num").val(),
+                    gsttype:$("#gsttype").val(),
+                    state:$("#supp_state").val(),
+                    email:$("#email").val(),
+                    addr:$("#party_addr").val(),
+                    opbal:$("#creditamt").val(),
+                    paymentType: $('input[name="paymentType"]:checked').val(),
+                    date:$("#credit_date").val(),
+                    add1:$("#addField1").val(),
+                    add2:$("#addField2").val(),
+                    add3:$("#addField3").val(),
+                    csrfmiddlewaretoken: '{{ csrf_token }}'
+                },
+                success: function(response){
+                    document.getElementById("unitmodalform").reset();
+                    reloadParty();
+                },
+            });
+        });
+
+        function reloadParty(){
+            $.ajax({
+                url: "{% url 'party_dropdown' %}",
+                type: "GET",
+                dataType: "json",
+                data: $(this).serialize(),
+                csrfmiddlewaretoken: '{{ csrf_token }}',
+                success: function(data){
+                    var dropdown = $("#party_details");
+                    dropdown.empty();
+                    dropdown.append(`<option selected>Select Party</option>`);
+                    $.each(data,function(key,value){
+                        dropdown.append($('<option></option>').attr('value', key).text(value[1] + " " +value[2] + " "+ value[3]+ " " +value[4] + " "+ value[5] + " " + value[6]+ " " + value[7]).val(value[0] + " " +value[2] + " "+ value[3]+ " " +value[4] + " "+ value[5] + " " + value[6]+ " " + value[7]));
+                    });
+                },
+                error: function(xhr, status, error) {
+                    console.error(xhr.responseText);
+                }
+            });
+        }
+
+        $('#party_details').change(function() {
+        $.ajax({
+            url: "{% url 'get_partydetails' %}",
+            data: { 
+                id: $('#party_details').val(),
+                csrfmiddlewaretoken: '{{ csrf_token }}',
+            },
+            type: 'POST',
+            success: function(data) {
+                $('#balance').text("Available Balance: " + data.balance).show();
+                $('#party_phone').val(data.phone);
+                $('#address').val(data.address)
+                // Check if invoice number and date are available
+                if (data.invoiceno && data.invoicedate) {
+                    // Show salesinvoiceid div if valid data is available
+                    $('#salesinvoiceid').show();
+                    $('#invoiceno').val(data.invoiceno);
+                    $('#invoicedate').val(data.invoicedate);
+                   
+                } else {
+                    // Hide salesinvoiceid div if no valid data is available
+                    $('#salesinvoiceid').hide();
+                    $('#invoiceno').val('');
+                    $('#invoicedate').val('');
+                   
+
+                }
+
+                // $('#placesupply').val(data.placeofsupply);
+                $('#paymethod').val(data.payment);
+            }
+        });
+    });
+
+
+        // $('#party_details').change(function() {
+        //     $.ajax({
+        //         url: "{% url 'get_partydetails' %}",
+        //         data: { 
+        //             id:$('#party_details').val(),
+        //             csrfmiddlewaretoken: '{{ csrf_token }}',
+        //         },
+        //         type: 'POST',
+        //         success: function(data){
+        //             $('#balance').text("Available Balance: " + data.balance).show();
+        //             $('#party_phone').val(""+data.phone);
+        //             $('#invoiceno').val(""+data.invoiceno);
+        //             $('#invoicedate').val(""+data.invoicedate);
+        //             // $('#placesupply').val(""+data.placeofsupply);
+        //             $('#paymethod').val(""+data.payment);
+        //         }
+        //     });
+        // });
+
+
+
+        function validateGSTIN(inputElement) {
+            const gstin = inputElement.value;
+            const validationSpan = document.getElementById("gstno-validation");
+
+            // Regular expression to check for a valid GSTIN pattern
+            const regex = /^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z][0-9][A-Z][A-Z0-9]$/;
+
+            if (regex.test(gstin)) {
+                // Valid GSTIN format, display a checkmark
+                validationSpan.innerHTML = "&#10004;"; // Checkmark symbol
+                validationSpan.style.color = "green";
+            } else {
+                // Not a valid GSTIN format, display a cross mark
+                validationSpan.innerHTML = "&#10060;"; // Cross mark symbol
+                validationSpan.style.color = "red";
+            }
+        }
+
+        function validatePhoneNumber(inputElement) {
+            const phoneNumber = inputElement.value;
+            const validationSpan = document.getElementById("contact-validation");
+
+            // Regular expression to check for a 10-digit number
+            const regex = /^[0-9]{10}$/;
+
+            if (regex.test(phoneNumber)) {
+                // Valid 10-digit number, display a checkmark
+                validationSpan.innerHTML = "&#10004;"; // Checkmark symbol
+                validationSpan.style.color = "green";
+            } else {
+                // Not a valid 10-digit number, display a cross mark
+                validationSpan.innerHTML = "&#10060;"; // Cross mark symbol
+                validationSpan.style.color = "red";
+            }
+        }
+
+
+        // var partyonRadio = document.getElementById('partyonRadio');
+        // var partyoffRadio = document.getElementById('partyoffRadio');
+        // var partyonFields = document.querySelectorAll('.partyon');
+
+        // function togglepartyonFields() {
+        //     var displayValue = partyonRadio.checked ? 'block' : 'none';
+        //     partyonFields.forEach(function (field) {
+        //         field.style.display = displayValue;
+        //     });
+        // }
+
+        // partyonRadio.addEventListener('change', togglepartyonFields);
+        // partyoffRadio.addEventListener('change', togglepartyonFields);
+
+        // togglepartyonFields();
+        $('#save-button').on('click', function() {
+            if (!validatecreditnote()) {
+                return false; // Prevent form submission if validation fails
+            }
+        });
+        $('.add-row-button').on('click', function () {
+            addNewRow();
+            
+        });
+
+        $(document).on('click', '.delete-row-button', function () {
+            $(this).closest('tr').remove();
+            var row=$(this).closest('tr');
+            calculateTotal(row);
+            calculatevatperc(row);
+            calculateSubtotal();
+            calculateTax();
+            calculateGrandtotal();
+            updateTotalItems();
+        });
+        defaultItemOptions = $('#item_name option:not([disabled])').clone();
+
+        function addNewRow() {
+            var serialNumber = $('.table tbody tr').length + 1;
+
+            
+
+            var newRow = `
+                <tr>
+                    <td class="p-3">${serialNumber}</td>
+                    <td class="p-3">
+                        <div style="display: flex;">
+                            <div class="myDropDown">
+                                <select id="item_name_${serialNumber}" class="form-control item-name" name="item_name">
+                                    <option value="" selected disabled>Select Item</option> 
+                                </select>
+                            </div>
+                            <div class="btn-group" role="group" aria-label="Third group" style="margin-left: 5px;">
+                                <button type="button" class="btn button_border itmodalBtn" data-bs-toggle="modal" data-bs-target="#itModal" data-bs-whatever="@mdo">
+                                    <span class="fa fa-plus"></span>
+                                </button>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="p-3"><input type="text" class="form-control small-input hsn-input" id="hsn_${serialNumber}" name="hsn"></td>
+                    <td class="p-3"><input type="number" class="form-control small-input qty-input" id="qty_${serialNumber}" name="qty" value="0"></td>
+                    <td class="p-3"><input type="text" class="form-control small-input price-input" id="price_${serialNumber}" name="price" value="0"></td>
+                    <td class="p-3"><input type="text" class="form-control small-input tax-input" id="tax_${serialNumber}" name="tax">
+                    <input type="text" class="form-control small-input vatper-input" id="vatper_${serialNumber}" name="vatper" hidden></td>
+                    <td class="p-3"><input type="number" class="form-control small-input discount-input" id="discount_${serialNumber}" name="discount" value="0"></td>
+                    <td class="p-3"><input type="text" class="form-control small-input total-input" id="total_${serialNumber}" name="total" value="0"></td>
+                    <td class="p-3"><button type="button" class="btn button_border delete-row-button">
+                        <span class="fa fa-minus"></span>
+                    </button></td>
+                </tr>
+            `;
+
+            $('.table tbody').append(newRow);
+            $.ajax({
+                url: "{% url 'item_dropdown' %}", // Replace this with the actual URL to fetch items
+                type: "GET",
+                success: function (data) {
+                    var dropdown = $('#item_name_' + serialNumber);
+                dropdown.empty();
+                dropdown.append(`<option disabled selected>Select Item</option>`);
+                $.each(data, function(key, value) {
+                    dropdown.append($('<option></option>').attr('value', key).text(value[1]).val(value[0] + " " + value[2] + " " + value[3] + " " + value[4]));
+                });
+                },
+                error: function (xhr, status, error) {
+                    console.error(xhr.responseText);
+                    // Handle error
+                }
+            });
+
+            console.log(defaultItemOptions);
+            
+            $('#item_name_' + serialNumber).select2();
+
+            updateTotalItems();
+        }
+
+        function updateTotalItems() {
+            var totalItems = $('.table tbody tr').length;
+            $('#total_items').val(totalItems);
+        }
+
+        function initializeSelect2ForItemName(id) {
+            $('#item_name_' + id).select2();
+        }
+
+        $('#unitmodalBtn').on('click', function (event) {
+            $('#unitModal').modal('show');
+        });
+
+        $('#itmodalBtn').on('click', function (event) {
+            $('#itModal').modal('show');
+        });
+
+        $(document).on('click','#itemSave',function(){
+            $.ajax({
+                type:"POST",
+                url:"{% url 'saveItem' %}",
+                data:{
+                    item_type: $("#itm_type").val(),
+                    item_name: $("#name").val(),
+                    item_hsn:$("#item_hsn").val(),
+                    item_unit:$("#item_unit").val(),
+                    itm_taxable:$("#taxable_result").val(),
+                    itm_vat:$("#vat").val(),
+                    itm_sale_price:$("#item_slprice").val(),
+                    itm_purchase_price:$("#item_prprice").val(),
+                    itm_stock_in_hand:$("#item_opstock").val(),
+                    itm_at_price:$("#item_atprice").val(),
+                    itm_date:$("#item_stdate").val()
+                },
+                beforeSend: function(xhr, settings) {
+                    xhr.setRequestHeader("X-CSRFToken", "{{ csrf_token }}");
+                },
+                success: function(response){
+                    documnet.getElementById("itmodal").reset();
+                    reloadItem();
+                },
+            });
+        });
+
+        function reloadItem() {
+            $.ajax({
+                url: "{% url 'item_dropdown' %}",
+                type: "GET",
+                dataType:"json",
+                data: $(this).serialize(),
+                csrfmiddlewaretoken: '{{ csrf_token }}',
+                success: function(data) {
+                    var dropdown = $('#item_name');
+                    dropdown.empty();
+                    dropdown.append(`<option selected>Select Item</option>`);
+                    $.each(data, function(key, value) {
+                        dropdown.append($('<option></option>').attr('value', key).text(value[1] + " " +value[2] + " "+ value[3] + " "+ value[4]).val(value[0] + " " +value[2] + " "+ value[3] + " "+  value[4]));
+                    });
+                },
+                error: function(xhr, status, error) {
+                console.error(xhr.responseText);
+                }
+            });
+        }
+
+        $(document).on('change', '[id^=item_name_]', function () {
+            var rowId = $(this).attr('id').split('_')[2]; // Extract the row number from the ID
+
+            var selectedId = $(this).val(); // Get the selected item ID
+            var itemId = selectedId.split(' ')[0];
+            // Make an AJAX request to fetch the item details
+            $.ajax({
+                url: "{% url 'fetch_item_details' %}",
+                data: {
+                    id: itemId,
+                    csrfmiddlewaretoken: '{{ csrf_token }}',
+                },
+                type: 'POST',
+                success: function (data) {
+                    // Update the corresponding input fields in the same row with fetched data
+                    $('#hsn_' + rowId).val(data.hsn);
+                    $('#price_' + rowId).val(data.price);
+                    $('#tax_' + rowId).val(data.tax);
+                    calculateTotal($('#hsn_' + rowId).closest('tr'));
+                    calculatevatperc($('#hsn_' + rowId).closest('tr'));
+                    calculateSubtotal();
+                    calculateTax();
+                    calculateGrandtotal();
+                    // You may add more fields here if needed
+                }
+            });
+        });
+
+        $(document).on('change', '.item-name', function(){
+            var row = $(this).closest('tr');
+            var selectedValue = $(this).val();
+            var itemId = selectedValue.split(' ')[0];
+            
+            $.ajax({
+                url:"{% url 'get_itemdetails' %}",
+                data:{
+                    id: selectedValue,
+                    csrfmiddlewaretoken: '{{ csrf_token }}',
+                },
+                type:'POST',
+                success: function(data) {
+                    row.find('.hsn-input').val(""+data.hsn);
+                    row.find('.price-input').val(""+data.price);
+                    row.find('.tax-input').val(""+data.tax);
+                    calculateTotal(row);
+                    calculatevatperc(row);
+                    calculateSubtotal();
+                    calculateTax();
+                    calculateGrandtotal();
+                }
+            });
+        });
+    
+        $(document).on('click', '#unitmodalsubmit', function () {
+            $.ajax({
+                type: "POST",
+                url: "{% url 'create_unit' %}",
+                data: {
+                    unit_name: document.getElementById('unit_name').value
+                },
+                beforeSend: function (xhr, settings) {
+                    xhr.setRequestHeader("X-CSRFToken", "{{ csrf_token }}");
+                },
+                success: function (response) {
+                    $("#unitsModal").hide();
+                    $(".modal-backdrop").remove();
+                    document.getElementById('unit_name').value = ''
+                    var dropdown = $('#item_unit');
+                    dropdown.append(`<option value='${response.unit_name}'>${response.unit_name}</option>`);
+                    $('#itModal').modal('show');
+                },
+            });
+        });
+
+        
+
+        $(document).ready(function(){
+            $('#goods').on('click',function(){
+                $('#itm_type').val('Goods')
+            })
+        });
+
+        $(document).ready(function(){
+            $('#service').on('click',function(){
+                $('#itm_type').val('Service')
+            })
+        });
+
+        $(document).ready(function(){
+            $('#item_tax_1').on('click',function(){
+                $('#vatdiv').attr('hidden',false)
+                $('#vat').val('VAT 5%')
+            });
+        });
+
+        $(document).ready(function(){
+            $('#item_tax_2').on('click',function(){
+                $('#vatdiv').attr('hidden',false)
+                $('#vat').val('VAT 0%')
+            });
+        });
+
+        $(document).ready(function(){
+            $('#item_tax_1').on('click',function(){
+                $('#taxable_result').val('Taxable')
+            });
+        });
+
+        $(document).ready(function(){
+            $('#item_tax_2').on('click',function(){
+                $('#taxable_result').val('Non Taxable')
+            });
+        });
+
+        function showPanel(panelIndex) {
+        var tabButtons = document.querySelectorAll(".tabContainer .nav .nav-item button");
+        var tabPanels = document.querySelectorAll(".tabContainer .tab-pane");
+
+        tabPanels.forEach(function(panel) {
+            panel.style.display = "none";
+        });
+        tabButtons.forEach(function(button) {
+            button.classList.remove("active");
+        });
+
+        tabPanels[panelIndex].style.display = "block";
+
+        tabButtons[panelIndex].classList.add("active");
+        }
+
+        $(".tabContainer .nav .nav-item button").on("click", function() {
+            var tabIndex = $(this).parent().index();
+            showPanel(tabIndex);
+        });
+        $(".next-btn").on("click", function() {
+            var currentPanel = $(".tabContainer .nav .nav-item button.active").parent().index();
+            showPanel(currentPanel + 1);
+        });
+        $(".prev-btn").on("click", function() {
+            var currentPanel = $(".tabContainer .nav .nav-item button.active").parent().index();
+            showPanel(currentPanel - 1);
+        });
+
+        showPanel(0);
+
+        function showPanel2(panelIndex) {
+        var tabButtons2 = document.querySelectorAll(".tabContainer2 .nav .nav-item button");
+        var tabPanels2 = document.querySelectorAll(".tabContainer2 .tab-pane");
+
+        tabPanels2.forEach(function(panel) {
+            panel.style.display = "none";
+        });
+        tabButtons2.forEach(function(button) {
+            button.classList.remove("active");
+        });
+
+        tabPanels2[panelIndex].style.display = "block";
+
+        tabButtons2[panelIndex].classList.add("active");
+        }
+
+        $(".tabContainer2 .nav .nav-item button").on("click", function() {
+            var tabIndex = $(this).parent().index();
+            showPanel2(tabIndex);
+        });
+        $(".next-btn-2").on("click", function() {
+            var currentPanel = $(".tabContainer2 .nav .nav-item button.active").parent().index();
+            showPanel2(currentPanel + 1);
+        });
+        $(".prev-btn-2").on("click", function() {
+            var currentPanel = $(".tabContainer2 .nav .nav-item button.active").parent().index();
+            showPanel2(currentPanel - 1);
+        });
+
+        showPanel2(0);
+
+        function calculateTotal(row) {
+            var qty = parseFloat(row.find('.qty-input').val());
+            var price = parseFloat(row.find('.price-input').val());
+            var discount = parseFloat(row.find('.discount-input').val());
+
+            var total=(qty*price)-discount;
+            
+            row.find('.total-input').val(total); 
+        }
+
+        function calculatevatperc(row){
+            var total = parseFloat(row.find('.total-input').val());
+            var taxamt = row.find('.tax-input').val();
+            var vatRate = 0;
+            if (taxamt && taxamt.includes("VAT 5%")) {
+                vatRate = 0.05;
+            }
+
+            var tax = total * vatRate;
+            row.find('.vatper-input').val(tax);
+        }
+
+        $(document).on('input','.qty-input, .price-input, .discount-input, .adjustment', function(){
+            var row=$(this).closest('tr');
+            calculateTotal(row);
+            calculatevatperc(row);
+            calculateSubtotal();
+            calculateTax();
+            calculateGrandtotal();
+        });
+
+        function calculateSubtotal(){
+            var subtotal = 0;
+            $('.table tbody tr').each(function() {
+                var total = parseFloat($(this).find('.total-input').val());
+                if (!isNaN(total)) {
+                    subtotal += total;
+                }
+            });
+            $('#subtotal').val(subtotal.toFixed(2)); 
+        }
+
+        function calculateTax(){
+            var totalTax = 0;
+            $('.table tbody tr').each(function () {
+                var vatper = parseFloat($(this).find('.vatper-input').val());
+                totalTax += vatper;
+            });
+
+            $('#disvatper').val(totalTax);
+            $('#tax_amnt').val(totalTax.toFixed(2));
+        }
+
+        function calculateGrandtotal(){
+            var grandtotal=0;
+            var subtotal=parseFloat($('.subtotal').val());
+            var tax_amnt=parseFloat($('.tax_amnt').val());
+            var adj = parseFloat($('#adjustment').val());
+            console.log("Adjustment:", adj);
+            grandtotal=subtotal+tax_amnt+(adj);
+            $('#grandTotal').val(grandtotal.toFixed(2))
+        }    
+        $('.qty-input, .price-input, .discount-input, .adjustment,.subtotal,.disvatper,.tax_amnt,.adjustment,.grandTotal').trigger('input');
+    });
+</script>
+{% endblock %}

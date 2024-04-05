@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body style="font-family: 'Helvetica Neue', 'Helvetica', Helvetica, Arial, sans-serif;">
+    <div style="padding: 20px;" class="body-wrapper">
+        <div style="margin-left: auto; margin-right: auto; max-width: 800px; border: 1px solid #eee; box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19); font-size: 16px; line-height: 24px;">
+
+                <table style="width: 100%; border: none;">
+                    <tr>
+                        <td style="width: 50%;">
+                                <span style="color: #68020F; font-weight: 800; font-size:xx-large;">{{ company.company_name }}</span><br>
+                                {{ company.city }}, {{ company.state }}
+                            
+                        </td>
+                        <td style="width: 50%; text-align: right;">
+                           
+                                <b style="color: #68020F;font-size: 24px; font-weight: bold; margin-bottom: 5px;">CREDIT NOTE</b><br><br>
+                                <b style="font-size: 18px; font-weight: bold; margin-bottom: 5px;">Creditnote:</b> <span>{{ reference.reference_no }}</span><br>
+                                <b style="font-size: 18px; font-weight: bold; margin-bottom: 5px;">Date:</b> <span>{{ creditnote.returndate }}</span>
+                           
+                        </td>
+                    </tr>
+                </table>
+           
+
+            <div class="credit-content3">
+                
+                    <div style="padding: 40px;border: none;">
+                        <b style="font-size: 18px; font-weight: bold; margin-bottom: 5px;border: none;margin-bottom: 0px;">To:</b><br>
+                        
+                            <span style="color: #68020F;border: none;padding-left: 50px;">{{ creditnote.party.party_name }}</span><br>
+                            {{ creditnote.party.address }}, {{ creditnote.party.state }}
+                        
+                    </div>
+                
+                <div style="padding: 50px;">
+                    <table style="width: 100%; border-collapse: collapse; border: 1px solid black;padding: 50px;">
+                        <thead style="color: #68020F;">
+                            <tr>
+                                <th style="padding: 8px;">PRODUCT</th>
+                                <th style="padding: 8px;">HSN</th>
+                                <th style="padding: 8px;">QTY</th>
+                                <th style="padding: 8px;">PRICE</th>
+                                <th style="padding: 8px;">TAX</th>
+                                <th style="padding: 8px;">DISCOUNT</th>
+                                <th style="padding: 8px;">TOTAL</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for i in creditnoteitem_curr %}
+                            <tr style="background-color: #FFD6D7;">
+                                <td style="padding: 8px;">{{ i.item }}</td>
+                                <td style="padding: 8px;">{{ i.hsn }}</td>
+                                <td style="padding: 8px;">{{ i.quantity }}</td>
+                                <td style="padding: 8px;">{{ i.price }}</td>
+                                <td style="padding: 8px;">{{ i.tax }}</td>
+                                <td style="padding: 8px;">{{ i.discount }}</td>
+                                <td style="padding: 8px;">{{ i.total }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div style="padding-top: 30px;margin-top: 50px;">
+                    <div style="display: flex;">
+                        <div style="margin-left: auto; text-align: right;">
+                            <table  style="border: none; text-align: right;">
+                                <tr>
+                                    <td style="padding: 8px 12px;">Subtotal :<span>{{ creditnote.subtotal }}</span></td>
+                                </tr>
+                                <tr>
+                                    <td style="padding: 8px 12px;">VAT :<span>{{ creditnote.vat }}</span></td>
+                                </tr>
+                                <tr>
+                                    <td style="padding: 8px 12px;">Tax Amount : <span>{{ creditnote.vat }}</span></td>
+                                </tr>
+                                <tr>
+                                    <td style="padding: 8px 12px;">
+                                        Adjustment : <span>{{ creditnote.adjustment }}</span>
+                                        
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style="padding: 8px 12px;border-top: 1px solid grey;color: #68020F;">Grand Total :<span>{{ creditnote.grandtotal }}</span></td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,182 @@
+{% extends 'base.html' %}
+{% block content %}
+{% load static %}
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<div class="body-wrapper">
+    <div class="container-fluid">
+        <br><br><br>
+      <div class="row">
+        <div class="col-lg-8 d-flex align-items-strech" >
+          <div class="card w-100" style="box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);" >
+            <div class="card-body">
+              <div class="d-sm-flex d-block align-items-center justify-content-between mb-9" >
+                <div class="mb-3 mb-sm-0">
+                  <h3 class="" style="color: #68020F; font-weight: 600;">Sales Overview</h3>
+                </div>
+                <div>
+                  <select class="form-select">
+                    <option value="1">Last Month</option>
+                    <option value="2">6 Months</option>
+                    <option value="3" selected>1 Year</option>
+                    <option value="4">2 Years</option>
+                  </select>
+                </div>
+              </div>
+              <canvas id="chart" width="400" height="200"></canvas>
+            </div>
+          </div>
+        </div>
+        <div class="col-lg-4">
+          <div class="row">
+            <div class="col-lg-12">
+              <div class="card" style="box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);" >
+                <div class="card-body">
+                  <div class="row">
+                    <div class="col-md-8">
+                      <h3 class="" style="color: #68020F; font-weight: 600;">Sales</h3>
+      
+                    </div>
+                    <div class="col">
+                      <div>
+                        <select class="form-select">
+                          <option value="1">Last Month</option>
+                          <option value="2">6 Months</option>
+                          <option value="3" selected>1 Year</option>
+                          <option value="4">2 Years</option>
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="row" >
+                    <div class="col-md-7 ">
+                      
+                    <h4 class="fw-semibold mb-3 m-3">₹2,500000</h4>
+                    </div>
+                    
+                    <div class="col ">
+                      
+                      <div class="d-flex align-items-center pb-1 pt-3">
+                        <i class="fa fa-wallet pl-5" style="font-size: 40px; color: #68020F;"></i>
+                        <span
+                          class="me-2 rounded-circle bg-light-danger round-20 d-flex align-items-center justify-content-center">
+                          <i class="ti ti-arrow-up-left"></i>
+                        </span>
+                        <p class="text-dark me-1 fs-3 mb-0">+11%</p>
+                        <p class="fs-3 mb-0">last year</p>
+                      </div>
+                    </div>
+                  </div>  
+      
+                  
+      
+                </div>
+                
+              </div>
+            </div>
+            <div class="col-lg-12">
+                <div class="card" style="box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);" >
+                    <div class="card-body">
+                      <div class="row">
+                        <div class="col-md-8">
+                          <h3 class="" style="color: #68020F; font-weight: 600;">Purchase</h3>
+                        </div>
+                        <div class="col-md-4">
+                          <div>
+                            <select class="form-select">
+                              <option value="1">Last Month</option>
+                              <option value="2">6 Months</option>
+                              <option value="3" selected>1 Year</option>
+                              <option value="4">2 Years</option>
+                            </select>
+                          </div>
+                        </div>
+                      </div>
+                      
+                      <div class="row">
+                        <div class="col-md-7">
+                          
+                          <h4 class="fw-semibold mb-3 m-3">₹1,82000</h4>
+                          
+                          
+                        </div>
+                        
+                        <div class="col">
+                        
+                          
+                          
+                          <div class="d-flex align-items-center pb-1 pt-3">
+                            <i class="fa fa-shopping-cart pl-5" style="font-size: 40px; color: #68020F;"></i>
+                            <span
+                          class="me-2 rounded-circle bg-light-danger round-20 d-flex align-items-center justify-content-center">
+                          <i class="ti ti-arrow-down-right text-danger"></i>
+                        </span>
+                        <p class="text-dark me-1 fs-3 mb-0">+20%</p>
+                        <p class="fs-3 mb-0">last year</p>
+                            
+                            
+                          </div>
+                        </div>
+                      </div>
+          
+                    </div>
+                  </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div> 
+
+
+<script>
+    // Get the canvas element and its context
+    var data = {
+        labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
+        datasets: [
+            {
+                label: 'Purchase',
+                borderColor: '#68020F',
+                backgroundColor: '#68020F',
+                data: [300, 200, 250, 150, 400, 350, 200, 300, 280, 320, 400, 450] // Modify with your actual data
+            },
+            {
+                label: 'Sales',
+                borderColor: '#F21137',
+                backgroundColor: '#F21137',
+                data: [100, 250, 200, 300, 150, 180, 250, 200, 300, 180, 120, 80] // Modify with your actual data
+            }
+        ]
+    };
+
+    // Chart configuration
+    var config = {
+        type: 'line',
+        data: data,
+        options: {
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        stepSize: 100,
+                        color: '#000'
+                    },
+                    max:500
+                },
+                x: {
+                    ticks: {
+                        color: '#000'
+                    }
+                }
+            }
+        }
+    };
+
+    // Get the canvas element and create the chart
+    var ctx = document.getElementById('chart').getContext('2d');
+    new Chart(ctx, config);
+
+</script>
+
+{% endblock content %}

@@ -1,0 +1,380 @@
+{% extends 'base.html' %}
+
+
+{% load static %}
+{% block content %}
+<style>
+    .button_border {
+        border: 1px solid #68020F;
+        color: #68020F;
+    }
+
+    .button_border:hover {
+        background-color: #68020F;
+        color: white;
+    }
+    thead {
+        background-color: #68020F; 
+        color: #fff; 
+    }
+    .form-control{
+        border:1px solid #68020F;
+    }
+    .date-input{
+        width: 120px;
+    }
+    #credittable tr:hover td:not(:last-child){
+        border-right: 1px solid #044A42;
+    }
+
+    #credittable tr:hover td{
+        cursor: pointer;
+        background-color: white;
+    }
+
+    
+</style>
+<div class="body-wrapper">
+    <div class="container">
+        <br><br><br><br><br><br><br>
+        <div class="p-3 mb-5" style="border: 2px solid #68020F; border-radius: 2.5vh; background-color: #FFD6D7; height: 100vh;">
+            <div id="creditnote_detail_target">
+            <div class="mb-3 mb-sm-0">
+                <h1 class="modal-title fs-5 p-1" style="color: #68020F; font-weight: 900;">CREDITNOTE</h1>
+               <div id="pdfexclude"> 
+                <div class="d-flex flex-wrap justify-content-between mb-3">
+                    <div class="d-flex flex-wrap">
+                        <div class="me-3 mb-2">
+                            <label for="fromDate" class="col-form-label">From Date:</label>
+                            <input type="date" class="form-control date-input" id="fromDate">
+                        </div>
+                        <div class="me-3 mb-2">
+                            <label for="toDate" class="col-form-label">To Date:</label>
+                            <input type="date" class="form-control date-input" id="toDate">
+                        </div>
+                    </div>
+                    <div class="mt-4">
+                        <button type="button" class="btn button_border me-3" id="addCreditNoteBtn">+ Add Credit Note</button>
+                    </div>
+                </div>
+                <div class="d-flex justify-content-between">
+                    <div id="searchdiv">
+                        <div class="position-relative">
+                            <div class="position-absolute" style="margin-top:0.4rem;margin-left: 0.5rem;">
+                                <span class="fa fa-search fs-5 text-danger"></span>
+                            </div>
+                        </div>
+                        <input id="searchInput" style="padding-inline-start: 2rem; width:200%; border: 1px solid #062925;" class="text-dark pt-1 pb-1 pe-1 rounded" type="text" placeholder=" search here..">
+                    </div>
+                    <div>
+                        <button class="btn p-0 ps-2 pe-2 ms-2" type="button" onclick="export_as_excel()" style="color: #FF474D;">
+                            <i class="fas fa-file-excel" style="font-size:175%;"></i><br>EXCEL
+                        </button>
+                        <button class="btn p-0 ps-2 pe-2 ms-2" type="button" onclick="export_as_pdf()" style="color: #FF474D;">
+                            <i class="fas fa-file-pdf" style="font-size:175%;"></i><br>PDF
+                        </button>
+                    </div>
+                </div>
+               </div> 
+                
+            </div>
+            <div class="mt-3" style="overflow: scroll;height: 31rem;">
+                <table id="credittable" class="table table-bordered  tb table-responsive w-100">
+                    <thead style="background: #68020F; color: white;">
+                        <tr>
+                            <th>#</th>
+        <th class="text-center fs-2">
+            <div style="display: flex; align-items: center;">
+                DATE
+                <span class="fa fa-filter ps-1 fs-2" onclick="showdateFilter(this,1)"></span>
+            </div>
+        </th>
+        <th class="text-center fs-2">
+            <div style="display: flex; align-items: center;">
+                CREDITNOTE
+                <span class="fa fa-filter ps-1 fs-2" onclick="showFilterBox(this,2)"></span>
+            </div>
+        </th>
+        <th class="text-center fs-2">
+            <div style="display: flex; align-items: center;">
+                PARTY NAME
+                <span class="fa fa-filter ps-1 fs-2" onclick="showFilterBox(this,3)"></span>
+            </div>
+        </th>
+        <th class="text-center fs-2">
+            <div style="display: flex; align-items: center;">
+                TRANSACTION
+                <span class="fa fa-filter ps-1 fs-2" onclick="showFilterBox(this,4)"></span>
+            </div>
+        </th>
+        <th class="text-center fs-2">
+            <div style="display: flex; align-items: center;">
+                TYPE
+                <span class="fa fa-filter ps-1 fs-2" onclick="showFilterBox(this,5)"></span>
+            </div>
+        </th>
+        <th class="text-center fs-2">
+            <div style="display: flex; align-items: center;">
+                TOTAL
+                <span class="fa fa-filter ps-1 fs-2" onclick="showFilterBox(this,6)"></span>
+            </div>
+        </th>
+        <th class="text-center p-0 m-0" id="pdfexclude"></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for c in creditnotes %}
+                        <tr style="background-color: #FFD6D7;">
+                            <td>{{forloop.counter}}</td>
+                            <td>{{c.returndate|date:'Y-m-d'}}</td>
+                            <td>{% if c.references.all %}
+                                {% for reference in c.references.all %}
+                                    {{ reference.reference_no }}{% if not forloop.last %}, {% endif %}
+                                {% endfor %}
+                            {% else %}
+                                No reference number available
+                            {% endif %}</td>
+                            <td>{{c.party.party_name}}</td>
+                            <td>Credit Note</td>
+                            <td>{{c.party.payment}}</td>
+                            <td>{{c.grandtotal}}</td>
+                            <td class="p-0 pt-1 m-0" id="pdfexclude">
+                                <div class="btn-group mb-1">
+                                    <button style="border: none;background: none;" type="button" class="dropdown-toggle-split" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <span style="font-size: 20px; background:none;">&#8942;</span>
+                                    </button>
+                                    
+                                    <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                                        <li><a class="dropdown-item" href="{% url 'credit_templates' c.id %}"><span class="fa fa-eye" style="padding-inline-start: 0.1rem;padding-inline-end:0.7rem ;"></span>View</a></li>
+                                        <li><a class="dropdown-item" href="{% url 'edit_creditnote' c.id %}"><span class="fa fa-pen" style="padding-inline-start: 0.1rem;padding-inline-end:0.7rem ;"></span>Edit</a></li>
+                                        <li><a class="dropdown-item" href="{% url 'history_page' c.id %}"><span class="fa fa-clock" style="padding-inline-start: 0.1rem;padding-inline-end:0.7rem ;"></span>History</a></li>
+                                        <li><a class="dropdown-item" href="{% url 'delete_creditnote' c.id %}"><span class="fa fa-trash-alt tr" style="padding-inline-start: 0.1rem;padding-inline-end:0.7rem ;"></span>Delete</a></li>
+                                    </ul>
+                                </div>
+                                
+                            </td>
+                           
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            
+            </div>
+            <div class="modal fade" id="filterModal" tabindex="-1" aria-labelledby="filterModalLabel" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="filterModalLabel">Filter Column</h5>
+                            <button type="button" class="btn-close" data-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <input type="text" class="form-control" id="filterInput" placeholder="Enter filter value">
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Clear</button>
+                            <button type="button" class="btn btn-primary" onclick="applyFilter()">Apply</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+</div>
+<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+    <script type="text/javascript" src="https://unpkg.com/xlsx@0.15.1/dist/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.2/html2pdf.bundle.js"></script>
+
+    <script>
+        function showdateFilter(icon,columnIndex){
+            var filterBox = document.createElement("div");
+            filterBox.className = "filter-box";
+            filterBox.innerHTML = `
+                <label>Equal to</label>
+                <div><input type="date" id="referenceFilterInput"></div>
+                <div style="padding-top: 10px;" >
+                <button class="btn " onclick="applyFilter(this, ${columnIndex})" style="background-color: #68020F;color:white;">Apply</button>
+                &nbsp&nbsp&nbsp<button class="btn " onclick="clearFilter()" style="background-color: #68020F;color:white;">Clear</button>
+            </div>
+            `;
+            filterBox.style.backgroundColor = "white"; // Set background color to white
+            filterBox.style.border = "1px solid #ccc"; // Add border for better visibility
+            filterBox.style.padding = "10px"; // Add padding to space out the content
+
+            // Position filter box relative to cursor
+            var rect = icon.getBoundingClientRect();
+            filterBox.style.position = "absolute";
+            filterBox.style.left = rect.left + "px";
+            filterBox.style.top = (rect.bottom + window.scrollY) + "px";
+
+            // Append filter box to body
+            document.body.appendChild(filterBox);
+        }
+
+        function showFilterBox(icon, columnIndex) {
+            // Create filter box element
+            var filterBox = document.createElement("div");
+            filterBox.className = "filter-box";
+            filterBox.innerHTML = `
+                <label>Equal to</label>
+                <div><input type="text" id="referenceFilterInput"></div>
+                <div style="padding-top: 10px;" >
+                <button class="btn " onclick="applyFilter(this, ${columnIndex})" style="background-color: #68020F;color:white;">Apply</button>
+                &nbsp&nbsp&nbsp<button class="btn " onclick="clearFilter()" style="background-color: #68020F;color:white;">Clear</button>
+            </div>
+            `;
+
+            // Apply styling to the filter box
+            filterBox.style.backgroundColor = "white"; // Set background color to white
+            filterBox.style.border = "1px solid #ccc"; // Add border for better visibility
+            filterBox.style.padding = "10px"; // Add padding to space out the content
+
+            // Position filter box relative to cursor
+            var rect = icon.getBoundingClientRect();
+            filterBox.style.position = "absolute";
+            filterBox.style.left = rect.left + "px";
+            filterBox.style.top = (rect.bottom + window.scrollY) + "px";
+
+            // Append filter box to body
+            document.body.appendChild(filterBox);
+            
+        }
+    
+
+        function applyFilter(button, columnIndex) {
+            var filterValue = document.getElementById("referenceFilterInput").value.trim().toUpperCase();
+            console.log("Filter Value:", filterValue);
+            var rows = document.querySelectorAll("#credittable tbody tr");
+            console.log("Number of Rows:", rows.length);
+            
+            rows.forEach(function(row) {
+                var cells = row.querySelectorAll("td");
+                var cell = cells[columnIndex];
+                console.log("Column Index:", columnIndex);
+                
+                if (cell) {
+                    var cellText = cell.textContent || cell.innerText;
+                    console.log("Cell Text:", cellText);
+                    // Check if the filter value is numeric
+                    if (!isNaN(filterValue)) {
+                        // For numeric filter value, perform exact match comparison
+                        if (cellText.trim().toUpperCase() === filterValue) {
+                            row.style.display = "";
+                        } else {
+                            row.style.display = "none";
+                        }
+                    } else {
+                        // For non-numeric filter value, check if it's contained in the cell content
+                        if (cellText.toUpperCase().includes(filterValue)) {
+                            row.style.display = "";
+                        } else {
+                            row.style.display = "none";
+                        }
+                    }
+                }
+            });
+            closeFilterBox();
+        }
+    
+        function clearFilter() {
+            
+            var filterInput = document.querySelector(".filter-box input");
+            filterInput.value = "";
+
+            var rows = document.querySelectorAll("#credittable tbody tr");
+            rows.forEach(function(row) {
+                row.style.display = "";
+            });
+            closeFilterBox();
+        }
+
+        function closeFilterBox() {
+            var filterBox = document.querySelector(".filter-box");
+            if (filterBox) {
+                filterBox.parentNode.removeChild(filterBox);
+            }
+        }
+    </script>
+<script>
+    
+    $(document).ready(function(){
+        var addCreditNoteBtn = $('#addCreditNoteBtn');
+        addCreditNoteBtn.click(function(){
+            window.location.href="{% url 'SalesReturn' %}"
+        });
+    });
+
+    $(document).ready(function() {
+        $('#searchInput').on('input', function() {
+            var searchText = $(this).val().toLowerCase();
+            $('tbody tr').each(function() {
+                var rowData = $(this).text().toLowerCase();
+                if (rowData.includes(searchText)) {
+                    $(this).show();
+                } else {
+                    $(this).hide();
+                }
+            });
+        });
+
+        $('#fromDate, #toDate').on('change', function() {
+            var fromDate = new Date($('#fromDate').val());
+            var toDate = new Date($('#toDate').val());
+            
+            $('#toDate').attr('min', $('#fromDate').val());
+
+            $('tbody tr').each(function() {
+                var date = new Date($(this).find('td:eq(1)').text());
+                if ((fromDate <= date && date <= toDate) || 
+                    ($('#fromDate').val() === '' && date <= toDate) || 
+                    (fromDate <= date && $('#toDate').val() === '')) {
+                        $(this).show();
+                } else {
+                    $(this).hide();
+                }
+            });
+        });
+
+    });
+</script>
+
+<script>
+    function export_as_excel(){
+        const table = document.querySelector('#credittable');
+        const clonedTable = table.cloneNode(true);
+        clonedTable.querySelectorAll('tr').forEach(row => {
+            const lastCell = row.lastElementChild;
+            if (lastCell) {
+                row.removeChild(lastCell);
+            }
+        });
+        const ws = XLSX.utils.table_to_sheet(clonedTable);
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, 'Sheet1');
+        XLSX.writeFile(wb, 'CreditNotes.xlsx');
+    }
+    function export_as_pdf() {
+        // Hide the element with id 'pdfexclude'
+        const pdfExcludeElement = document.getElementById('pdfexclude');
+        pdfExcludeElement.style.display = 'none';
+
+        // Clone the table to remove the last column for PDF export
+        const table = document.getElementById('credittable');
+        const clonedTable = table.cloneNode(true);
+        const rows = clonedTable.querySelectorAll('tr');
+        rows.forEach(row => {
+            row.deleteCell(-1); // Remove the last cell (column) from each row
+        });
+
+        // Export the modified content to PDF
+        html2pdf().from(clonedTable).save('CreditNote.pdf').then(() => {
+            // Show the element with id 'pdfexclude'
+            pdfExcludeElement.style.display = 'block';
+        });
+    }
+</script>
+
+{% endblock %}

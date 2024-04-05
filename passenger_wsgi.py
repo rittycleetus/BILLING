@@ -1,0 +1,1 @@
+from Multiusr_BillSoftware_Vat.wsgi import application

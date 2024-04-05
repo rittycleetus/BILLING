@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pay Slip</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css" />
+ 
+</head>
+<style>
+    .bill-info {
+  display: inline-block;
+  vertical-align: top;
+  margin-right: 20px; /* Adjust the margin as needed */
+}
+
+.bill-info p {
+  margin: 0;
+}
+
+</style>
+<body>
+  <div class="my-5 page" size="A4">
+    <div class="p-5">
+                    <div class="row">
+                        <div class="col-sm-12" style=" color: rgb(7, 7, 7);">
+                            <h3 style=" text-align: center;"> PURCHASE BILL<br>
+                                {{pbill.company.company_name}} <br>
+                                {{pbill.company.address}} <br>
+                                {{pbill.company.city}},
+                                {{pbill.company.state}}<br>
+                                {{pbill.company.cemail}}
+                                <br>
+                            </h3>
+                        </div>
+                        <section class="top-content ">
+                            <div>
+                                <div class="col-12">
+                                    <h6> Bill No: &nbsp; {{ pbill.billno }}</h6>
+                                    <h6>Bill Date: <span>{{ pbill.billdate | date:'d-m-Y' }}</span></h6>
+                                    <div class="col-5" style="text-align: right;">
+                                    </h6 style="color:black;"> <span style=" font-weight: bold;">To: 
+                                      {{ pbill.party.party_name }}<br>
+                                      {{ pbill.party.address | linebreaksbr }}
+                                    </h6>
+                                  </div>
+                                </div>
+                                  
+                                
+                            </div>
+                          
+                        </section>
+                    
+                          
+
+                     
+                        <div class="col-md-1"></div>
+                        <div class="col-md-10"><br>
+                            <table class="table table-hover table-borderless " id="table3">
+                                <thead >
+                                    <tr class="template3tablehead" >
+                                        <th class="text-center"  style="color:black">Items</th>
+                                        <th class="text-center"  style="color:black">HSN</th>
+                                        <th class="text-center"  style="color:black">Quantity</th>
+                                        <th class="text-center"  style="color:black">Rate</th>
+                                        <th class="text-center"  style="color:black">VAT</th>
+                                        <th class="text-center"  style="color:black">Discount</th>
+                                        <th class="text-center"  style="color:black">Total</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for i in pitm %}
+                                        <tr>
+                                            <td style="color:black; text-align: center;">{{i.product.itm_name}}</td>
+                                            <td style="color:black; text-align: center;">{{i.product.itm_hsn}}</td >
+                                            <td style="color:black; text-align: center;">{{i.qty}}</td>
+                                            <td style="color:black; text-align: center;">{{i.product.itm_purchase_price}}</td>
+                                            <td style="color:black; text-align: center;">{{i.VAT}}</td>
+                                            <td style="color:black; text-align: center;">{{i.discount}} </td>
+                                            <td style="color:black; text-align: center;">{{i.total}}</td>
+                                        </tr>
+                                    {% endfor %} 
+                                </tbody>
+                            </table>
+                        </div>
+                    </div> 
+                    <section class="balance-info">
+                        <div class="row">
+                            <div class="col-md-7"></div>
+                            <div class="col-md-4">
+                                <br>
+                                <table class="table table-borderless">
+                                    <tbody>
+                                        <tr >
+                                            <td style="color: #000;">Sub Total</td>
+                                            <td style="color: #000;">:</td>
+                                            <td class="text-right" style="color: #000;">{{pbill.subtotal}}</td>
+                                        </tr>
+                                        
+                                  
+                                        <tr >
+                                            <td style="color: #000;">VAT Amount</td>
+                                            <td style="color: #000;">:</td>
+                                            <td class="text-right" style="color: #000;">{{pbill.taxamount}}</td>
+                                        </tr>
+                                        {% if pbill.adjust != '0.00' %}
+                                        {% if pbill.adjust != '0' %}
+                                        <tr >
+                                            <td style="color: #000;">Adjustment</td>
+                                            <td style="color: #000;">:</td>
+                                            <td class="text-right" style="color: #000;">{{pbill.adjust}}</td>
+                                        </tr>
+                                        {% endif %}
+                                        {% endif %}
+                                    </tbody>
+                                </table>
+                                <hr style="background-color: #000000;">
+                                <table class="table table-borderless">
+                                    <tbody>
+                                        <tr >
+                                            <th style="color: #000;">Grand Total &nbsp;&nbsp;&nbsp;&nbsp;</th>
+                                            <th style="color: #000; ">:</th>
+                                            <th style="color: #000; text-align: right;">{{pbill.grandtotal}}</th>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </section> 
+                </div>
+            </div>
+            <div class="ml-2 mt-2">
+                <p>
+                    Created by : {{pbill.staff.first_name}}  {{pbill.staff.last_name}} <br>
+                    Printed by {{staff.first_name}}  {{staff.last_name}} On <span id="datetimedisplay"></span>
+                </p>
+            </div>
+</body>
+
+</html>

@@ -1,0 +1,1614 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.0.1/css/toastr.css" rel="stylesheet"/>
+
+<style>
+    .g-1
+    {
+        gap: 0.50rem;
+    }
+    .justify-content-space-between
+    {
+        justify-content: space-between;
+    }
+    .justify-content-space-around
+    {
+        justify-content: space-around;
+        gap: 1rem;
+    }
+    label
+    {
+        font-size: 12px;
+        padding-bottom: 0.30rem;
+        font-weight: 500;
+    }
+
+    .search-container {
+        position: relative;
+    }
+    
+    /* Style for the input field */
+    .search-input {
+        padding-right: 30px; /* Ensure enough space for the icon */
+        width: 200px; /* Set the width of the input box */
+    }
+    
+    /* Style for the search icon button */
+    .search-button {
+        position: absolute;
+        top: 0;
+        right: 0;
+        height: 100%;
+        padding: 8px;
+        background-color: transparent;
+        border: none;
+        cursor: pointer;
+    }
+    
+    /* Style for the search icon */
+    .search-button i {
+        color: #aaa; /* Icon color */
+    }
+    
+    /* Adjust icon color on hover */
+    .search-button:hover i {
+        color: #333;
+    }
+    .fa-file-excel
+    {
+        color: #27ae60;
+    }
+    .fa-file-excel span,
+    .fa-print span{
+        color: #333;
+        padding-left: 0.10rem;
+        font-size: 12px;
+        font-weight: 700;
+    }
+    .fa-print
+    {
+        color: #c40606;
+    }
+    #debitTable 
+    {
+       
+    }
+    @media (max-width:732px)
+    {
+        .justify-content-space-between,
+        .justify-content-space-around
+        {
+            flex-direction: column;
+        }
+        .form-control
+        {
+            display: inline-block;
+        }
+    }
+    
+
+    .created {
+        color: red;
+       
+    }
+    .edited{
+        color: red;
+    }
+    .modal {
+    display: none; /* Hidden by default */
+    position: fixed; /* Stay in place */
+    z-index: 1000; /* Sit on top */
+    left: 0;
+    top: 0;
+    width: 100%; /* Full width */
+    height: 100%; /* Full height */
+    overflow: auto; /* Enable scroll if needed */
+    background-color: rgba(0, 0, 0, 0.5); /* Black w/ opacity */
+    padding-top: 60px; /* Location of the box */
+}
+
+/* Modal content */
+.modal-content {
+    background-color: #fefefe;
+    margin: 5% auto; /* 5% from the top and centered */
+    padding: 40px;
+    border: 1px solid #888;
+    width: 80%; /* Could be more or less, depending on screen size */
+}
+
+/* Close button */
+.close {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+}
+
+.close:hover,
+.close:focus {
+    color: black;
+    text-decoration: none;
+    cursor: pointer;
+}
+.ellipsis-menu-container {
+    position: relative;
+    z-index: 999; 
+}
+
+/* Adjust the positioning of the ellipsis menu */
+.ellipsis-menu {
+    position: absolute;
+    top: 0;
+    right: 0;
+    cursor: pointer;
+}
+
+/* Adjust the positioning of the menu options */
+.menu-options {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    display: none; 
+    width:100px;
+    background-color: whitesmoke;
+}
+
+        .ellipsis-menu:hover .menu-options {
+            display: block;
+        }
+
+        .menu-option {
+            padding: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .menu-option:hover {
+            background-color: #f0f0f0;
+        }
+     .filter-box {
+            display: none;
+            position: absolute;
+            background-color: #fff;
+            border: 1px solid #ccc;
+            padding: 5px;
+            z-index: 1;
+           
+        }
+        .filter-box1 {
+            display: none;
+            position: absolute;
+            background-color: #fff;
+            border: 1px solid #ccc;
+            padding: 5px;
+            z-index: 1;
+            left: 850px;
+        }
+        .filter-box2 {
+            display: none;
+            position: absolute;
+            background-color: #fff;
+            border: 1px solid #ccc;
+            padding: 5px;
+            z-index: 1;
+            left: 890px;
+        }
+
+        .filter-box input,
+        .filter-box select {
+            margin-bottom: 5px;
+        }
+
+        .filter-btns {
+            text-align: center;
+        }
+        .custom-button {
+        background-color: #68020F;
+        color: white;
+        width: 50px;
+    }
+       td{
+    border-right: 1px solid rgb(12, 12, 12);
+  }
+  th{
+    width: 100px;
+  }
+  
+
+  tbody:hover td:not(:last-child){
+    border-right: 1px solid #68020F;
+  }
+  @media print {
+            body {
+                font-size: 12pt;
+                color: black;
+            }
+
+            /* Additional print-specific styles */
+            .print-header {
+                font-size: 16pt;
+                font-weight: bold;
+                text-align: center;
+                margin-bottom: 20px;
+            }
+
+            .party-name {
+                font-size: 14pt;
+                font-weight: bold;
+                margin-bottom: 10px;
+            }
+
+            .item-details {
+                margin-bottom: 20px;
+            }
+
+            /* Hide non-print elements */
+            .no-print {
+                display: none;
+            }
+
+        }
+       
+    /* Style for the popup */
+    /* .popup {
+      display: none;
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      padding: 20px;
+      background-color: #fff;
+      border: 1px solid #ccc;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+      z-index: 1000;
+    } */
+    .popup {
+    display: none;
+    position: absolute;
+    top: 30px;
+    left: 0;
+    background-color: #fff;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    padding: 10px;
+}
+
+.share-icon {
+    cursor: pointer;
+}
+
+    /* Style for the overlay */
+    .overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 999;
+    }
+
+
+</style>
+
+<div class="body-wrapper">
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-lg-12 col-12 d-flex align-items-strech" >
+          <div class="card" >
+            <div class="card-body">
+                <!-- Date inputs -->
+                <form>
+                    <h3>Debit Note</h3>
+                    <div class="d-flex align-items-center justify-content-space-between">
+                        <div class="search-column d-flex g-1" >
+                            <div class="search-container">
+                                <input type="text" id="search" class="search-input form-control" name="search" placeholder="Search...">
+                                <button type="button" class="search-button"><i class="fas fa-search"></i></button>
+                            </div>
+                            
+                            
+                            <a href="{% url 'createdebitnote' %}" class="btn btn-primary" style="font-size: 12px;background-color: #68020F;" title="Debit Note"><i class="fas fa-plus"></i> </a>
+                        </div>
+
+                        <div>
+                            <div class="d-flex justify-content-space-around ">
+                                <div style="flex: 1;">
+                                    <label for="fromDate" style="margin-right: 10px;">From Date</label>
+                                    <input type="date" id="fromDate" class="form-control" name="fromDate" onchange="filterTable(this);updateToDateMin(this)">
+                                </div>
+                                <div style="flex: 1;">
+                                    <label for="toDate" style="margin-left: 10px;">To Date</label>
+                                    <input type="date" id="toDate" class="form-control" name="toDate"  onchange="filterTable(this);updateToDateMin(this)">
+                                </div>
+                            </div>
+                            
+                        </div>
+                        
+                    </div>
+                       
+                </form>
+                <hr>
+                <div class="d-flex g-1 justify-content-end">
+                    <a href="#" class="btn-icon" onclick="downloadExcel()">
+                        <i class="fas fa-file-excel" > <span>Excel</span></i>
+                    </a>
+                    <a href="#" class="btn-icon" onclick="printPDFWithTable()">
+                        <i class="fas fa-print" > <span>Print</span></i>
+                    </a>
+                </div>
+                <div class="container-fluid" >
+                    <div class="table-responsive">
+                        <table class="table table-hover mt-4 "  id="debitTable">
+                            <thead style="background: #68020F;">
+                            <tr class=" text-start text-light" style="font-size: 12px;">
+                                <th scope="col"class="custom-width" style="border-right: 1px solid;">#</th>
+                                
+
+                                <th scope="col" style="border-right: 1px solid; position: relative;">
+                                    Date&nbsp;&nbsp;
+                                    <i class="fas fa-filter fa-xs" onclick="toggleFilterBoxdate(this)" style="color: #3498db;"></i>
+                                    <div class="filter-box" id="dateFilterBox">
+                                        <select id="dateFilterOption" style="width: 190px;" onchange="toggleDateInput()">
+                                            <option value="equalto">Equal to</option>
+                                            <option value="greaterthan">Greater than</option>
+                                            <option value="lessthan">Less than</option>
+                                            <option value="range">Range</option>
+                                        </select>
+                                        
+                                        <!-- Input field for equal to filter -->
+                                        <input type="date" id="equalToDateInput" placeholder="dd/mm/yy" style="width: 190px; display: none;">
+                                        
+                                        <!-- Input field for greater than filter -->
+                                        <input type="date" id="greaterThanDateInput" placeholder="dd/mm/yy" style="width: 190px; display: none;">
+                                        
+                                        <!-- Input field for less than filter -->
+                                        <input type="date" id="lessThanDateInput" placeholder="dd/mm/yy" style="width: 190px; display: none;">
+                                    
+                                        <label for="fromDateInput" style="color: black;">From:</label>
+                                        <input type="date" id="fromDateInput" placeholder="dd/mm/yy" style="width: 190px; display: none;"><br>
+                                        <label for="toDateInput"style="color: black;">To:</label>
+                                        <input type="date" id="toDateInput" placeholder="dd/mm/yy" style="width: 190px; display: none;">
+                                    
+                                        <div class="filter-btns">
+                                            <button onclick="clearFilter()" class="custom-button">CLEAR</button>
+                                            <button onclick="applyFilter()" class="custom-button" id="applyButton">APPLY</button>
+                                        </div>
+                    </div>
+                </th>
+                                <th scope="col" style="border-right: 1px solid; width: 300px;">
+                                    Ref.No
+                                    <i class="fas fa-filter fa-xs" onclick="toggleFilterBox(this)" style="color: #3498db;"></i>
+                                    <div class="filter-box" id="refNoFilterBox" style="width:200px">
+                                        <select style="width: 190px;">
+                                            <option value="exact">Exact match</option>
+                                            <option value="contains">Contains</option>
+                                        </select>
+                                        <input type="text" placeholder="Search...">
+                                        <div class="filter-btns">
+                                            <button onclick="clearFilter()" class="custom-button">CLEAR</button>
+                                            <button onclick="applyFilter()" class="custom-button">APPLY</button>
+                                        </div>
+                                    </div>
+                                </th>
+                                <th scope="col" style="border-right: 1px solid; width: 1500px;">
+                                    Party Name&nbsp;&nbsp;
+                                    <i class="fas fa-filter fa-xs" style="color: #3498db; cursor: pointer;" onclick="toggleFilterBox1()"></i>
+                                    <div class="filter-box" id="partyNameFilterBox" style="width:200px">
+                                        <select id="optionSelect" style="width: 190px;" onchange="handleOptionChange()">
+                                            <option value="exact">Exact match</option>
+                                            <option value="contains">Contains</option>
+                                        </select>
+                                        <input type="text" placeholder="Search..." id="searchInput">
+                                        <div class="filter-btns">
+                                            <button id="clearButton" onclick="clearFilter1()" class="custom-button">CLEAR</button>
+                                            <button id="applyButton" onclick="applyFilter1()" class="custom-button">APPLY</button>
+                                        </div>
+                                    </div>
+                                </th>
+                                <!-- <th scope="col" style="border-right: 1px solid;width: 1500px;">Category Name<i class="fas fa-filter fa-xs" onclick="toggleFilterBox(this)" style="color: #3498db;"></i>
+                                    <div class="filter-box" id="categoryNameFilterBox" style="width:100px">
+                                        <select style="width: 190px;">
+                                            <option value="exact">Exact match</option>
+                                            <option value="contains">Contains</option>
+                                        </select>
+                                        <input type="text" placeholder="Search...">
+                                        <div class="filter-btns">
+                                            <button onclick="clearFilter()" class="custom-button">CLEAR</button>
+                                            <button onclick="applyFilter()" class="custom-button">APPLY</button>
+                                        </div>
+                                    </div>
+                                </th> -->
+                                <th scope="col"  style="border-right: 1px solid;width: 800px;">Type<i class="fas fa-filter fa-xs" onclick="toggleFilterBox(this)" style="color: #3498db;"></i>
+                                    <div class="filter-box" id="typeFilterBox" style="width:200px">
+                                        <select style="width: 190px;">
+                                            <option value="exact">Exact match</option>
+                                            <option value="contains">Contains</option>
+                                        </select>
+                                        <input type="text" placeholder="Search...">
+                                        <div class="filter-btns">
+                                            <button onclick="clearFilter()" class="custom-button">CLEAR</button>
+                                            <button onclick="applyFilter()" class="custom-button">APPLY</button>
+                                        </div>
+                                    </div>
+                                </th>
+                                <th scope="col" style="border-right: 1px solid;width: 800px;">
+                                    Total
+                                    <i class="fas fa-filter fa-xs" onclick="toggleFilterBox('totalFilterBox')" id="totalFilterBoxIcon" style="color: #3498db;"></i>
+                                    <div class="filter-box" id="totalFilterBox" style="width: 200px; display: none;">
+                                        <select style="width: 190px;" id="totaloptions">
+                                            <option value="equalto">Equal to</option>
+                                            <option value="greaterthan">Greater than</option>
+                                            <option value="lessthan">Less than</option>
+                                        </select>
+                                        <input type="number" id="totalFilterValue" placeholder="Enter value">
+                                        <div class="filter-btns">
+                                            <button onclick="clearTotalFilter()" class="custom-button">CLEAR</button>
+                                            <button onclick="applyTotalFilter()" class="custom-button">APPLY</button>
+                                        </div>
+                                    </div>
+                                </th>
+                                </th>
+                                <!-- <th scope="col" style="width: 100px; border-right: 1px solid; white-space: nowrap; overflow: hidden; ">Received/Paid<i class="fas fa-filter fa-xs" onclick="toggleFilterBox(this)" style="color: #3498db;"></i>
+                                    <div class="filter-box" id="recievedFilterBox" style="width:200px">
+                                        <select style="width: 190px;">
+                                            <option value="exact">Exact match</option>
+                                            <option value="contains">Contains</option>
+                                        </select>
+                                        <input type="text" placeholder="Search...">
+                                        <div class="filter-btns">
+                                            <button onclick="clearFilter()" class="custom-button">CLEAR</button>
+                                            <button onclick="applyFilter()" class="custom-button">APPLY</button>
+                                        </div>
+                                    </div>
+                                </th>
+                                <th scope="col"  style="border-right: 1px solid;width: 500px;">Balance<i class="fas fa-filter fa-xs" onclick="toggleFilterBox(this)" style="color: #3498db;"></i>
+                                    <div class="filter-box" id="balanceFilterBox" style="width:200px">
+                                        <div>
+                                            <select style="width: 190px;">
+                                                <option value="exact">Exact match</option>
+                                                <option value="contains">Contains</option>
+                                            </select>
+                                            <input type="text" placeholder="Search...">
+                                            <div class="filter-btns">
+                                                <button onclick="clearFilter()" class="custom-button">CLEAR</button>
+                                                <button onclick="applyFilter()" class="custom-button">APPLY</button>
+                                            </div>
+                                        </div>
+                                    </th> -->
+                                <th scope="col"  style="border-right: 1px solid;width: 350px;">Action<i class="fas fa-filter fa-xs" onclick="toggleFilterBox(this)" style="color: #3498db;"></i>
+                                    <div class="filter-box1" id="actionFilterBox" style="width:200px">
+                                        <select style="width: 190px;">
+                                            <option value="exact">Exact match</option>
+                                            <option value="contains">Contains</option>
+                                        </select>
+                                        <input type="text" placeholder="Search...">
+                                        <div class="filter-btns">
+                                            <button onclick="clearFilter()" class="custom-button">CLEAR</button>
+                                            <button onclick="applyFilter()" class="custom-button">APPLY</button>
+                                        </div>
+                                    </div>
+                                </th>
+                                <th scope="col"  style="border-right: 1px solid;width: 100px;">By<i class="fas fa-filter fa-xs" onclick="toggleFilterBox(this)" style="color: #3498db;"></i>
+                                    <div class="filter-box2" id="byFilterBox" style="width:200px">
+                                        <select style="width: 190px;">
+                                            <option value="exact">Exact match</option>
+                                            <option value="contains">Contains</option>
+                                        </select>
+                                        <input type="text" placeholder="Search...">
+                                        <div class="filter-btns">
+                                            <button onclick="clearFilter()" class="custom-button">CLEAR</button>
+                                            <button onclick="applyFilter()" class="custom-button">APPLY</button>
+                                        </div>
+                                    </div>
+                                </th>
+                                <th scope="col"  style="border-right: 1px solid;width: 120px;"></th>
+                                </tr>
+                            </thead>
+                        
+                            <tbody id="searchResults" style="font-size: 10px;font-weight: 700;">
+                                {% for debit in debits %}
+                                <tr onclick="viewAction('{{ debit.id }}')">
+                                    <td>{{ forloop.counter }}</td>
+                                    <td>{{ debit.created_at|date:'d-m-Y' }}</td>
+                                    <td>{{ debit.returnno }}</td> 
+                                    <td class="party-name">{{ debit.party.party_name }}</td>
+                                    <td>Debit Note</td> 
+                                    <td>{{ debit.grandtotal }}</td> 
+                                    <td>
+                                        {% with debit.debitnotehistory_set.last as latest_history %}
+                                        {% if latest_history %}
+                                        {% if latest_history.action == 'C' %}
+                                        <span style="color: red;">CREATED</span>
+                                        {% else %}
+                                        <span style="color: red;">EDITED</span>
+                                        {% endif %}
+                                        {% else %}
+                                        Unknown
+                                        {% endif %}
+                                        {% endwith %}
+                                    </td>
+                                    <td>
+                                        {% if debit.debitnotehistory_set.exists %}
+                                        {{ debit.debitnotehistory_set.last.company.company_name }}
+                                        {% else %}
+                                        Unknown
+                                        {% endif %}
+                                    </td> 
+                                    <td>
+                                        <div class="ellipsis-menu-container" onclick="event.stopPropagation()">
+                                            <div class="ellipsis-menu" id="ellipsisMenu{{ forloop.counter }}" onclick="toggleMenu(event, 'menuOptions{{ forloop.counter }}')">
+                                                <i class="fas fa-ellipsis-v"></i>
+                                                <div class="menu-options" id="menuOptions{{ forloop.counter }}">
+                                                    <div class="menu-option" onclick="editAction('{{ debit.id }}')">
+                                                        <i class="fas fa-edit" style="color: #3498db;"></i> Edit
+                                                    </div>
+                                                    <div class="menu-option" onclick="historyAction('{{ debit.id }}')">
+                                                        <i class="fas fa-history" style="color: #e67e22;"></i> History
+                                                    </div>
+                                                    <div class="menu-option" onclick="viewAction('{{debit.id}}')">
+                                                        <i class="fas fa-file-pdf" style="color: #27ae60;"></i> View
+                                                    </div>
+                                                    <div class="menu-option" onclick="deleteDebitNoteItem('{{ debit.id }}')">
+                                                        <i class="fas fa-trash" style="color: #e74c3c;"></i> Delete
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                            
+                    </div>
+
+                    <div id="noDataMessage" style="display: none; text-align: center;">
+                        
+                        <img src="{% static 'img/blank.png' %}" alt="No data image" style="height: 150px;">
+                        <p>No data is available for DebitNote,<br> Please try again after making relevant changes.</p>
+                    </div>
+                        
+                  
+                 
+                </div>
+                
+                <!------------- Modal section --------------->
+
+                <div id="historyModal" class="modal">
+                    <div class="modal-content">
+                        <span class="close" onclick="closeModal()">&times;</span>
+                        <h2 style="color: maroon;">DEBIT NOTE HISTORY</h2>
+                        <div style="background-color: pink; padding: 20px;">
+                            <br>
+                            <h3 style="color: maroon;">Debit Note No: <span id="debitNoteNo"></span></h3>
+                            <br><br><br>
+                            <div class="table-responsive">
+                                <table id="historyTable" style="width: 100%; border-collapse: collapse;">
+                                    <thead>
+                                        <tr style="background-color: maroon; color: white;">
+                                            <th style="padding: 10px;">DATE</th>
+                                            <th style="padding: 10px;">STAFF NAME</th>
+                                            <th style="padding: 10px;">ACTION</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="historyTableBody">
+                                
+                                    <!-- History details will be populated here dynamically -->
+                                </tbody>
+                            </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-------------End  Modal section --------------->
+
+
+
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.0.1/js/toastr.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.3/html2pdf.bundle.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/0.4.1/html2canvas.min.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js:2:80625"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.3/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.13/jspdf.plugin.autotable.min.js"></script>
+
+
+<script>
+    window.onload = function() {
+        // Reset date inputs to empty string
+        document.getElementById('equalToDateInput').value = '';
+        document.getElementById('greaterThanDateInput').value = '';
+        document.getElementById('lessThanDateInput').value = '';
+        document.getElementById('fromDateInput').value = '';
+        document.getElementById('toDateInput').value = '';
+    };
+
+    function toggleFilterBoxdate(icon) {
+    const filterBox = icon.nextElementSibling;
+    // Toggle the "show" class to handle the display of the filter box
+    filterBox.classList.toggle("show");
+
+    // Toggle the display property to achieve the same effect as the original function
+    filterBox.style.display = (filterBox.classList.contains("show")) ? 'block' : 'none';
+
+    // Reset the select element to default "Equal to" option
+    document.getElementById('dateFilterOption').value = 'equalto';
+
+    // Call toggleDateInput to show/hide input fields based on the default option
+    toggleDateInput();
+}
+
+
+
+    function toggleDateInput() {
+        var selectedOption = document.getElementById('dateFilterOption').value;
+        var equalToInput = document.getElementById('equalToDateInput');
+        var greaterThanInput = document.getElementById('greaterThanDateInput');
+        var lessThanInput = document.getElementById('lessThanDateInput');
+        var fromDateInput = document.getElementById('fromDateInput');
+        var toDateInput = document.getElementById('toDateInput');
+        var fromDateLabel = document.querySelector('label[for="fromDateInput"]');
+        var toDateLabel = document.querySelector('label[for="toDateInput"]');
+
+        // Hide all input fields and labels first
+        equalToInput.style.display = 'none';
+        greaterThanInput.style.display = 'none';
+        lessThanInput.style.display = 'none';
+        fromDateInput.style.display = 'none';
+        toDateInput.style.display = 'none';
+        fromDateLabel.style.display = 'none';
+        toDateLabel.style.display = 'none';
+
+        // Show the input field and label corresponding to the selected option
+        switch (selectedOption) {
+            case 'equalto':
+                equalToInput.style.display = 'block';
+                break;
+            case 'greaterthan':
+                greaterThanInput.style.display = 'block';
+                break;
+            case 'lessthan':
+                lessThanInput.style.display = 'block';
+                break;
+            case 'range':
+                fromDateInput.style.display = 'block';
+                toDateInput.style.display = 'block';
+                fromDateLabel.style.display = 'block';
+                toDateLabel.style.display = 'block';
+                break;
+            default:
+                console.log("Invalid filter option");
+        }
+    }
+</script>
+
+<script>
+    // Add event listener to the "Apply" button
+        var applyButton = document.getElementById("applyButton");
+        if (applyButton) {
+            applyButton.addEventListener("click", applyFilter);
+        } else {
+            console.error("Element with ID 'applyButton' not found.");
+        }
+    
+
+    function applyFilter(event) {
+    // Prevent the default form submission behavior
+    event.preventDefault();
+
+    // Retrieve filter option and input fields
+    var filterOption = document.getElementById("dateFilterOption").value;
+    var equalToDateInput = document.getElementById("equalToDateInput").value;
+    var greaterThanInput = document.getElementById("greaterThanDateInput").value;
+    var lessThanInput = document.getElementById("lessThanDateInput").value;
+    var fromDateInput = document.getElementById("fromDateInput").value;
+    var toDateInput = document.getElementById("toDateInput").value;
+    
+
+    function formatDate1(date) {
+        var parts = date.split('-');
+        return parts[2] + '-' + parts[1] + '-' + parts[0];
+    }
+
+    // Retrieve table rows
+    var tableRows = document.getElementsByTagName("tr");
+        var noDataMessage = document.getElementById('noDataMessage');
+        // Variable to track if any rows are visible after filtering
+        var hasVisibleRows = false;
+        var visibleRowCount = 0; 
+
+        for (var i = 1; i < tableRows.length; i++) {
+
+            var dateCell = tableRows[i].getElementsByTagName('td')[1];
+
+            var dateFieldValue = dateCell.textContent.trim(); // Trim any leading/trailing spaces
+
+            var rowDate = formatDate1(dateFieldValue);
+            var showRow = true;
+
+        switch (filterOption) {
+            case "equalto":
+                var equalToDate = new Date(equalToDateInput);
+
+              
+                var formattedRowDate = new Date(rowDate);
+
+              
+                if (formattedRowDate.getTime() !== equalToDate.getTime()) {
+                    showRow = false;
+                }
+                break;
+            case "greaterthan":
+                var greaterThanDate = new Date(greaterThanInput);
+
+                
+                var formattedRowDate = new Date(rowDate);
+
+                
+                if (formattedRowDate.getTime() <= greaterThanDate.getTime()) {
+                    showRow = false;
+                }
+                break;
+
+            case "lessthan":
+                var lessThanDate = new Date(lessThanInput);
+
+                
+                var formattedRowDate = new Date(rowDate);
+
+                
+                if (formattedRowDate.getTime() >= lessThanDate.getTime()) {
+                    showRow = false;
+                }
+                break;
+            case "range":
+                var fromDate = new Date(fromDateInput);
+                var toDate = new Date(toDateInput);
+
+                
+                var formattedRowDate = new Date(rowDate);
+
+                
+                if (formattedRowDate.getTime() < fromDate.getTime() || formattedRowDate.getTime() > toDate.getTime()) {
+                    showRow = false;
+                }
+                break;
+             
+
+           
+
+        }
+
+
+        if (showRow) {
+            // Increment visible row count and assign index number
+            visibleRowCount++;
+            tableRows[i].style.display = "";
+            hasVisibleRows = true;
+            // Assign index number to the first column of the visible row
+            tableRows[i].getElementsByTagName('td')[0].textContent = visibleRowCount;
+        } else {
+            tableRows[i].style.display = "none";
+        }
+    }
+
+        // Toggle the message container based on the visibility of rows
+        if (!hasVisibleRows) {
+            noDataMessage.style.display = "block"; // Show the message if no rows are visible
+        } else {
+            noDataMessage.style.display = "none"; // Hide the message if there are visible rows
+        }
+        // Hide the filter box after applying the filter
+    var filterBox = document.getElementById('dateFilterBox');
+    filterBox.style.display = 'none';
+    }
+    
+
+    window.onload = function() {
+    // Execute the clearFilter function when the window is loaded
+    clearFilter();
+};
+    function clearFilter() {
+    // Reset all input fields to empty string
+    document.getElementById('equalToDateInput').value = '';
+    document.getElementById('greaterThanDateInput').value = '';
+    document.getElementById('lessThanDateInput').value = '';
+    document.getElementById('fromDateInput').value = '';
+    document.getElementById('toDateInput').value = '';
+
+    // Reset the select element to default "Equal to" option
+    document.getElementById('dateFilterOption').value = 'equalto';
+
+    // Hide all table rows
+    var tableRows = document.getElementsByTagName("tr");
+    for (var i = 1; i < tableRows.length; i++) {
+        tableRows[i].style.display = "";
+    }
+
+    // Hide the no data message
+    var noDataMessage = document.getElementById('noDataMessage');
+    noDataMessage.style.display = "none";
+
+    // Remove filter settings from localStorage
+    localStorage.removeItem('totalFilterOption');
+    localStorage.removeItem('totalFilterValue');
+}
+
+// Check for stored filter settings upon DOMContentLoaded
+document.addEventListener('DOMContentLoaded', function () {
+    // Retrieve filter settings from localStorage
+    var filterOption = localStorage.getItem('totalFilterOption');
+    var filterValue = localStorage.getItem('totalFilterValue');
+    
+    if (filterOption && filterValue) {
+        // Set the filter option and value
+        document.getElementById('totaloptions').value = filterOption;
+        document.getElementById('totalFilterValue').value = filterValue;
+        
+        // Apply the filter
+        applyTotalFilter();
+    }
+});
+</script>
+  
+
+<script>
+    document.getElementById('search').addEventListener('input', function() {
+        var input, filter, table, tr, td, i, txtValue;
+        input = document.getElementById("search");
+        filter = input.value.toUpperCase();
+        table = document.getElementById("searchResults");
+        tr = table.getElementsByTagName("tr");
+        var foundRows = 0;
+        for (i = 0; i < tr.length; i++) {
+            var tdArr = tr[i].getElementsByTagName("td");
+            var found = false;
+            for (var j = 0; j < tdArr.length; j++) {
+                td = tdArr[j];
+                if (td) {
+                    txtValue = td.textContent || td.innerText;
+                    if (txtValue.toUpperCase().indexOf(filter) > -1) {
+                        found = true;
+                        break;
+                    }
+                }
+            }
+            if (found) {
+                tr[i].style.display = "";
+                foundRows++;
+            } else {
+                tr[i].style.display = "none";
+            }
+        }
+        if (foundRows === 0) {
+            document.getElementById("noDataMessage").style.display = "block";
+        } else {
+            document.getElementById("noDataMessage").style.display = "none";
+        }
+    });
+</script>
+
+
+<!-- PARTY NAME FILTER -->
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    // Retrieve filter settings from localStorage
+    var option = localStorage.getItem('filterOption');
+    var searchText = localStorage.getItem('filterText');
+    if (option && searchText) {
+        document.getElementById('optionSelect').value = option;
+        document.getElementById('searchInput').value = searchText;
+        applyFilter1();
+    }
+});
+
+function handleOptionChange() {
+    // Handle option change if needed
+}
+
+function clearFilter1() {
+    document.getElementById('searchInput').value = '';
+    applyFilter1();
+}
+
+function applyFilter1() {
+    var option = document.getElementById('optionSelect').value;
+    var searchText = document.getElementById('searchInput').value.toLowerCase();
+    var rows = document.querySelectorAll('.party-name');
+    var visibleRowCount1 = 0; 
+
+    rows.forEach(function(row, index) {
+        var rowText = row.textContent.toLowerCase();
+        var displayStyle = 'none'; // Default display style
+        if (option === 'exact') {
+            if (rowText === searchText) {
+                displayStyle = 'table-row';
+            }
+        } else if (option === 'contains') {
+            if (rowText.includes(searchText)) {
+                displayStyle = 'table-row';
+            }
+        }
+        row.closest('tr').style.display = displayStyle;
+        if (displayStyle === 'table-row') {
+            visibleRowCount1++;
+            row.closest('tr').getElementsByTagName('td')[0].textContent = visibleRowCount1;
+        }
+    });
+
+    // Check if there are any visible rows
+    var noDataMessage = document.getElementById('noDataMessage');
+    var visibleRows = document.querySelectorAll('tbody tr[style="display: table-row;"]');
+    if (visibleRows.length === 0) {
+        noDataMessage.style.display = "block"; // Show the message if no rows are visible
+    } else {
+        noDataMessage.style.display = "none"; // Hide the message if there are visible rows
+    }
+
+    // Store filter settings in localStorage
+    localStorage.setItem('filterOption', option);
+    localStorage.setItem('filterText', searchText);
+}
+
+
+function toggleFilterBox1() {
+    var filterBox = document.getElementById('partyNameFilterBox');
+    if (filterBox.style.display === 'none' || filterBox.style.display === '') {
+        filterBox.style.display = 'block';
+    } else {
+        filterBox.style.display = 'none';
+    }
+}
+</script>
+
+
+<!-- TOTAL FILTER -->
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+    // Retrieve filter settings from localStorage
+    var filterOption = localStorage.getItem('totalFilterOption');
+    var filterValue = localStorage.getItem('totalFilterValue');
+    
+    if (filterOption && filterValue) {
+        // Set the filter option and value
+        document.getElementById('totaloptions').value = filterOption;
+        document.getElementById('totalFilterValue').value = filterValue;
+        
+        // Apply the filter
+        applyTotalFilter();
+    }
+});
+
+    function toggleFilterBox(totalFilterBoxIcon) {
+    var filterBox = document.getElementById(totalFilterBoxIcon);
+    filterBox.style.display = (filterBox.style.display === 'none' || filterBox.style.display === '') ? 'block' : 'none';
+}
+function applyTotalFilter() {
+    // Retrieve selected option and input fields
+    var filterOption = document.getElementById("totaloptions").value;
+    var filterValue = parseFloat(document.getElementById("totalFilterValue").value); // Assuming input field ID is "totalFilterValue"
+
+    // Get all the table rows
+    var tableRows = document.getElementsByTagName("tr");
+
+    // Initialize a variable to track if any rows are visible after filtering
+    var hasVisibleRows = false;
+
+    // Initialize a variable to track the visible row count for updating index numbers
+    var visibleRowCount = 0;
+
+    // Loop through each row (skipping the header row)
+    for (var i = 1; i < tableRows.length; i++) {
+        var totalCell = tableRows[i].getElementsByTagName('td')[6]; // Assuming total column is the 7th column (index 6)
+        var totalValue = parseFloat(totalCell.textContent.trim()); // Parse total value as float
+
+        // Apply filter based on the selected option
+        switch (filterOption) {
+            case "equalto":
+                if (totalValue !== filterValue) {
+                    tableRows[i].style.display = 'none';
+                } else {
+                    tableRows[i].style.display = '';
+                    hasVisibleRows = true;
+                    visibleRowCount++;
+                }
+                break;
+            case "greaterthan":
+                if (totalValue <= filterValue) {
+                    tableRows[i].style.display = 'none';
+                } else {
+                    tableRows[i].style.display = '';
+                    hasVisibleRows = true;
+                    visibleRowCount++;
+                }
+                break;
+            case "lessthan":
+                if (totalValue >= filterValue) {
+                    tableRows[i].style.display = 'none';
+                } else {
+                    tableRows[i].style.display = '';
+                    hasVisibleRows = true;
+                    visibleRowCount++;
+                }
+                break;
+        }
+
+        // Update the index number for visible rows
+        if (tableRows[i].style.display !== 'none') {
+            tableRows[i].getElementsByTagName('td')[0].textContent = visibleRowCount;
+        }
+    }
+
+    // Toggle the "No Data" message based on the visibility of rows
+    var noDataMessage = document.getElementById('noDataMessage');
+    if (!hasVisibleRows) {
+        noDataMessage.style.display = "block"; // Show the message if no rows are visible
+    } else {
+        noDataMessage.style.display = "none"; // Hide the message if there are visible rows
+    }
+    
+    // Store filter settings in localStorage
+    localStorage.setItem('totalFilterOption', filterOption);
+    localStorage.setItem('totalFilterValue', filterValue);
+}
+function clearTotalFilter() {
+    // Clear any input fields and reset the filter settings
+    document.getElementById('totaloptions').value = 'equalto';
+    document.getElementById('totalFilterValue').value = ''; // Assuming input field ID is "totalFilterValue"
+
+    // Reset the display of table rows to show all rows
+    var tableRows = document.getElementsByTagName("tr");
+    for (var i = 1; i < tableRows.length; i++) {
+        tableRows[i].style.display = '';
+    }
+
+    // Hide the filter box
+    document.getElementById('totalFilterBox').style.display = 'none';
+
+    // Clear filter settings from localStorage
+    localStorage.removeItem('totalFilterOption');
+    localStorage.removeItem('totalFilterValue');
+
+ 
+}
+</script>
+
+<script>
+
+    function shareWithCustomEmail() {
+    // Prompt for email address
+    var to = prompt("Enter recipient's email address:");
+
+    if (to === null) {
+        // User clicked Cancel
+        return;
+    }
+
+    // Prompt for subject
+    var subject = "Your Debit Note invoice details";
+
+    // Prompt for message
+    var message = `Dear,\nThanks for doing business with us. Below are your invoice details.\nAmount: 336\nBalance: 336\nTotal Balance: -2352\n\nThanks & Regards`;
+
+    // Create the mailto link
+    var mailtoLink = `mailto:${to}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(message)}`;
+
+    // Opening the link in a new tab
+    window.open(mailtoLink, '_blank');
+}
+
+
+function shareWithWhatsApp() {
+  // Add your logic for sharing with WhatsApp here
+
+  // Replace '1234567890' with the recipient's phone number (include the country code)
+  var phoneNumber = '1234567890';
+
+  // Replace 'Hello, this is the message!' with your predefined message
+  var message = encodeURIComponent('Hello, this is the message!');
+
+  // Creating the WhatsApp link
+  var whatsappLink = `https://wa.me/${phoneNumber}?text=${message}`;
+
+  // Opening the link in a new tab
+  window.open(whatsappLink, '_blank');
+}
+
+
+    function closePopup() {
+    var sharePopup = document.getElementById('sharePopup');
+    sharePopup.style.display = 'none';
+}
+</script>
+
+<script>
+    
+    // Define a function to clear the "To Date" input field
+    function clearToDateInput() {
+        document.getElementById("toDate").value = "";
+        document.getElementById("fromDate").value = "";
+    }
+
+    // Attach the clearToDateInput function to the window.onload event
+    window.onload = function() {
+        clearToDateInput(); // Call the function to clear the "To Date" input field when the page loads
+    };
+      // Function to update the minimum date for the "To Date" input field based on the selected "From Date"
+     
+      function updateToDateMin() {
+    var fromDateValue = document.getElementById("fromDate").value;
+    document.getElementById("toDate").min = fromDateValue;
+
+    // If "From Date" is cleared, clear the "To Date" input field
+    if (!fromDateValue) {
+        clearToDateInput();
+    }
+}
+
+// Function to filter the table based on the selected date range
+function filterTable() {
+    var fromDate = document.getElementById('fromDate').value;
+    var toDate = document.getElementById('toDate').value;
+    
+    // Function to convert date format from "YY-mm-dd" to "dd-mm-yy"
+    function formatDate(date) {
+        var parts = date.split('-');
+        return parts[2] + '-' + parts[1] + '-' + parts[0];
+    }
+
+    // Get all the table rows
+    var table = document.getElementById('debitTable');
+    var rows = table.getElementsByTagName('tr');
+    
+    var noDataMessage = document.getElementById('noDataMessage'); // Get the message container
+    
+    // Initialize a variable to track if any rows are visible after filtering
+    var hasVisibleRows = false;
+    
+    // Loop through each row (skipping the header row)
+    for (var i = 1; i < rows.length; i++) {
+        var dateCell = rows[i].getElementsByTagName('td')[1]; // Assuming date is in the second column
+        var dateValue = dateCell.textContent.trim();
+        
+        // Convert date format from "dd-mm-yy" to "YY-mm-dd"
+        var formattedDateValue = formatDate(dateValue);
+
+        // Check if the row date falls within the selected date range
+        if (fromDate && toDate && formattedDateValue >= fromDate && formattedDateValue <= toDate) {
+            // If the row date falls within the range, display the row
+            rows[i].style.display = '';
+            hasVisibleRows = true; // Set to true if any row is visible
+        } else {
+            // Otherwise, hide the row
+            rows[i].style.display = 'none';
+        }
+    }
+    
+    // Toggle the message container based on the visibility of rows
+    if (!hasVisibleRows) {
+        noDataMessage.style.display = 'block'; // Show the message container
+    } else {
+        noDataMessage.style.display = 'none'; // Hide the message container
+    }
+}
+</script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        var ellipsisMenus = document.querySelectorAll('.ellipsis-menu-container');
+        if (ellipsisMenus) {
+            ellipsisMenus.forEach(function (menuContainer) {
+                var ellipsisIcon = menuContainer.querySelector('.fas.fa-ellipsis-v');
+                if (ellipsisIcon) {
+                    ellipsisIcon.addEventListener('click', function () {
+                        toggleMenu(menuContainer);
+                    });
+                }
+            });
+        }
+
+        // Close menu when clicking outside
+        document.addEventListener('click', function (event) {
+            var clickedElement = event.target;
+            var isEllipsisIcon = clickedElement.matches('.fas.fa-ellipsis-v');
+            if (!isEllipsisIcon) {
+                document.querySelectorAll('.menu-options').forEach(function (menu) {
+                    menu.style.display = 'none';
+                });
+            }
+        });
+
+        // Handle menu option click
+        document.querySelectorAll('.menu-option').forEach(function (option) {
+            option.addEventListener('click', function (event) {
+                var action = event.target.getAttribute('data-action');
+                var debitId = option.getAttribute('data-debit-id');
+                handleAction(debitId, action);
+            });
+        });
+    });
+
+    function toggleMenu(menuContainer) {
+        var menuOptions = menuContainer.querySelector('.menu-options');
+        if (menuOptions) {
+            menuOptions.style.display = menuOptions.style.display === 'block' ? 'none' : 'block';
+        }
+    }
+</script>
+
+<script>
+function printPDFWithTable() {
+    const doc = new jspdf.jsPDF(); // Corrected library name
+    const table = document.getElementById("debitTable");
+    const { width, height } = doc.internal.pageSize;
+    const options = {
+        startY: 20
+    };
+
+    doc.text("Debit Note", width / 2, 10, { align: "center" });
+    
+    // Clone the table content
+    var clonedTable = table.cloneNode(true);
+
+    // Remove the last column from the cloned table
+    var lastColumn = clonedTable.rows[0].cells.length - 1;
+    for (var i = 0; i < clonedTable.rows.length; i++) {
+        clonedTable.rows[i].deleteCell(lastColumn);
+    }
+
+    // Remove filter boxes and icons from the cloned table container
+    var filterBoxes = clonedTable.querySelectorAll('.filter-box, .fa-filter, .filter-box1, .filter-box2');
+    filterBoxes.forEach(function(box) {
+        box.parentNode.removeChild(box);
+    });
+
+    // Convert the cloned container to PDF
+    doc.autoTable({ html: clonedTable, startY: 20 });
+
+    // Open the print preview window
+    doc.autoPrint();
+
+    // Save PDF and open a new window
+    var url = URL.createObjectURL(doc.output('blob'));
+    var newWindow = window.open(url, '_blank');
+}
+</script>
+
+
+<script>
+    function handleAction(action) {
+        switch (action) {
+            case 'view':
+                viewAction();
+                break;
+            case 'edit':
+                editAction();
+                break;
+            case 'history':
+                historyAction();
+                break;
+            case 'viewPdf':
+                viewPdfAction();
+                break;
+            case 'delete':
+                deleteAction();
+                break;
+        }
+    }
+
+   
+
+
+
+    // function editAction(debitnote_id) {
+    //     // Redirect to the edit debit note page with the debitnote_id as a parameter
+    //     window.location.href = `/edit_debit_note/${debitnote_id}`;
+    // }
+
+
+
+
+
+
+    function editAction(debitnote_id) {
+    // Perform AJAX request to fetch debit note details
+    window.location.href = `/edit_debit_note/${debitnote_id}`;
+    $.ajax({
+        url: '/fetch_debit_note_details/' + debitId + '/', // Replace with your URL endpoint for fetching debit note details
+        type: 'GET',
+        success: function(response) {
+            // Populate party details
+            $('#party').val(response.party_id).trigger('change'); // Assuming you're using a library like select2, trigger change event to update select2 field
+            $('#available_balance').val(response.party.openingbalance);
+            $('#contact_number').val(response.party.contact);
+            $('#party_address').val(response.party.address);
+
+            // Populate other debit note details
+            $('#return_no').val(response.returnno);
+            $('#current_date').val(response.created_at);
+
+            // Populate debit note items
+            $('#selected_item').empty(); // Clear existing items
+            $.each(response.items, function(index, item) {
+                $('#selected_item').append($('<option>', {
+                    value: item.id,
+                    text: item.itm_name,
+                    'data-hsn': item.itm_hsn,
+                    'data-price': item.itm_purchase_price,
+                    'data-tax': 'VAT ' + item.itm_vat.toFixed(0) + '%'
+                }));
+            });
+
+            // Update other fields as needed
+            // ...
+        },
+        error: function(xhr, status, error) {
+            console.error(xhr.responseText);
+        }
+    });
+}
+
+
+
+function historyAction(debitId, returnNo) {
+    fetch(`/get_debit_note_history/${debitId}/`)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
+        .then(historyData => {
+            // Populate the modal with history data
+            populateHistoryModal(historyData, returnNo);
+            // Open the modal
+            openModal();
+        })
+        .catch(error => {
+            console.error('Error fetching history data:', error);
+        });
+}
+
+// Function to populate the history modal with data
+function populateHistoryModal(historyData, returnNo) {
+    console.log(returnNo);
+  
+    
+
+    // Clear previous history table data
+    var tbody = document.getElementById('historyTableBody');
+    tbody.innerHTML = '';
+
+    // Populate history table with data
+    historyData.forEach(function(entry) {
+        var row = "<tr>";
+        
+        // Extract debit note return number from history data entry
+        var debitNoteReturnNo = entry.debit_note__returnno;
+
+        // Convert the date string to a JavaScript Date object
+        var formattedDate = new Date(entry.date);
+        // Format the date as desired (e.g., DD/MM/YYYY)
+        var options = { day: '2-digit', month: '2-digit', year: 'numeric' };
+        var dateString = formattedDate.toLocaleDateString(undefined, options);
+        row += "<td style='color: black;'><br>" + dateString + "</td>";
+
+     
+
+        // Assuming 'user' is the user object field
+        // Concatenate first_name and last_name to get the full name
+        var fullName = entry.user__first_name + " " + entry.user__last_name;
+        row += "<td style='color: black;'><br>" + fullName + "</td>";
+
+        // Convert action abbreviation to full form
+        var actionString = entry.action === 'C' ? 'CREATED' : (entry.action === 'U' ? 'EDITED' : entry.action);
+        row += "<td style='color: black; font-weight: bold;'><br>" + actionString + "</td>";
+        row += "</tr>";
+        tbody.innerHTML += row;
+        document.getElementById('debitNoteNo').textContent = debitNoteReturnNo;
+    });
+}
+
+// Function to open the modal
+function openModal() {
+    var modal = document.getElementById('historyModal');
+    modal.style.display = 'block';
+}
+
+// Function to close the modal
+function closeModal() {
+    var modal = document.getElementById('historyModal');
+    modal.style.display = 'none';
+}
+
+// Close the modal when clicking outside of it
+window.onclick = function(event) {
+    var modal = document.getElementById('historyModal');
+    if (event.target == modal) {
+        modal.style.display = 'none';
+    }
+};
+</script>
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        $(document).on('click', '.menu-option', function (event) {
+            event.preventDefault();
+            var debit_id = $(this).data('debit-id');
+
+            // Make an AJAX request to fetch the DebitNote details
+            $.ajax({
+                url: '/get_debit_note_details_view/',  // Update the URL to your server endpoint
+                method: 'GET',
+                data: {debit_id: debit_id},
+                success: function (response) {
+                    if (response.success) {
+                        var debitNote = response.debitNote;
+
+                        // Construct the content for the PDF
+                        var content = `
+                            <h2>DebitNote Details</h2>
+                            <p>Return No: ${debitNote.returnno}</p>
+                            <p>Created At: ${debitNote.created_at}</p>
+                            <p>Subtotal: ${debitNote.subtotal}</p>
+                            <p>Tax Amount: ${debitNote.taxamount}</p>
+                            <p>Adjustment: ${debitNote.adjustment}</p>
+                            <p>Grand Total: ${debitNote.grandtotal}</p>
+                            <!-- Add more details as needed -->
+                        `;
+
+                        // Create a new jsPDF instance
+                        var doc = new jsPDF();
+
+                        // Add the content to the PDF
+                        doc.text(10, 10, content);
+
+                        // Save the PDF
+                        doc.save('debit_note_details.pdf');
+                    } else {
+                        console.error('Failed to fetch DebitNote details.');
+                    }
+                },
+                error: function () {
+                    console.error('Error occurred while fetching DebitNote details.');
+                }
+            });
+        });
+    });
+</script>
+
+
+<script>
+    function viewAction(debitId) {
+        var url = "/get_debit_note_details/" + debitId + "/";
+        window.location.href = url;
+    }
+</script>
+
+<script>
+    function deleteDebitNoteItem(debitnoteId) {
+        if (confirm('Are you sure you want to delete this debit note item?')) {
+            fetch(`/delete_debit_note_item/${debitnoteId}/`, {
+                method: 'DELETE',
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}'
+                }
+            })
+            .then(response => {
+                if (response.ok) {
+                    // Refresh the page or update UI as needed
+                    location.reload();
+                } else {
+                    alert('Failed to delete debit note item');
+                }
+            })
+            .catch(error => console.error('Error:', error));
+        }
+    }
+  
+  
+</script>
+
+
+<script>
+function downloadExcel() {
+    // Clone the table to preserve the original table
+    var clonedTable = document.getElementById('debitTable').cloneNode(true);
+
+    // Remove the ellipsis menu column
+    var ellipsisColumns = clonedTable.getElementsByClassName('ellipsis-menu-container');
+    while (ellipsisColumns.length > 0) {
+        ellipsisColumns[0].parentNode.removeChild(ellipsisColumns[0]);
+    }
+
+    // Remove the filter box sections by their class name
+    var filterBoxes = clonedTable.getElementsByClassName('filter-box');
+    while (filterBoxes.length > 0) {
+        filterBoxes[0].parentNode.removeChild(filterBoxes[0]);
+    }
+
+    // Remove the filter box sections for the Action and By columns
+    var actionFilterBox = clonedTable.getElementsByClassName('filter-box1');
+    while (actionFilterBox.length > 0) {
+        actionFilterBox[0].parentNode.removeChild(actionFilterBox[0]);
+    }
+    
+    var byFilterBox = clonedTable.getElementsByClassName('filter-box2');
+    while (byFilterBox.length > 0) {
+        byFilterBox[0].parentNode.removeChild(byFilterBox[0]);
+    }
+
+    // Generate workbook object from the cloned table
+    var wb = XLSX.utils.table_to_book(clonedTable, { sheet: "Sheet JS" });
+
+    // Convert the workbook to a binary string
+    var wbBinaryString = XLSX.write(wb, { bookType: 'xlsx', type: 'binary' });
+
+    // Convert the binary string to a blob
+    var wbBlob = new Blob([s2ab(wbBinaryString)], { type: 'application/octet-stream' });
+
+    // Create a URL for the blob
+    var url = URL.createObjectURL(wbBlob);
+
+    // Prompt the user to choose the download location
+    var fileName = 'debit_report.xlsx';
+    var a = document.createElement('a');
+    a.href = url;
+    a.download = fileName;
+    document.body.appendChild(a);
+    a.click();
+    window.URL.revokeObjectURL(url);
+    document.body.removeChild(a);
+
+    // Show a confirmation message
+    alert('Excel report downloaded successfully');
+    window.open(url, '_blank');
+}
+
+// Utility function to convert string to array buffer
+function s2ab(s) {
+    var buf = new ArrayBuffer(s.length);
+    var view = new Uint8Array(buf);
+    for (var i = 0; i < s.length; i++) {
+        view[i] = s.charCodeAt(i) & 0xFF;
+    }
+    return buf;
+}
+
+</script>
+
+<script>
+    $(document).ready(function() {
+    $('.menu-option').click(function() {
+        var debit_note_id = 1; // Replace with the actual debit note ID
+        $.ajax({
+            url: `/generate_pdf/${debit_note_id}/`,
+            type: 'GET',
+            success: function(response) {
+                // Create a blob URL for the PDF data
+                var blob = new Blob([response], { type: 'application/pdf' });
+                var url = URL.createObjectURL(blob);
+                // Open the PDF in a new tab
+                window.open(url);
+            },
+            error: function(xhr, status, error) {
+                console.error('Error:', error);
+            }
+        });
+    });
+});
+</script>
+
+
+{% endblock %}

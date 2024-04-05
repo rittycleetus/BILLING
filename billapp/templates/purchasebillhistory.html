@@ -1,0 +1,89 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+
+<script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+<script src="https://unpkg.com/htmx.org@1.9.6" integrity="sha384-FhXw7b6AlE/jyjlZH5iHa/tTe9EpJ1Y55RjcgPbjeWMskSxZt1v9qkxLJWNJaGni" crossorigin="anonymous"></script>
+
+<style>
+    .bs{
+        box-shadow: 2px 2px 10px 3px rgba(0, 0, 0, 0.397);
+    }
+
+    .bs_sm{
+        box-shadow: inset 2px 2px 5px 3px rgba(0, 0, 0, 0.199);
+    }
+
+    .tablediv{
+        margin-left: 1vh;
+        margin-right: 1vh;
+        margin-top: 1vh;
+    }
+
+    h4{
+        text-align: left; 
+        margin-top:2vh; 
+        margin-bottom: 2vh;
+        margin-left: 1vh;
+    }
+
+    ::-webkit-scrollbar{
+        display: none
+    }
+    
+</style>
+
+
+<div class="body-wrapper ">
+    <br><br><br><br>
+    
+    <div class="p-3 text-center" style="display: flex;justify-content: center;">
+        <div class="card " style="background-color: white;width:50rem;box-shadow: 5px 5px 10px 5px rgba(0, 0, 0, 0.249);">
+            <div class="row">
+                <div class="col-md-4">
+                    <h4 class="text-dark">PURCHASE BILL NO : {{pbill.billno}}</h4>
+                </div>
+                <div class="col-md-7"></div>
+                <div class="col-md-1">
+                    <a href="{% url 'allbill' %}" style="text-align: right; font-size: large; color: black;"><i class="fa fa-times mt-3 mr-4" aria-hidden="true"></i></a>
+                </div>
+            </div>
+            <div class="tablediv" style="overflow: scroll;height: 35rem; width: 97%;">
+                <table class="table table-bordered table-danger table-striped tb table-responsive w-100" id="billtable"  style="text-align: center;">
+                    <thead >
+                        <tr class="fs-2 tb" >
+                            <th class="bg-danger text-white">
+                                # 
+                            </th>
+                            <th class="bg-danger text-white">
+                                DATE 
+                            </th>
+                            <th class="bg-danger text-white">
+                                NAME 
+                            </th>
+                            <th class="bg-danger text-white">
+                                ACTION
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for h in hst %}
+                        <tr>
+                            <td>{{forloop.counter}}</td>
+                            <td style="color: black;" >{{h.transactiondate | date:'d-m-Y'}}</td>
+                            <td style="color: black;" >{{h.staff.first_name}} {{h.staff.last_name}}</td>
+                            {% if h.action == 'Created' %}
+                                <td style="color: red;" >{{h.action}}</td>
+                            {% else %}
+                                <td style="color: #154c79;" >{{h.action}}</td>
+                            {% endif %}
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock  %}
